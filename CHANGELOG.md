@@ -4,6 +4,7 @@
 
 - Dépôt git local créé ; premier enregistrement limité aux trois fichiers de documentation.
 - Plan du produit en 15 étapes validé par Kinder (PROJET_CONTEXTE, section 9 ; décision D20).
+- Point ouvert P2 élargi : la place de l'écran Catégories dans la navigation sera aussi tranchée (dès l'étape 3).
 - Aucun code écrit. Prochaine phase : 5 — cadrage de l'étape 1 (coquille de l'appli).
 
 ## 2026-11-03 — Figeage (phase 3)

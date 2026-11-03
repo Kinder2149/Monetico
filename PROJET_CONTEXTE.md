@@ -183,7 +183,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | # | Point | Quand |
 |---|---|---|
 | P1 | **Nom** : « Moneta » est aussi une banque tchèque (MONETA Money Bank) présente sur le Play Store ; « Monetico » est le service de paiement du Crédit Mutuel / CIC. Vérifier la disponibilité du nom avant publication (mission Recherche). | Avant la version publiée |
-| P2 | Place des écrans Prêts, Graphiques et Réglages dans la navigation (la barre du bas n'a que 4 onglets + « + »). | Phase 5 de l'étape concernée |
+| P2 | Place des écrans Catégories, Prêts, Graphiques et Réglages dans la navigation (la barre du bas n'a que 4 onglets + « + »). | Phase 5 de l'étape concernée |
 | P3 | Choix de la bibliothèque d'icônes libre de droits (dépendance à faire valider). | Phase 5 de l'étape catégories |
 | P4 | Format exact de l'export Money Lover. | Phase 5 de l'étape import |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
@@ -209,7 +209,7 @@ Chaque étape produit quelque chose de visible à l'écran. Une étape à la foi
 |---|---|---|
 | 1 | Coquille de l'appli | Moneta s'ouvre sur le téléphone avec la charte et la police, et la barre du bas (Accueil · Opérations · + · Budgets · Comptes) ; écrans vides. |
 | 2 | Porte-monnaie | Onglet Comptes : créer, renommer, supprimer un porte-monnaie avec solde de départ ; total « Tous les comptes ». |
-| 3 | Catégories | Liste de départ avec sous-catégories, entièrement modifiable ; icônes de la bibliothèque intégrée (P3). |
+| 3 | Catégories | Liste de départ avec sous-catégories, entièrement modifiable ; icônes de la bibliothèque intégrée (P2, P3). |
 | 4 | Saisir une opération | Le « + » ouvre la saisie dépense/revenu (montant, catégorie, porte-monnaie, date, note) ; le solde change aussitôt. |
 | 5 | Liste et accueil | Onglet Opérations : liste, modification, suppression, recherche. Accueil : solde, carte du mois, opérations du jour. |
 | 6 | Transferts | Déplacer de l'argent entre deux porte-monnaie ; les deux soldes bougent, sans dépense ni revenu. |

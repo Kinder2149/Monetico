@@ -176,6 +176,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D17 | Charte graphique : piste A « Menthe claire » (section 5). | 2026-11-02 |
 | D18 | Inspiration Money Lover uniquement : aucune reprise de ses icônes, mise en page exacte ou textes. | 2026-11-02 |
 | D19 | Projet indépendant de Vault Watch : aucun code, aucune donnée, aucun dépôt partagés. | 2026-11-02 |
+| D20 | Plan du produit en 15 étapes ordonnées (section 9), validé par Kinder. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -190,10 +191,51 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 ## 8. Méthode de travail
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
-Phases 1 à 3 terminées le 2026-11-03. **Prochaine phase : 4 — Plan.**
+Phases 1 à 4 terminées le 2026-11-03. **Prochaine phase : 5 — Cadrage de l'étape 1** (critère de validation écrit par Kinder).
 
 - Le plan découpe le produit en étapes ordonnées, chacune produisant quelque chose de visible à l'écran.
 - Avant chaque étape : Kinder écrit en français le critère de validation (phase 5), avant toute ligne de code.
 - Le test de code ferme une étape ; la capture d'écran ferme la mission.
 - Résultats rendus en langage fonctionnel (critère réussi / échoué), jamais de logs bruts.
 - Une étape à la fois.
+
+## 9. Plan des étapes (phase 4, validé le 2026-11-03)
+
+Chaque étape produit quelque chose de visible à l'écran. Une étape à la fois, dans cet ordre.
+
+**Bloc A — Saisie de base**
+
+| # | Étape | Ce que Kinder verra |
+|---|---|---|
+| 1 | Coquille de l'appli | Moneta s'ouvre sur le téléphone avec la charte et la police, et la barre du bas (Accueil · Opérations · + · Budgets · Comptes) ; écrans vides. |
+| 2 | Porte-monnaie | Onglet Comptes : créer, renommer, supprimer un porte-monnaie avec solde de départ ; total « Tous les comptes ». |
+| 3 | Catégories | Liste de départ avec sous-catégories, entièrement modifiable ; icônes de la bibliothèque intégrée (P3). |
+| 4 | Saisir une opération | Le « + » ouvre la saisie dépense/revenu (montant, catégorie, porte-monnaie, date, note) ; le solde change aussitôt. |
+| 5 | Liste et accueil | Onglet Opérations : liste, modification, suppression, recherche. Accueil : solde, carte du mois, opérations du jour. |
+| 6 | Transferts | Déplacer de l'argent entre deux porte-monnaie ; les deux soldes bougent, sans dépense ni revenu. |
+
+**Bloc B — Import**
+
+| # | Étape | Ce que Kinder verra |
+|---|---|---|
+| 7 | Import Money Lover | L'historique apparaît avec les bons soldes, catégories et dates (P4). |
+
+**Bloc C — Le reste**
+
+| # | Étape | Ce que Kinder verra |
+|---|---|---|
+| 8 | Budgets | Onglet Budgets : « dépensé / maximum » avec barre ; exclusion d'une dépense ; jour de départ modifiable. |
+| 9 | Récurrentes | Carte « À valider » chaque mois ; validation avec la date réelle, le solde ne change qu'à ce moment. |
+| 10 | Prêts | Écran de l'argent qu'on me doit : personne, montant, remboursements, reste dû (P2). |
+| 11 | Graphiques | Camembert des dépenses du mois et courbe du solde mois après mois (P2). |
+| 12 | Icônes depuis la galerie | Choisir une photo du téléphone comme icône de catégorie. |
+| 13 | Réglages | Écran Réglages regroupant les options, dont l'entrée de la sauvegarde (P2). |
+| 14 | Sauvegarde Google Drive | Après connexion Google : « dernière sauvegarde : à l'instant », fichier visible dans le Drive (P5 avant l'étape). |
+
+**Bloc D — Version ordinateur**
+
+| # | Étape | Ce que Kinder verra |
+|---|---|---|
+| 15 | Moneta sur PC | Moneta ouverte sur l'ordinateur avec les mêmes données que le téléphone. |
+
+P1 (nom) se tranche avant la publication.

@@ -67,7 +67,8 @@ function Formulaire({ base, porteMonnaie, fermer, rafraichir }) {
   );
 }
 
-const pluriel = (n, mot) => `${n.toLocaleString('fr-FR')} ${mot}${n > 1 ? 's' : ''}`;
+// Espace fine des milliers (quasi invisible en Manrope) remplacée par une espace insécable, comme pour les montants.
+const pluriel = (n, mot) => `${n.toLocaleString('fr-FR').replace(/ /g, ' ')} ${mot}${n > 1 ? 's' : ''}`;
 
 // Résultat de l'import Money Lover (D26).
 function ResumeImport({ resultat, fermer }) {

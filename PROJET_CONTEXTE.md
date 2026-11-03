@@ -220,7 +220,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 | Bloc | État |
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
-| B — Import (étape 7) | Cadré (D26), en cours sur la branche `bloc-b`. |
+| B — Import (étape 7) | Codé (17 tests réussis), vérifié par une autre IA sur le téléphone virtuel avec le vrai export : 1 858 opérations, solde 649,54 €, témoins conformes, pas de doublon au second import. En attente de fusion de `bloc-b`. |
 | C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 

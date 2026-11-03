@@ -269,6 +269,33 @@ export function supprimerRemboursement(base, id) {
   base.ecrire('DELETE FROM remboursement WHERE id = ?', [id]);
 }
 
+// --- Graphiques (D11) ---
+
+// Dépenses de la période par catégorie (une sous-catégorie compte dans sa catégorie), les plus grosses d'abord.
+export function depensesParCategorie(base, { debut, fin }) {
+  return base.lire(
+    `SELECT COALESCE(parent.id, c.id) AS id, COALESCE(parent.nom, c.nom) AS nom,
+            COALESCE(parent.icone, c.icone) AS icone, SUM(o.montant) AS montant
+     FROM operation o
+     JOIN categorie c ON c.id = o.categorie_id
+     LEFT JOIN categorie parent ON parent.id = c.parent_id
+     WHERE o.type = 'depense' AND o.date >= ? AND o.date <= ?
+     GROUP BY COALESCE(parent.id, c.id)
+     ORDER BY montant DESC`, [debut, fin]
+  );
+}
+
+// Solde total de tous les porte-monnaie le soir du jour `date` (prêts et remboursements compris, D28).
+export function soldeTotalAu(base, date) {
+  return base.lire(
+    `SELECT (SELECT COALESCE(SUM(solde_depart), 0) FROM porte_monnaie)
+          + (SELECT COALESCE(SUM(CASE type WHEN 'revenu' THEN montant WHEN 'depense' THEN -montant ELSE 0 END), 0)
+             FROM operation WHERE date <= ?)
+          - (SELECT COALESCE(SUM(montant), 0) FROM pret WHERE date <= ?)
+          + (SELECT COALESCE(SUM(montant), 0) FROM remboursement WHERE date <= ?) AS solde`, [date, date, date]
+  )[0].solde;
+}
+
 // --- Import (D26) ---
 
 // « Fast Food » et « Fast-food », « Électricité » et « electricite » désignent la même chose.

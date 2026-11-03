@@ -1,4 +1,4 @@
-@font-face {
+﻿@font-face {
   font-family: 'Manrope';
   font-style: normal;
   font-weight: 400 800;
@@ -387,3 +387,27 @@ section .titre-section { margin-top: 20px; }
 .badge-rembourse { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--doux); color: var(--positif); font-size: 13px; font-weight: 700; }
 .chiffres-pret .badge-rembourse { font-size: 13px; align-self: flex-start; }
 .bouton.texte-danger { color: var(--negatif); }
+
+/* Graphiques (carte du mois de l'accueil cliquable) */
+.carte.mois { display: block; width: 100%; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.carte.mois .titre-carte { display: flex; justify-content: space-between; align-items: baseline; }
+.lien-graphiques { font-size: 13px; font-weight: 700; color: var(--principal); }
+.choix-mois { display: flex; align-items: center; justify-content: space-between; }
+.choix-mois .titre-carte { margin: 0; }
+.choix-mois .bouton-rond { font-size: 22px; font-weight: 700; background: var(--fond); }
+.sous-titre-graphique { font-size: 13px; margin: 4px 0 12px; }
+.camembert { display: block; width: 100%; max-width: 240px; margin: 0 auto 12px; }
+.camembert-libelle { font-size: 11px; fill: var(--texte-2); font-family: inherit; }
+.camembert-total { font-size: 17px; font-weight: 800; fill: var(--texte); font-family: inherit; }
+.legende { list-style: none; margin: 0; padding: 0; }
+.legende li { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 14px; }
+.legende li + li { border-top: 1px solid var(--separateur); }
+.legende strong { min-width: 88px; text-align: right; }
+.puce-couleur { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+.valeur-courbe { font-size: 22px; font-weight: 800; margin: 0 0 8px; }
+.courbe { display: block; width: 100%; }
+.courbe .trace { fill: none; stroke: var(--principal); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.courbe .point { fill: var(--carte); stroke: var(--principal); stroke-width: 2; }
+.courbe .negatif-point { stroke: var(--negatif); }
+.courbe .ligne-zero { stroke: var(--piste); stroke-width: 1; stroke-dasharray: 4 4; }
+.courbe .mois-courbe { font-size: 10px; fill: var(--texte-2); font-family: inherit; }

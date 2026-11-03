@@ -161,3 +161,39 @@ test('étape 10 : prêt, remboursements, reste dû, effet sur les soldes (D28)',
   assert.deepEqual(soldes(), { Courant: 99000, Especes: 0 });
   assert.equal(base.lire('SELECT COUNT(*) AS n FROM remboursement')[0].n, 0);
 });
+
+test('étape 11 : camembert du mois et solde en fin de mois', async () => {
+  const { partsCamembert } = await import('../src/logique/argent.js');
+  const { decalerMois } = await import('../src/logique/dates.js');
+  const base = nouvelleBase();
+  const pm = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 100000 });
+  const op = (type, montant, nom, date) => depot.creerOperation(base, {
+    type, montant, categorieId: categorie(base, nom, type), porteMonnaieId: pm, date,
+  });
+  op('depense', 3000, 'Courses', '2026-11-02');
+  op('depense', 1000, 'Restaurant', '2026-11-03');
+  op('depense', 6000, 'Loyer', '2026-11-01');
+  op('depense', 999, 'Courses', '2026-10-31');
+  op('revenu', 50000, 'Salaire', '2026-10-28');
+  depot.creerPret(base, { personne: 'Léa', montant: 2000, date: '2026-11-02', porteMonnaieId: pm });
+
+  // Les sous-catégories comptent dans leur catégorie ; seulement le mois choisi.
+  const categories = depot.depensesParCategorie(base, { debut: '2026-11-01', fin: '2026-11-30' });
+  assert.deepEqual(categories.map((c) => [c.nom, c.montant]), [['Logement', 6000], ['Alimentation', 4000]]);
+  const { total, parts } = partsCamembert(categories);
+  assert.equal(total, 10000);
+  assert.deepEqual(parts.map((p) => p.part), [0.6, 0.4]);
+
+  const beaucoup = Array.from({ length: 9 }, (_, i) => ({ id: i, nom: `C${i}`, montant: 100 }));
+  const regroupe = partsCamembert(beaucoup).parts;
+  assert.equal(regroupe.length, 7);
+  assert.deepEqual([regroupe.at(-1).nom, regroupe.at(-1).montant], ['Autres catégories', 300]);
+
+  assert.equal(depot.soldeTotalAu(base, '2026-09-30'), 100000);
+  assert.equal(depot.soldeTotalAu(base, '2026-10-31'), 100000 + 50000 - 999);
+  assert.equal(depot.soldeTotalAu(base, '2026-11-30'), 100000 + 50000 - 999 - 10000 - 2000);
+  assert.equal(depot.soldeTotalAu(base, '2026-11-30'), depot.listerPorteMonnaie(base)[0].solde);
+
+  assert.equal(decalerMois('2026-11-03', -11), '2025-12-03');
+  assert.equal(decalerMois('2026-03-31', -1), '2026-02-28');
+});

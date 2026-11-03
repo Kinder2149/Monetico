@@ -6,7 +6,7 @@ import { aujourdhui, bornesDuMois, nomDuMois } from '../logique/dates.js';
 import { listerOperations } from '../donnees/depot.js';
 
 // Écran d'accueil : sélecteur de porte-monnaie, solde, carte du mois, opérations du jour.
-export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets, rafraichir }) {
+export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets, voirGraphiques, rafraichir }) {
   const porteMonnaieId = choix === 'tous' ? null : choix;
   const affiches = choix === 'tous' ? porteMonnaie : porteMonnaie.filter((p) => p.id === choix);
   const jour = aujourdhui();
@@ -34,8 +34,8 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
       <p className="texte-2 libelle-solde">Solde</p>
       <p className="solde">{formaterEuros(total(affiches))}</p>
 
-      <div className="carte mois">
-        <p className="titre-carte">{nomDuMois(jour)}</p>
+      <button className="carte mois" onClick={voirGraphiques} aria-label={`${nomDuMois(jour)} : voir les graphiques`}>
+        <p className="titre-carte">{nomDuMois(jour)}<span className="texte-2 lien-graphiques">Graphiques ›</span></p>
         <div className="mois-colonnes">
           <div>
             <span className="texte-2">Entrées</span>
@@ -46,7 +46,7 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
             <strong className="negatif">− {formaterEuros(sorties)}</strong>
           </div>
         </div>
-      </div>
+      </button>
 
       {budgets.length > 0 && (
         <button className="carte budget" onClick={voirBudgets}>

@@ -46,6 +46,19 @@ export function jourPrevu(jourDuMoisPrevu, jour = aujourdhui()) {
   return aujourdhui(jourDuMois(d.getFullYear(), d.getMonth(), jourDuMoisPrevu));
 }
 
+// Même jour décalé de `nbMois` mois (le jour est ramené au dernier du mois si besoin).
+export function decalerMois(jour, nbMois) {
+  const d = enDate(jour);
+  return aujourdhui(jourDuMois(d.getFullYear(), d.getMonth() + nbMois, d.getDate()));
+}
+
+const FORMAT_MOIS_COURT = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
+
+// « nov. », « déc. »
+export function moisCourt(jour) {
+  return FORMAT_MOIS_COURT.format(enDate(jour));
+}
+
 const FORMAT_COURT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 
 // « du 1 nov. au 30 nov. »

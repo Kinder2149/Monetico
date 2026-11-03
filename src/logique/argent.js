@@ -40,6 +40,15 @@ export function etatBudget(maximum, operations) {
   return { depense, part: Math.min(depense / maximum, 1), depasse: depense > maximum };
 }
 
+// Parts du camembert : les `nb` plus grosses catégories, le reste regroupé dans « Autres catégories ».
+export function partsCamembert(categories, nb = 6) {
+  const total = categories.reduce((somme, c) => somme + c.montant, 0);
+  const gardees = categories.length > nb + 1 ? categories.slice(0, nb) : categories;
+  const reste = categories.slice(gardees.length).reduce((somme, c) => somme + c.montant, 0);
+  const parts = reste > 0 ? [...gardees, { id: 'autres', nom: 'Autres catégories', icone: null, montant: reste }] : gardees;
+  return { total, parts: parts.map((p) => ({ ...p, part: total ? p.montant / total : 0 })) };
+}
+
 // Regroupe des opérations déjà triées par date en [{ jour, operations }].
 export function parJour(operations) {
   const groupes = [];

@@ -197,6 +197,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D23 | Navigation (P2, en partie) : l'écran Catégories est accessible depuis l'onglet Comptes, sous les porte-monnaie. | 2026-11-03 |
 | D24 | Bibliothèque d'icônes (P3) : Lucide (licence ISC), dépendance validée par Kinder. Seules les icônes proposées dans l'appli y sont intégrées. | 2026-11-03 |
 | D25 | Point de contrôle de fin de bloc (remplace celui de D21) : vérification par une autre IA sur le téléphone virtuel Android du PC, avec capture et verdict par critère. Kinder installe l'appli sur son vrai téléphone une seule fois, à la fin du projet. | 2026-11-03 |
+| D26 | Import Money Lover (P4 tranché sur l'export réel du 2026-11-03 : fichier CSV, colonnes ID, Note, Amount, Category, Account, Currency, Date JJ/MM/AAAA, Event, Exclude Report). Bouton d'import dans l'onglet Comptes, sous Catégories. Catégories reprises telles quelles : rattachées à une catégorie Moneta de même nom (majuscules, accents et ponctuation ignorés), sinon créées. Opérations datées après le jour de l'import non importées (elles relèvent des récurrentes, étape 9). L'événement est ajouté à la note. Réimporter le même fichier n'ajoute rien, les doubles réels de l'historique sont gardés. Solde de contrôle : Caisse D'épargne 649,54 € au 2026-11-03, confirmé par Kinder. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -204,7 +205,6 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 |---|---|---|
 | P1 | **Nom** : « Moneta » est aussi une banque tchèque (MONETA Money Bank) présente sur le Play Store ; « Monetico » est le service de paiement du Crédit Mutuel / CIC. Vérifier la disponibilité du nom avant publication (mission Recherche). | Avant la version publiée |
 | P2 | Place des écrans Prêts, Graphiques et Réglages (Catégories : tranché par D23) dans la navigation (la barre du bas n'a que 4 onglets + « + »). | Phase 5 de l'étape concernée |
-| P4 | Format exact de l'export Money Lover. | Phase 5 de l'étape import |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
 | P7 | Un prêt fait-il baisser le solde d'un porte-monnaie, et un remboursement le faire monter ? | Avant l'étape 10 |
 | P8 | Restauration des données depuis le Drive (ex. nouveau téléphone) : fait partie de l'étape sauvegarde ou non ? | Avant l'étape 14 |
@@ -220,7 +220,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 | Bloc | État |
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
-| B — Import (étape 7) | En attente d'un vrai export Money Lover (P4). |
+| B — Import (étape 7) | Cadré (D26), en cours sur la branche `bloc-b`. |
 | C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 

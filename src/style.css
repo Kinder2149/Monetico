@@ -250,6 +250,9 @@ button, input, select { font: inherit; color: inherit; }
 
 .titre-section { font-size: 13px; font-weight: 700; color: var(--texte-2); text-transform: uppercase; letter-spacing: 0.04em; margin: 28px 0 10px; }
 .lien { padding: 8px 16px; }
+label.lien { cursor: pointer; }
+.occupe { opacity: 0.6; }
+.resume-import { margin: 0 0 16px; padding-left: 20px; line-height: 1.8; }
 
 /* Catégories */
 .bascule {

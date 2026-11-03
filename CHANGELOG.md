@@ -1,5 +1,10 @@
 # CHANGELOG — Moneta
 
+## 2026-11-03 — Bloc B, import Money Lover (phases 5 et 6)
+
+- Export réel analysé : 1 866 opérations, un compte, 49 catégories, 8 opérations à venir. P4 tranché.
+- D26 : règles de l'import validées par Kinder (emplacement, catégories, opérations à venir, événement, doublons, solde de contrôle 649,54 €).
+
 ## 2026-11-03 — Reprise sur le PC principal (phase 6, bloc A)
 
 - Dépôt récupéré depuis GitHub ; 12 tests réussis ; fichier d'installation fabriqué et lancé sur le téléphone virtuel Android.

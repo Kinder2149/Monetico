@@ -95,7 +95,24 @@ export function migrer(db) {
 export function creerBase(db, enregistrer = () => {}) {
   db.run('PRAGMA foreign_keys = ON');
   migrer(db);
+  let enLot = false;
   return {
+    // Exécute `faire` en une seule fois (tout ou rien), avec un seul enregistrement à la fin.
+    lot(faire) {
+      enLot = true;
+      db.run('BEGIN');
+      try {
+        const resultat = faire();
+        db.run('COMMIT');
+        enLot = false;
+        enregistrer(db.export());
+        return resultat;
+      } catch (erreur) {
+        db.run('ROLLBACK');
+        enLot = false;
+        throw erreur;
+      }
+    },
     lire(sql, params = []) {
       const requete = db.prepare(sql);
       requete.bind(params);
@@ -107,7 +124,7 @@ export function creerBase(db, enregistrer = () => {}) {
     ecrire(sql, params = []) {
       db.run(sql, params);
       const id = db.exec('SELECT last_insert_rowid()')[0].values[0][0];
-      enregistrer(db.export());
+      if (!enLot) enregistrer(db.export());
       return id;
     },
   };

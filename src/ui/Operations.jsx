@@ -1,10 +1,25 @@
 import { useState } from 'react';
 import { Pastille } from './Categories.jsx';
+import { IconeTransfert } from './Icones.jsx';
 import { formaterEuros, parJour, rechercher } from '../logique/argent.js';
 import { libelleJour } from '../logique/dates.js';
 import { listerOperations } from '../donnees/depot.js';
 
 function LigneOperation({ operation: o, ouvrir }) {
+  if (o.type === 'transfert') {
+    return (
+      <button className="ligne" onClick={() => ouvrir(o)}>
+        <span className="pastille transfert" aria-hidden="true"><IconeTransfert /></span>
+        <span className="ligne-nom">
+          Transfert
+          <small className="texte-2 detail">
+            {[`${o.porteMonnaie} → ${o.versPorteMonnaie}`, o.note].filter(Boolean).join(' · ')}
+          </small>
+        </span>
+        <span>{formaterEuros(o.montant)}</span>
+      </button>
+    );
+  }
   const signe = o.type === 'revenu' ? '+' : '−';
   return (
     <button className="ligne" onClick={() => ouvrir(o)}>

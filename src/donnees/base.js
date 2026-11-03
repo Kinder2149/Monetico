@@ -79,6 +79,8 @@ const MIGRATIONS = [
      note TEXT NOT NULL DEFAULT ''
    );
    CREATE INDEX operation_date ON operation (date)`,
+  // Transfert : l'argent sort de porte_monnaie_id et entre dans vers_porte_monnaie_id.
+  `ALTER TABLE operation ADD COLUMN vers_porte_monnaie_id INTEGER REFERENCES porte_monnaie(id) ON DELETE RESTRICT`,
 ];
 
 export function migrer(db) {

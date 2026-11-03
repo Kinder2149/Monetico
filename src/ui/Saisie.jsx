@@ -44,13 +44,27 @@ function ChoixCategorie({ base, type, choisie, choisir }) {
   );
 }
 
-// Saisie ou modification d'une dépense ou d'un revenu.
+function ChoixPorteMonnaie({ libelle, porteMonnaie, valeur, choisir }) {
+  return (
+    <label className="champ">
+      <span>{libelle}</span>
+      <select value={valeur ?? ''} onChange={(e) => choisir(Number(e.target.value))}>
+        {porteMonnaie.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
+      </select>
+    </label>
+  );
+}
+
+// Saisie ou modification d'une dépense, d'un revenu ou d'un transfert.
 export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParDefaut, fermer, rafraichir }) {
   const [type, setType] = useState(operation?.type ?? 'depense');
   const [montant, setMontant] = useState(operation ? montantPourSaisie(operation.montant) : '');
   const [categorieId, setCategorieId] = useState(operation?.categorieId ?? null);
   const [porteMonnaieId, setPorteMonnaieId] = useState(
     operation?.porteMonnaieId ?? porteMonnaieParDefaut ?? porteMonnaie[0]?.id ?? null
+  );
+  const [versId, setVersId] = useState(
+    operation?.versPorteMonnaieId ?? porteMonnaie.find((p) => p.id !== porteMonnaieId)?.id ?? null
   );
   const [date, setDate] = useState(operation?.date ?? aujourdhui());
   const [note, setNote] = useState(operation?.note ?? '');
@@ -74,10 +88,12 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
   function enregistrer(e) {
     e.preventDefault();
     const centimes = lireMontant(montant);
+    const transfert = type === 'transfert';
     if (centimes === null || centimes <= 0) return setMessage('Indique un montant, par exemple 12,50.');
-    if (!categorieId) return setMessage('Choisis une catégorie.');
+    if (!transfert && !categorieId) return setMessage('Choisis une catégorie.');
+    if (transfert && (!versId || versId === porteMonnaieId)) return setMessage('Choisis deux porte-monnaie différents.');
     if (!date) return setMessage('Choisis une date.');
-    const valeurs = { type, montant: centimes, categorieId, porteMonnaieId, date, note: note.trim() };
+    const valeurs = { type, montant: centimes, categorieId, porteMonnaieId, versPorteMonnaieId: versId, date, note: note.trim() };
     if (operation) modifierOperation(base, operation.id, valeurs);
     else creerOperation(base, valeurs);
     rafraichir();
@@ -110,19 +126,24 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
             className={type === 'depense' ? 'actif' : ''} onClick={() => changerType('depense')}>Dépense</button>
           <button type="button" role="tab" aria-selected={type === 'revenu'}
             className={type === 'revenu' ? 'actif' : ''} onClick={() => changerType('revenu')}>Revenu</button>
+          <button type="button" role="tab" aria-selected={type === 'transfert'}
+            className={type === 'transfert' ? 'actif' : ''} onClick={() => changerType('transfert')}>Transfert</button>
         </div>
 
         <Champ libelle="Montant (€)" value={montant} onChange={(e) => setMontant(e.target.value)}
           inputMode="decimal" placeholder="0,00" className="montant-saisie" autoFocus={!operation} />
 
-        <ChoixCategorie base={base} type={type} choisie={categorieId} choisir={setCategorieId} />
-
-        <label className="champ">
-          <span>Porte-monnaie</span>
-          <select value={porteMonnaieId} onChange={(e) => setPorteMonnaieId(Number(e.target.value))}>
-            {porteMonnaie.map((p) => <option key={p.id} value={p.id}>{p.nom}</option>)}
-          </select>
-        </label>
+        {type === 'transfert' ? (
+          <>
+            <ChoixPorteMonnaie libelle="Depuis" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+            <ChoixPorteMonnaie libelle="Vers" porteMonnaie={porteMonnaie} valeur={versId} choisir={setVersId} />
+          </>
+        ) : (
+          <>
+            <ChoixCategorie key={type} base={base} type={type} choisie={categorieId} choisir={setCategorieId} />
+            <ChoixPorteMonnaie libelle="Porte-monnaie" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+          </>
+        )}
 
         <Champ libelle="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         <Champ libelle="Note (facultative)" value={note} onChange={(e) => setNote(e.target.value)} />

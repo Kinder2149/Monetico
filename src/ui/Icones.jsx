@@ -7,7 +7,7 @@ import {
   Dumbbell, Music, Film, Tv, Ticket, BookOpen, GraduationCap, Baby, Dog, Cat, Repeat, Gift,
   Landmark, Receipt, Ellipsis, Hammer, PaintRoller, Lightbulb, Flame, Umbrella, Store,
   BriefcaseBusiness, Trophy, RotateCcw, Tag, HandCoins, PiggyBank, Banknote, Wallet, HandHeart,
-  Cigarette,
+  Cigarette, ArrowLeftRight,
 } from 'lucide-react';
 
 function Trait({ children, taille = 24 }) {
@@ -34,6 +34,8 @@ export const IconeBudgets = () => (
 export const IconeComptes = () => (
   <Trait><rect x="3" y="6" width="18" height="13" rx="3" /><path d="M3 10h18" /><path d="M16 15h2" /></Trait>
 );
+
+export const IconeTransfert = () => <ArrowLeftRight size={20} strokeWidth={2} aria-hidden="true" />;
 
 export const IconePlus = () => (
   <Trait taille={28}><path d="M12 5v14" /><path d="M5 12h14" /></Trait>

@@ -156,3 +156,29 @@ test('dates : libellés des jours', () => {
   assert.equal(libelleJour('2026-10-26', '2026-11-03'), 'Lundi 26 octobre');
   assert.equal(libelleJour('2025-12-31', '2026-11-03'), 'Mercredi 31 décembre 2025');
 });
+
+test('étape 6 : un transfert déplace l\'argent sans changer le total ni le mois', () => {
+  const { base, banque, especes } = avecDonnees();
+  const id = depot.creerOperation(base, { type: 'transfert', montant: 4000, porteMonnaieId: banque, versPorteMonnaieId: especes, date: '2026-11-03' });
+  const liste = depot.listerPorteMonnaie(base);
+  assert.equal(liste.find((p) => p.id === banque).solde, 100000 - 4000);
+  assert.equal(liste.find((p) => p.id === especes).solde, 5000 + 4000);
+  assert.equal(total(liste), 105000);
+
+  const duMois = depot.listerOperations(base, { debut: '2026-11-01', fin: '2026-11-30' });
+  assert.deepEqual(entreesSorties(duMois), { entrees: 0, sorties: 0 });
+
+  // Visible dans la liste des deux porte-monnaie, sans catégorie.
+  const vueEspeces = depot.listerOperations(base, { porteMonnaieId: especes });
+  assert.equal(vueEspeces.length, 1);
+  assert.equal(vueEspeces[0].versPorteMonnaie, 'Espèces');
+  assert.equal(vueEspeces[0].categorieId, null);
+
+  // Le porte-monnaie d'arrivée compte comme utilisé (D22).
+  assert.equal(depot.porteMonnaieUtilise(base, especes), true);
+
+  depot.modifierOperation(base, id, { type: 'transfert', montant: 1000, porteMonnaieId: especes, versPorteMonnaieId: banque, date: '2026-11-03' });
+  const apres = depot.listerPorteMonnaie(base);
+  assert.equal(apres.find((p) => p.id === banque).solde, 100000 + 1000);
+  assert.equal(apres.find((p) => p.id === especes).solde, 5000 - 1000);
+});

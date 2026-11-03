@@ -348,3 +348,4 @@ section .titre-section { margin-top: 20px; }
   cursor: pointer;
 }
 .puce.choisie { background: var(--principal); color: #fff; }
+.pastille.transfert { background: var(--piste); color: var(--texte-2); }

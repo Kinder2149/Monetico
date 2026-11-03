@@ -1,16 +1,18 @@
 import { ListeOperations } from './Operations.jsx';
+import { budgetsEnCours, BarreBudget } from './Budgets.jsx';
 import { formaterEuros, total, entreesSorties } from '../logique/argent.js';
 import { aujourdhui, bornesDuMois, nomDuMois } from '../logique/dates.js';
 import { listerOperations } from '../donnees/depot.js';
 
 // Écran d'accueil : sélecteur de porte-monnaie, solde, carte du mois, opérations du jour.
-export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir }) {
+export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets }) {
   const porteMonnaieId = choix === 'tous' ? null : choix;
   const affiches = choix === 'tous' ? porteMonnaie : porteMonnaie.filter((p) => p.id === choix);
   const jour = aujourdhui();
   const { debut, fin } = bornesDuMois(jour);
   const { entrees, sorties } = entreesSorties(listerOperations(base, { porteMonnaieId, debut, fin }));
   const duJour = listerOperations(base, { porteMonnaieId, debut: jour, fin: jour });
+  const budgets = budgetsEnCours(base);
 
   return (
     <>
@@ -44,6 +46,13 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
           </div>
         </div>
       </div>
+
+      {budgets.length > 0 && (
+        <button className="carte budget" onClick={voirBudgets}>
+          <p className="titre-carte">Budgets</p>
+          {budgets.map((b) => <BarreBudget key={b.id} budget={b} />)}
+        </button>
+      )}
 
       <ListeOperations operations={duJour} ouvrir={ouvrir} vide="Aucune opération aujourd'hui." />
     </>

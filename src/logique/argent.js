@@ -34,6 +34,12 @@ export function entreesSorties(operations) {
   return { entrees, sorties };
 }
 
+// État d'un budget : dépensé (dépenses exclues non comptées), part du maximum, dépassement.
+export function etatBudget(maximum, operations) {
+  const depense = operations.reduce((somme, o) => somme + (o.exclue ? 0 : o.montant), 0);
+  return { depense, part: Math.min(depense / maximum, 1), depasse: depense > maximum };
+}
+
 // Regroupe des opérations déjà triées par date en [{ jour, operations }].
 export function parJour(operations) {
   const groupes = [];

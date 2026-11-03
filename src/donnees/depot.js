@@ -107,6 +107,60 @@ export function supprimerOperation(base, id) {
   base.ecrire('DELETE FROM operation WHERE id = ?', [id]);
 }
 
+// --- Budgets (D9) ---
+
+export function listerBudgets(base) {
+  const liens = base.lire('SELECT budget_id AS budgetId, categorie_id AS categorieId FROM budget_categorie');
+  return base.lire('SELECT id, nom, maximum, jour_depart AS jourDepart FROM budget').sort(parNom)
+    .map((b) => ({ ...b, categorieIds: liens.filter((l) => l.budgetId === b.id).map((l) => l.categorieId) }));
+}
+
+function lierCategories(base, budgetId, categorieIds) {
+  base.ecrire('DELETE FROM budget_categorie WHERE budget_id = ?', [budgetId]);
+  for (const id of categorieIds) {
+    base.ecrire('INSERT INTO budget_categorie (budget_id, categorie_id) VALUES (?, ?)', [budgetId, id]);
+  }
+}
+
+export function creerBudget(base, { nom, maximum, jourDepart = 1, categorieIds }) {
+  return base.lot(() => {
+    const id = base.ecrire('INSERT INTO budget (nom, maximum, jour_depart) VALUES (?, ?, ?)', [nom, maximum, jourDepart]);
+    lierCategories(base, id, categorieIds);
+    return id;
+  });
+}
+
+export function modifierBudget(base, id, { nom, maximum, jourDepart, categorieIds }) {
+  base.lot(() => {
+    base.ecrire('UPDATE budget SET nom = ?, maximum = ?, jour_depart = ? WHERE id = ?', [nom, maximum, jourDepart, id]);
+    lierCategories(base, id, categorieIds);
+  });
+}
+
+export function supprimerBudget(base, id) {
+  base.ecrire('DELETE FROM budget WHERE id = ?', [id]);
+}
+
+// Dépenses de la période dans les catégories du budget (et leurs sous-catégories), avec `exclue`.
+export function depensesDuBudget(base, budgetId, { debut, fin }) {
+  return base.lire(
+    `SELECT ${CHAMPS_OPERATION},
+            EXISTS (SELECT 1 FROM budget_exclusion e WHERE e.budget_id = ? AND e.operation_id = o.id) AS exclue
+     ${JOINTURES_OPERATION}
+     WHERE o.type = 'depense' AND o.date >= ? AND o.date <= ?
+       AND (o.categorie_id IN (SELECT categorie_id FROM budget_categorie WHERE budget_id = ?)
+            OR c.parent_id IN (SELECT categorie_id FROM budget_categorie WHERE budget_id = ?))
+     ORDER BY o.date DESC, o.id DESC`, [budgetId, debut, fin, budgetId, budgetId]
+  ).map((o) => ({ ...o, exclue: o.exclue === 1 }));
+}
+
+// Exclut une dépense du calcul d'un budget, ou l'y remet.
+export function exclureDuBudget(base, budgetId, operationId, exclue) {
+  base.ecrire(exclue
+    ? 'INSERT OR IGNORE INTO budget_exclusion (budget_id, operation_id) VALUES (?, ?)'
+    : 'DELETE FROM budget_exclusion WHERE budget_id = ? AND operation_id = ?', [budgetId, operationId]);
+}
+
 // --- Import (D26) ---
 
 // « Fast Food » et « Fast-food », « Électricité » et « electricite » désignent la même chose.

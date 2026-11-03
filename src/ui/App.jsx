@@ -5,6 +5,7 @@ import Operations from './Operations.jsx';
 import Comptes from './Comptes.jsx';
 import Categories from './Categories.jsx';
 import Saisie from './Saisie.jsx';
+import Budgets from './Budgets.jsx';
 import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
 
@@ -61,7 +62,8 @@ export default function App({ ouvrir }) {
   else if (page === 'categories') contenu = <Categories base={base} />;
   else if (actif === 'accueil') contenu = (
     <Accueil base={base} porteMonnaie={porteMonnaie} choix={choixValide} choisir={setChoix}
-      ouvrir={setSaisie} chercher={() => { setActif('operations'); setRecherche(true); }} />
+      ouvrir={setSaisie} chercher={() => { setActif('operations'); setRecherche(true); }}
+      voirBudgets={() => changerOnglet('budgets')} />
   );
   else if (actif === 'operations') contenu = (
     <Operations base={base} porteMonnaieId={porteMonnaieId} ouvrir={setSaisie} rechercheInitiale={recherche} />
@@ -70,7 +72,7 @@ export default function App({ ouvrir }) {
     <Comptes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir}
       ouvrirCategories={() => setPage('categories')} />
   );
-  else contenu = <p className="vide">Rien pour l'instant.</p>;
+  else contenu = <Budgets base={base} rafraichir={rafraichir} />;
 
   return (
     <div className="appli">

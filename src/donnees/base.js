@@ -81,6 +81,23 @@ const MIGRATIONS = [
    CREATE INDEX operation_date ON operation (date)`,
   // Transfert : l'argent sort de porte_monnaie_id et entre dans vers_porte_monnaie_id.
   `ALTER TABLE operation ADD COLUMN vers_porte_monnaie_id INTEGER REFERENCES porte_monnaie(id) ON DELETE RESTRICT`,
+  // Budgets (D9) : catégories suivies (une catégorie cochée inclut ses sous-catégories) et dépenses exclues.
+  `CREATE TABLE budget (
+     id INTEGER PRIMARY KEY,
+     nom TEXT NOT NULL,
+     maximum INTEGER NOT NULL CHECK (maximum > 0),
+     jour_depart INTEGER NOT NULL DEFAULT 1 CHECK (jour_depart BETWEEN 1 AND 31)
+   );
+   CREATE TABLE budget_categorie (
+     budget_id INTEGER NOT NULL REFERENCES budget(id) ON DELETE CASCADE,
+     categorie_id INTEGER NOT NULL REFERENCES categorie(id) ON DELETE CASCADE,
+     PRIMARY KEY (budget_id, categorie_id)
+   );
+   CREATE TABLE budget_exclusion (
+     budget_id INTEGER NOT NULL REFERENCES budget(id) ON DELETE CASCADE,
+     operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
+     PRIMARY KEY (budget_id, operation_id)
+   )`,
 ];
 
 export function migrer(db) {

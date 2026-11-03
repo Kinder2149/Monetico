@@ -25,6 +25,28 @@ export function bornesDuMois(jour) {
   };
 }
 
+// Jour `j` du mois (ramené au dernier jour pour les mois plus courts : le 31 devient le 30 en avril).
+function jourDuMois(annee, mois, j) {
+  return new Date(annee, mois, Math.min(j, new Date(annee, mois + 1, 0).getDate()));
+}
+
+// Période en cours d'un budget qui repart chaque mois le `jourDepart` (D9).
+export function periodeBudget(jourDepart, jour = aujourdhui()) {
+  const d = enDate(jour);
+  let debut = jourDuMois(d.getFullYear(), d.getMonth(), jourDepart);
+  if (debut > d) debut = jourDuMois(d.getFullYear(), d.getMonth() - 1, jourDepart);
+  const fin = jourDuMois(debut.getFullYear(), debut.getMonth() + 1, jourDepart);
+  fin.setDate(fin.getDate() - 1);
+  return { debut: aujourdhui(debut), fin: aujourdhui(fin) };
+}
+
+const FORMAT_COURT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
+
+// « du 1 nov. au 30 nov. »
+export function libellePeriode({ debut, fin }) {
+  return `du ${FORMAT_COURT.format(enDate(debut))} au ${FORMAT_COURT.format(enDate(fin))}`;
+}
+
 const FORMAT_JOUR = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 const FORMAT_JOUR_ANNEE = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 

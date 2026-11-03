@@ -58,7 +58,7 @@ function Formulaire({ base, porteMonnaie, fermer, rafraichir }) {
   );
 }
 
-export default function Comptes({ base, porteMonnaie, rafraichir }) {
+export default function Comptes({ base, porteMonnaie, rafraichir, ouvrirCategories }) {
   const [edition, setEdition] = useState(null); // null, 'nouveau' ou un porte-monnaie
 
   return (
@@ -85,6 +85,12 @@ export default function Comptes({ base, porteMonnaie, rafraichir }) {
       )}
 
       <button className="bouton" onClick={() => setEdition('nouveau')}>Ajouter un porte-monnaie</button>
+
+      <h2 className="titre-section">Catégories</h2>
+      <button className="carte ligne lien" onClick={ouvrirCategories}>
+        <span className="ligne-nom">Gérer les catégories de dépenses et de revenus</span>
+        <span aria-hidden="true">›</span>
+      </button>
 
       {edition && (
         <Formulaire base={base} porteMonnaie={edition === 'nouveau' ? null : edition}

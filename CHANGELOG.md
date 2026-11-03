@@ -1,5 +1,11 @@
 # CHANGELOG — Moneta
 
+## 2026-11-03 — Implémentation, bloc A (phase 6)
+
+- Étape 1 (coquille) et étape 2 (porte-monnaie) codées et vérifiées dans l'aperçu ; installation sur téléphone en attente du kit Android.
+- Police Manrope intégrée à l'appli (licence libre, pas une dépendance).
+- D23 : l'écran Catégories est placé dans l'onglet Comptes.
+
 ## 2026-11-03 — Critères de validation (phase 5)
 
 - Dépôt relié à github.com/Kinder2149/Monetico (le nom affiché de l'appli reste Moneta, D1).

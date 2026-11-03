@@ -1,11 +1,52 @@
 // Base de données locale : sql.js, conservée dans le stockage du téléphone (IndexedDB).
 
+// Liste de départ (PROJET_CONTEXTE, section 4.3) : un simple modèle, tout reste modifiable.
+const MODELE = {
+  depense: {
+    'Alimentation': ['Courses', 'Restaurant', 'Fast-food', 'Café/Bar'],
+    'Logement': ['Loyer', 'Électricité', 'Eau', 'Internet/Téléphone', 'Assurance'],
+    'Transports': ['Transports en commun', 'Carburant', 'Stationnement', 'Entretien'],
+    'Santé': [],
+    'Shopping': ['Vêtements', 'Maison', 'Électronique', 'Hygiène'],
+    'Loisirs': ['Sorties', 'Jeux', 'Sport', 'Vacances'],
+    'Abonnements': [],
+    'Cadeaux': [],
+    'Frais bancaires': [],
+    'Divers': [],
+  },
+  revenu: {
+    'Salaire': [], 'Prime': [], 'Remboursement': [], 'Vente': [], 'Cadeau reçu': [], 'Autres': [],
+  },
+};
+
+function modeleCategories() {
+  const texte = (s) => `'${s.replace(/'/g, "''")}'`;
+  const lignes = [];
+  for (const [type, categories] of Object.entries(MODELE)) {
+    for (const [nom, sous] of Object.entries(categories)) {
+      lignes.push(`INSERT INTO categorie (nom, type) VALUES (${texte(nom)}, '${type}');`);
+      for (const s of sous) {
+        lignes.push(`INSERT INTO categorie (nom, type, parent_id) VALUES (${texte(s)}, '${type}', (SELECT MAX(id) FROM categorie WHERE parent_id IS NULL));`);
+      }
+    }
+  }
+  return lignes.join('\n');
+}
+
 const MIGRATIONS = [
   `CREATE TABLE porte_monnaie (
      id INTEGER PRIMARY KEY,
      nom TEXT NOT NULL,
      solde_depart INTEGER NOT NULL DEFAULT 0
    )`,
+  `CREATE TABLE categorie (
+     id INTEGER PRIMARY KEY,
+     nom TEXT NOT NULL,
+     type TEXT NOT NULL CHECK (type IN ('depense', 'revenu')),
+     parent_id INTEGER REFERENCES categorie(id) ON DELETE CASCADE,
+     icone TEXT
+   );
+   ${modeleCategories()}`,
 ];
 
 export function migrer(db) {
@@ -18,6 +59,7 @@ export function migrer(db) {
 
 // Enveloppe la base sql.js ; `enregistrer` reçoit le contenu complet après chaque modification.
 export function creerBase(db, enregistrer = () => {}) {
+  db.run('PRAGMA foreign_keys = ON');
   migrer(db);
   return {
     lire(sql, params = []) {

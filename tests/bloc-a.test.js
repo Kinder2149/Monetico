@@ -51,3 +51,36 @@ test('données conservées : la base rechargée retrouve les porte-monnaie', () 
   const rechargee = creerBase(new SQL.Database(sauvegardes.at(-1)));
   assert.deepEqual(depot.listerPorteMonnaie(rechargee).map((p) => p.nom), ['Épargne']);
 });
+
+test('étape 3 : la liste de départ est en place', () => {
+  const { base } = nouvelleBase();
+  const depenses = depot.listerCategories(base, 'depense');
+  const revenus = depot.listerCategories(base, 'revenu');
+  assert.equal(depenses.length, 10);
+  assert.equal(revenus.length, 6);
+  const logement = depenses.find((c) => c.nom === 'Logement');
+  assert.deepEqual(logement.sous.map((s) => s.nom), ['Assurance', 'Eau', 'Électricité', 'Internet/Téléphone', 'Loyer']);
+  assert.equal(depenses.find((c) => c.nom === 'Santé').sous.length, 0);
+  assert.equal(depenses.reduce((n, c) => n + c.sous.length, 0), 21);
+});
+
+test('étape 3 : ajouter, renommer, supprimer catégories et sous-catégories', () => {
+  const { base } = nouvelleBase();
+  const id = depot.creerCategorie(base, { nom: 'Animaux', type: 'depense' });
+  depot.creerCategorie(base, { nom: 'Vétérinaire', type: 'depense', parentId: id });
+  depot.creerCategorie(base, { nom: 'Croquettes', type: 'depense', parentId: id });
+  let animaux = depot.listerCategories(base, 'depense').find((c) => c.id === id);
+  assert.deepEqual(animaux.sous.map((s) => s.nom), ['Croquettes', 'Vétérinaire']);
+
+  depot.renommerCategorie(base, id, 'Animal de compagnie');
+  animaux = depot.listerCategories(base, 'depense').find((c) => c.id === id);
+  assert.equal(animaux.nom, 'Animal de compagnie');
+
+  depot.supprimerCategorie(base, animaux.sous[0].id);
+  assert.equal(depot.listerCategories(base, 'depense').find((c) => c.id === id).sous.length, 1);
+
+  // Supprimer une catégorie emporte ses sous-catégories.
+  depot.supprimerCategorie(base, id);
+  assert.equal(depot.listerCategories(base, 'depense').length, 10);
+  assert.equal(base.lire('SELECT COUNT(*) AS n FROM categorie WHERE parent_id = ?', [id])[0].n, 0);
+});

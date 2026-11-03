@@ -229,3 +229,46 @@ button, input, select { font: inherit; color: inherit; }
 .champ input:focus { outline: 2px solid var(--principal); border-color: transparent; }
 
 .message { color: var(--negatif); font-size: 13px; margin: 0 0 12px; }
+
+/* Écrans secondaires */
+.entete { display: flex; align-items: center; gap: 8px; }
+.retour {
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  border: 0;
+  background: none;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--texte);
+  cursor: pointer;
+}
+
+.titre-section { font-size: 13px; font-weight: 700; color: var(--texte-2); text-transform: uppercase; letter-spacing: 0.04em; margin: 28px 0 10px; }
+.lien { padding: 8px 16px; }
+
+/* Catégories */
+.bascule {
+  display: flex;
+  background: var(--piste);
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 16px;
+}
+
+.bascule button {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  font-weight: 700;
+  color: var(--texte-2);
+  cursor: pointer;
+}
+
+.bascule button.actif { background: var(--carte); color: var(--principal); }
+
+.ligne.sous { padding-left: 52px; min-height: 48px; font-weight: 500; }
+.ligne.ajout { color: var(--principal); font-weight: 700; font-size: 13px; min-height: 44px; }
+.pastille.petite { width: 30px; height: 30px; border-radius: 10px; font-size: 13px; }

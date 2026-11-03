@@ -47,12 +47,14 @@ button, input, select { font: inherit; color: inherit; }
   display: flex;
   flex-direction: column;
   background: var(--fond);
+  /* La bande de l'heure reste au fond menthe : la liste ne défile pas dessous. */
+  padding-top: var(--haut);
 }
 
 .ecran {
   flex: 1;
   overflow-y: auto;
-  padding: calc(var(--haut) + 20px) 16px 24px;
+  padding: 20px 16px 24px;
 }
 
 .titre-ecran {
@@ -226,7 +228,9 @@ button, input, select { font: inherit; color: inherit; }
   background: var(--fond);
 }
 
-.champ input:focus { outline: 2px solid var(--principal); border-color: transparent; }
+.champ input:focus, .champ select:focus { outline: 2px solid var(--principal); border-color: transparent; }
+/* Pas de contour orange d'Android après un choix dans le sélecteur de l'accueil. */
+.selecteur select:focus { outline: none; }
 
 .message { color: var(--negatif); font-size: 13px; margin: 0 0 12px; }
 

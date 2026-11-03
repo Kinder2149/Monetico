@@ -5,6 +5,7 @@ import Operations from './Operations.jsx';
 import Comptes from './Comptes.jsx';
 import Categories from './Categories.jsx';
 import Saisie from './Saisie.jsx';
+import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
 
 const ONGLETS = {
@@ -33,6 +34,8 @@ export default function App({ ouvrir }) {
   const [saisie, setSaisie] = useState(null); // null, 'nouvelle' ou l'opération à modifier
   const [recherche, setRecherche] = useState(false);
   const [, setVersion] = useState(0);
+
+  useRetour(page !== null, () => setPage(null));
 
   // Chaque écran relit la base à l'affichage ; on redessine après chaque modification.
   const rafraichir = () => setVersion((v) => v + 1);

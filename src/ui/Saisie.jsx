@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
 import { Pastille } from './Categories.jsx';
 import { lireMontant, montantPourSaisie } from '../logique/argent.js';
@@ -70,6 +70,9 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
   const [note, setNote] = useState(operation?.note ?? '');
   const [message, setMessage] = useState('');
   const [confirmer, setConfirmer] = useState(false);
+
+  // Le message d'erreur disparaît dès que l'utilisateur corrige le formulaire.
+  useEffect(() => setMessage(''), [type, montant, categorieId, porteMonnaieId, versId, date]);
 
   if (porteMonnaie.length === 0) {
     return (

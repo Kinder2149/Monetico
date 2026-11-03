@@ -5,6 +5,7 @@
 - Étape 1 (coquille) et étape 2 (porte-monnaie) codées et vérifiées dans l'aperçu ; installation sur téléphone en attente du kit Android.
 - Police Manrope intégrée à l'appli (licence libre, pas une dépendance).
 - D23 : l'écran Catégories est placé dans l'onglet Comptes.
+- D24 : bibliothèque d'icônes Lucide validée (P3 tranché).
 
 ## 2026-11-03 — Critères de validation (phase 5)
 

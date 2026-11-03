@@ -1,12 +1,31 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
-import { listerCategories, creerCategorie, renommerCategorie, supprimerCategorie } from '../donnees/depot.js';
+import { ICONES_CATEGORIES, IconeCategorie } from './Icones.jsx';
+import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie } from '../donnees/depot.js';
 
 export function Pastille({ categorie, petite }) {
   return (
     <span className={'pastille' + (petite ? ' petite' : '')} aria-hidden="true">
-      {categorie.nom.charAt(0).toUpperCase()}
+      {categorie.icone
+        ? <IconeCategorie nom={categorie.icone} taille={petite ? 16 : 20} />
+        : categorie.nom.charAt(0).toUpperCase()}
     </span>
+  );
+}
+
+function ChoixIcone({ choisie, choisir }) {
+  return (
+    <fieldset className="choix-icone">
+      <legend>Icône</legend>
+      <div className="grille-icones">
+        {Object.keys(ICONES_CATEGORIES).map((nom) => (
+          <button key={nom} type="button" aria-label={nom} aria-pressed={choisie === nom}
+            className={'pastille' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}>
+            <IconeCategorie nom={nom} />
+          </button>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -15,6 +34,7 @@ export function Pastille({ categorie, petite }) {
 function Formulaire({ base, edition, fermer, rafraichir }) {
   const { categorie, parent } = edition;
   const [nom, setNom] = useState(categorie?.nom ?? '');
+  const [icone, setIcone] = useState(categorie?.icone ?? parent?.icone ?? null);
   const [message, setMessage] = useState('');
   const [confirmer, setConfirmer] = useState(false);
 
@@ -24,8 +44,9 @@ function Formulaire({ base, edition, fermer, rafraichir }) {
   function enregistrer(e) {
     e.preventDefault();
     if (!nom.trim()) return setMessage(`Donne un nom à la ${genre}.`);
-    if (categorie) renommerCategorie(base, categorie.id, nom.trim());
-    else creerCategorie(base, { nom: nom.trim(), type: edition.type, parentId: parent?.id ?? null });
+    const valeurs = { nom: nom.trim(), icone };
+    if (categorie) modifierCategorie(base, categorie.id, valeurs);
+    else creerCategorie(base, { ...valeurs, type: edition.type, parentId: parent?.id ?? null });
     rafraichir();
     fermer();
   }
@@ -60,6 +81,7 @@ function Formulaire({ base, edition, fermer, rafraichir }) {
     <Feuille titre={titre} fermer={fermer}>
       <form onSubmit={enregistrer}>
         <Champ libelle="Nom" value={nom} onChange={(e) => setNom(e.target.value)} autoFocus={!categorie} />
+        <ChoixIcone choisie={icone} choisir={setIcone} />
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
         {categorie && (

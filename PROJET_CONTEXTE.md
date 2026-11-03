@@ -37,8 +37,8 @@ jamais vers un serveur de l'éditeur.
 - Distribution : Android.
 - Limites du projet : 20 modules maximum, 5 fichiers de documentation maximum,
   3 couches (Interface / Logique / Données), aucune structure vide « pour le futur ».
-- **Aucune dépendance ajoutée sans l'accord de Kinder.** Seule dépendance déjà validée
-  au-delà du socle : l'accès à la galerie photo (pour les icônes personnalisées).
+- **Aucune dépendance ajoutée sans l'accord de Kinder.** Dépendances validées
+  au-delà du socle : l'accès à la galerie photo (pour les icônes personnalisées) et les icônes Lucide (D24).
 - Projet totalement indépendant de Vault Watch (même socle, aucun code ni donnée partagés).
 
 ## 4. Fonctionnalités (périmètre complet du produit)
@@ -180,6 +180,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D21 | Méthode : Claude Code propose les critères de validation de toutes les étapes (section 10), Kinder les valide d'un bloc ; le code s'enchaîne ensuite sans attendre entre les étapes, avec un point de contrôle de Kinder sur le téléphone à la fin de chaque bloc (A, B, C, D). | 2026-11-03 |
 | D22 | Critères de la section 10 validés, propositions comprises : suppression refusée d'un porte-monnaie ou d'une catégorie qui contient des opérations ; budget dépassé en rouge ; import sans doublons ; courbe du solde sur 12 mois ; en cas de modification sur deux appareils, la plus récente l'emporte. | 2026-11-03 |
 | D23 | Navigation (P2, en partie) : l'écran Catégories est accessible depuis l'onglet Comptes, sous les porte-monnaie. | 2026-11-03 |
+| D24 | Bibliothèque d'icônes (P3) : Lucide (licence ISC), dépendance validée par Kinder. Seules les icônes proposées dans l'appli y sont intégrées. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -187,7 +188,6 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 |---|---|---|
 | P1 | **Nom** : « Moneta » est aussi une banque tchèque (MONETA Money Bank) présente sur le Play Store ; « Monetico » est le service de paiement du Crédit Mutuel / CIC. Vérifier la disponibilité du nom avant publication (mission Recherche). | Avant la version publiée |
 | P2 | Place des écrans Prêts, Graphiques et Réglages (Catégories : tranché par D23) dans la navigation (la barre du bas n'a que 4 onglets + « + »). | Phase 5 de l'étape concernée |
-| P3 | Choix de la bibliothèque d'icônes libre de droits (dépendance à faire valider). | Phase 5 de l'étape catégories |
 | P4 | Format exact de l'export Money Lover. | Phase 5 de l'étape import |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
 | P7 | Un prêt fait-il baisser le solde d'un porte-monnaie, et un remboursement le faire monter ? | Avant l'étape 10 |

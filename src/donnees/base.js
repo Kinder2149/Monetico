@@ -33,6 +33,26 @@ function modeleCategories() {
   return lignes.join('\n');
 }
 
+// Icônes de départ des catégories du modèle (noms du catalogue de src/ui/Icones.jsx).
+const ICONES_MODELE = {
+  'Alimentation': 'utensils', 'Courses': 'shopping-cart', 'Restaurant': 'utensils', 'Fast-food': 'sandwich',
+  'Café/Bar': 'coffee', 'Logement': 'house', 'Loyer': 'house', 'Électricité': 'zap', 'Eau': 'droplet',
+  'Internet/Téléphone': 'wifi', 'Assurance': 'shield', 'Transports': 'car',
+  'Transports en commun': 'bus', 'Carburant': 'fuel', 'Stationnement': 'parking', 'Entretien': 'wrench',
+  'Santé': 'heart-pulse', 'Shopping': 'shopping-bag', 'Vêtements': 'shirt', 'Maison': 'sofa',
+  'Électronique': 'smartphone', 'Hygiène': 'sparkles', 'Loisirs': 'party', 'Sorties': 'ticket',
+  'Jeux': 'gamepad', 'Sport': 'dumbbell', 'Vacances': 'plane', 'Abonnements': 'repeat',
+  'Cadeaux': 'gift', 'Frais bancaires': 'landmark', 'Divers': 'ellipsis', 'Salaire': 'briefcase',
+  'Prime': 'trophy', 'Remboursement': 'rotate-ccw', 'Vente': 'tag', 'Cadeau reçu': 'hand-heart',
+  'Autres': 'ellipsis',
+};
+
+function iconesParDefaut() {
+  return Object.entries(ICONES_MODELE)
+    .map(([nom, icone]) => `UPDATE categorie SET icone = '${icone}' WHERE nom = '${nom}' AND icone IS NULL;`)
+    .join('\n');
+}
+
 const MIGRATIONS = [
   `CREATE TABLE porte_monnaie (
      id INTEGER PRIMARY KEY,
@@ -47,6 +67,7 @@ const MIGRATIONS = [
      icone TEXT
    );
    ${modeleCategories()}`,
+  iconesParDefaut(),
 ];
 
 export function migrer(db) {

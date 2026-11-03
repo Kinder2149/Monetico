@@ -62,6 +62,9 @@ test('étape 3 : la liste de départ est en place', () => {
   assert.deepEqual(logement.sous.map((s) => s.nom), ['Assurance', 'Eau', 'Électricité', 'Internet/Téléphone', 'Loyer']);
   assert.equal(depenses.find((c) => c.nom === 'Santé').sous.length, 0);
   assert.equal(depenses.reduce((n, c) => n + c.sous.length, 0), 21);
+  // Chaque catégorie du modèle a une icône de départ.
+  const toutes = [...depenses, ...revenus].flatMap((c) => [c, ...c.sous]);
+  assert.deepEqual(toutes.filter((c) => !c.icone).map((c) => c.nom), []);
 });
 
 test('étape 3 : ajouter, renommer, supprimer catégories et sous-catégories', () => {
@@ -72,9 +75,10 @@ test('étape 3 : ajouter, renommer, supprimer catégories et sous-catégories', 
   let animaux = depot.listerCategories(base, 'depense').find((c) => c.id === id);
   assert.deepEqual(animaux.sous.map((s) => s.nom), ['Croquettes', 'Vétérinaire']);
 
-  depot.renommerCategorie(base, id, 'Animal de compagnie');
+  depot.modifierCategorie(base, id, { nom: 'Animal de compagnie', icone: 'dog' });
   animaux = depot.listerCategories(base, 'depense').find((c) => c.id === id);
   assert.equal(animaux.nom, 'Animal de compagnie');
+  assert.equal(animaux.icone, 'dog');
 
   depot.supprimerCategorie(base, animaux.sous[0].id);
   assert.equal(depot.listerCategories(base, 'depense').find((c) => c.id === id).sous.length, 1);

@@ -272,3 +272,16 @@ button, input, select { font: inherit; color: inherit; }
 .ligne.sous { padding-left: 52px; min-height: 48px; font-weight: 500; }
 .ligne.ajout { color: var(--principal); font-weight: 700; font-size: 13px; min-height: 44px; }
 .pastille.petite { width: 30px; height: 30px; border-radius: 10px; font-size: 13px; }
+
+.choix-icone { border: 0; padding: 0; margin: 0 0 14px; }
+.choix-icone legend { font-size: 13px; font-weight: 600; color: var(--texte-2); margin-bottom: 6px; }
+.grille-icones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 8px;
+  max-height: 168px;
+  overflow-y: auto;
+}
+.grille-icones .pastille { width: 44px; height: 44px; border: 0; cursor: pointer; }
+.grille-icones .pastille.choisie { background: var(--principal); color: #fff; }
+.feuille { max-height: 90vh; overflow-y: auto; }

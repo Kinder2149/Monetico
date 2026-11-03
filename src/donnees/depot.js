@@ -32,12 +32,12 @@ export function listerCategories(base, type) {
     .map((c) => ({ ...c, sous: toutes.filter((s) => s.parentId === c.id) }));
 }
 
-export function creerCategorie(base, { nom, type, parentId = null }) {
-  return base.ecrire('INSERT INTO categorie (nom, type, parent_id) VALUES (?, ?, ?)', [nom, type, parentId]);
+export function creerCategorie(base, { nom, type, parentId = null, icone = null }) {
+  return base.ecrire('INSERT INTO categorie (nom, type, parent_id, icone) VALUES (?, ?, ?, ?)', [nom, type, parentId, icone]);
 }
 
-export function renommerCategorie(base, id, nom) {
-  base.ecrire('UPDATE categorie SET nom = ? WHERE id = ?', [nom, id]);
+export function modifierCategorie(base, id, { nom, icone }) {
+  base.ecrire('UPDATE categorie SET nom = ?, icone = ? WHERE id = ?', [nom, icone, id]);
 }
 
 // Supprime la catégorie et ses sous-catégories.

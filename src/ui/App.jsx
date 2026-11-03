@@ -7,11 +7,12 @@ import Categories from './Categories.jsx';
 import Saisie from './Saisie.jsx';
 import Budgets from './Budgets.jsx';
 import Recurrentes from './Recurrentes.jsx';
+import Prets from './Prets.jsx';
 import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
 
 // Écrans secondaires ouverts depuis l'onglet Comptes, avec leur titre.
-const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes' };
+const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes', prets: 'Prêts' };
 
 const ONGLETS = {
   accueil: { titre: 'Accueil', Icone: IconeAccueil },
@@ -64,6 +65,7 @@ export default function App({ ouvrir }) {
   if (erreur) contenu = <p className="vide">{erreur}</p>;
   else if (!base) contenu = null;
   else if (page === 'categories') contenu = <Categories base={base} />;
+  else if (page === 'prets') contenu = <Prets base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
   else if (page === 'recurrentes') contenu = <Recurrentes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
   else if (actif === 'accueil') contenu = (
     <Accueil base={base} porteMonnaie={porteMonnaie} choix={choixValide} choisir={setChoix}
@@ -75,7 +77,8 @@ export default function App({ ouvrir }) {
   );
   else if (actif === 'comptes') contenu = (
     <Comptes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir}
-      ouvrirCategories={() => setPage('categories')} ouvrirRecurrentes={() => setPage('recurrentes')} />
+      ouvrirCategories={() => setPage('categories')} ouvrirRecurrentes={() => setPage('recurrentes')}
+      ouvrirPrets={() => setPage('prets')} />
   );
   else contenu = <Budgets base={base} rafraichir={rafraichir} />;
 

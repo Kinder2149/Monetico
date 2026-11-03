@@ -115,6 +115,22 @@ const MIGRATIONS = [
      operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
      PRIMARY KEY (recurrente_id, mois)
    )`,
+  // Prêts (D8, D28) : l'argent prêté sort d'un porte-monnaie, chaque remboursement entre dans un porte-monnaie.
+  `CREATE TABLE pret (
+     id INTEGER PRIMARY KEY,
+     personne TEXT NOT NULL,
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     date TEXT NOT NULL,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT,
+     note TEXT NOT NULL DEFAULT ''
+   );
+   CREATE TABLE remboursement (
+     id INTEGER PRIMARY KEY,
+     pret_id INTEGER NOT NULL REFERENCES pret(id) ON DELETE CASCADE,
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     date TEXT NOT NULL,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT
+   )`,
 ];
 
 export function migrer(db) {

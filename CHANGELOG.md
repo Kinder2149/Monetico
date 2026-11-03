@@ -6,6 +6,7 @@
 - Étape 9 codée : récurrentes mensuelles, carte « À valider » sur l'accueil, validation avec la date réelle ; écran des récurrentes placé dans l'onglet Comptes (comme Catégories, D23). Supprimer l'opération validée remet le mois « À valider ».
 - 6 tests ajoutés (23 au total). Vérification par une autre IA prévue à la fin du bloc C (D25).
 - D27 : place des écrans Prêts, Graphiques et Réglages validée par Kinder (P2 tranché).
+- D28 : effet des prêts et remboursements sur le solde validé par Kinder (P7 tranché).
 
 ## 2026-11-03 — Bloc B, import Money Lover (phases 5 et 6)
 

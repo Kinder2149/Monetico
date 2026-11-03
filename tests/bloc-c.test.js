@@ -127,3 +127,37 @@ test('étape 9 : jour prévu dans le mois', async () => {
   assert.equal(jourPrevu(31, '2026-04-10'), '2026-04-30');
   assert.equal(jourPrevu(31, '2026-02-01'), '2026-02-28');
 });
+
+test('étape 10 : prêt, remboursements, reste dû, effet sur les soldes (D28)', () => {
+  const base = nouvelleBase();
+  const courant = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 100000 });
+  const especes = depot.creerPorteMonnaie(base, { nom: 'Especes', soldeDepart: 0 });
+  const id = depot.creerPret(base, { personne: 'Léa', montant: 5000, date: '2026-11-01', porteMonnaieId: courant });
+  const soldes = () => Object.fromEntries(depot.listerPorteMonnaie(base).map((p) => [p.nom, p.solde]));
+  assert.deepEqual(soldes(), { Courant: 95000, Especes: 0 });
+
+  depot.ajouterRemboursement(base, id, { montant: 2000, date: '2026-11-02', porteMonnaieId: especes });
+  let [p] = depot.listerPrets(base);
+  assert.deepEqual([p.rembourse, p.resteDu, p.remboursements.length], [2000, 3000, 1]);
+  assert.deepEqual(soldes(), { Courant: 95000, Especes: 2000 });
+  assert.equal(depot.porteMonnaieUtilise(base, especes), true);
+  // Ni le prêt ni le remboursement ne sont des opérations (carte du mois, budgets).
+  assert.equal(depot.listerOperations(base).length, 0);
+
+  const r2 = depot.ajouterRemboursement(base, id, { montant: 3000, date: '2026-11-03', porteMonnaieId: courant });
+  [p] = depot.listerPrets(base);
+  assert.equal(p.resteDu, 0);
+
+  // Un prêt remboursé passe après ceux encore dus.
+  depot.creerPret(base, { personne: 'Tom', montant: 1000, date: '2026-10-01', porteMonnaieId: courant });
+  assert.deepEqual(depot.listerPrets(base).map((x) => x.personne), ['Tom', 'Léa']);
+
+  depot.supprimerRemboursement(base, r2);
+  assert.equal(depot.listerPrets(base).find((x) => x.id === id).resteDu, 3000);
+  depot.modifierPret(base, id, { personne: 'Léa M.', montant: 6000, date: '2026-11-01', porteMonnaieId: courant });
+  assert.equal(depot.listerPrets(base).find((x) => x.id === id).resteDu, 4000);
+
+  depot.supprimerPret(base, id);
+  assert.deepEqual(soldes(), { Courant: 99000, Especes: 0 });
+  assert.equal(base.lire('SELECT COUNT(*) AS n FROM remboursement')[0].n, 0);
+});

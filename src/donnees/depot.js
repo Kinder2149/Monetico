@@ -11,6 +11,10 @@ export function listerPorteMonnaie(base) {
               FROM operation o WHERE o.porte_monnaie_id = p.id
             ), 0) + COALESCE((
               SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id
+            ), 0) - COALESCE((
+              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id
+            ), 0) + COALESCE((
+              SELECT SUM(r.montant) FROM remboursement r WHERE r.porte_monnaie_id = p.id
             ), 0) AS solde
      FROM porte_monnaie p`
   ).sort(parNom);
@@ -28,7 +32,9 @@ export function modifierPorteMonnaie(base, id, { nom, soldeDepart }) {
 export function porteMonnaieUtilise(base, id) {
   return base.lire(
     `SELECT 1 FROM operation WHERE porte_monnaie_id = ? OR vers_porte_monnaie_id = ?
-     UNION SELECT 1 FROM recurrente WHERE porte_monnaie_id = ? LIMIT 1`, [id, id, id]
+     UNION SELECT 1 FROM recurrente WHERE porte_monnaie_id = ?
+     UNION SELECT 1 FROM pret WHERE porte_monnaie_id = ?
+     UNION SELECT 1 FROM remboursement WHERE porte_monnaie_id = ? LIMIT 1`, [id, id, id, id, id]
   ).length > 0;
 }
 
@@ -218,6 +224,49 @@ export function validerRecurrente(base, recurrente, mois, date) {
       [recurrente.id, mois, operationId]);
     return operationId;
   });
+}
+
+// --- Prêts (D8, D28) ---
+
+// Prêts avec leurs remboursements et le reste dû ; ceux encore dus d'abord, puis les plus récents.
+export function listerPrets(base) {
+  const remboursements = base.lire(
+    `SELECT r.id, r.pret_id AS pretId, r.montant, r.date, r.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+     FROM remboursement r JOIN porte_monnaie p ON p.id = r.porte_monnaie_id
+     ORDER BY r.date DESC, r.id DESC`
+  );
+  return base.lire(
+    `SELECT pr.id, pr.personne, pr.montant, pr.date, pr.note, pr.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+     FROM pret pr JOIN porte_monnaie p ON p.id = pr.porte_monnaie_id`
+  ).map((pr) => {
+    const siens = remboursements.filter((r) => r.pretId === pr.id);
+    const rembourse = siens.reduce((somme, r) => somme + r.montant, 0);
+    return { ...pr, remboursements: siens, rembourse, resteDu: pr.montant - rembourse };
+  }).sort((a, b) => (a.resteDu === 0) - (b.resteDu === 0) || b.date.localeCompare(a.date) || b.id - a.id);
+}
+
+const valeursPret = ({ personne, montant, date, porteMonnaieId, note = '' }) => [personne, montant, date, porteMonnaieId, note];
+
+export function creerPret(base, pret) {
+  return base.ecrire('INSERT INTO pret (personne, montant, date, porte_monnaie_id, note) VALUES (?, ?, ?, ?, ?)', valeursPret(pret));
+}
+
+export function modifierPret(base, id, pret) {
+  base.ecrire('UPDATE pret SET personne = ?, montant = ?, date = ?, porte_monnaie_id = ?, note = ? WHERE id = ?', [...valeursPret(pret), id]);
+}
+
+// Supprime le prêt et ses remboursements : les soldes reviennent comme avant le prêt.
+export function supprimerPret(base, id) {
+  base.ecrire('DELETE FROM pret WHERE id = ?', [id]);
+}
+
+export function ajouterRemboursement(base, pretId, { montant, date, porteMonnaieId }) {
+  return base.ecrire('INSERT INTO remboursement (pret_id, montant, date, porte_monnaie_id) VALUES (?, ?, ?, ?)',
+    [pretId, montant, date, porteMonnaieId]);
+}
+
+export function supprimerRemboursement(base, id) {
+  base.ecrire('DELETE FROM remboursement WHERE id = ?', [id]);
 }
 
 // --- Import (D26) ---

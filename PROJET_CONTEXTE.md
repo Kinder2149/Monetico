@@ -199,6 +199,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D25 | Point de contrôle de fin de bloc (remplace celui de D21) : vérification par une autre IA sur le téléphone virtuel Android du PC, avec capture et verdict par critère. Kinder installe l'appli sur son vrai téléphone une seule fois, à la fin du projet. | 2026-11-03 |
 | D26 | Import Money Lover (P4 tranché sur l'export réel du 2026-11-03 : fichier CSV, colonnes ID, Note, Amount, Category, Account, Currency, Date JJ/MM/AAAA, Event, Exclude Report). Bouton d'import dans l'onglet Comptes, sous Catégories. Catégories reprises telles quelles : rattachées à une catégorie Moneta de même nom (majuscules, accents et ponctuation ignorés), sinon créées. Opérations datées après le jour de l'import non importées (elles relèvent des récurrentes, étape 9). L'événement est ajouté à la note. Réimporter le même fichier n'ajoute rien, les doubles réels de l'historique sont gardés. Solde de contrôle : Caisse D'épargne 649,54 € au 2026-11-03, confirmé par Kinder. | 2026-11-03 |
 | D27 | Navigation (P2 tranché) : Prêts = rubrique de l'onglet Comptes, sous Récurrentes ; Graphiques = s'ouvrent en touchant la carte du mois de l'accueil ; Réglages = bouton roue dentée en haut de l'onglet Comptes, regroupant Import Money Lover, Sauvegarde et version de l'appli (Catégories reste aussi dans Comptes, D23). Récurrentes : rubrique de l'onglet Comptes. | 2026-11-03 |
+| D28 | Prêts (P7 tranché) : un prêt fait baisser le solde du porte-monnaie d'où part l'argent, un remboursement fait monter celui où il arrive ; ni l'un ni l'autre ne compte dans les entrées et sorties du mois ni dans les budgets. L'import Money Lover ne crée pas de prêts. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -206,7 +207,6 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 |---|---|---|
 | P1 | **Nom** : « Moneta » est aussi une banque tchèque (MONETA Money Bank) présente sur le Play Store ; « Monetico » est le service de paiement du Crédit Mutuel / CIC. Vérifier la disponibilité du nom avant publication (mission Recherche). | Avant la version publiée |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
-| P7 | Un prêt fait-il baisser le solde d'un porte-monnaie, et un remboursement le faire monter ? | Avant l'étape 10 |
 | P8 | Restauration des données depuis le Drive (ex. nouveau téléphone) : fait partie de l'étape sauvegarde ou non ? | Avant l'étape 14 |
 | P9 | Version ordinateur : forme (appli dans le navigateur ou installée) et règle en cas de modification sur les deux appareils. | Avant l'étape 15 |
 
@@ -221,7 +221,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
-| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 (budgets) et 9 (récurrentes, écran placé dans l'onglet Comptes) codées, 23 tests réussis. Avant les étapes 10 à 14 : P7 (étape 10), P5 et P8 (étape 14). |
+| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 (budgets) et 9 (récurrentes, écran placé dans l'onglet Comptes) codées, 23 tests réussis. Avant l'étape 14 : P5 et P8. |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.

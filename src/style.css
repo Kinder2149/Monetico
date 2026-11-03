@@ -379,3 +379,11 @@ section .titre-section { margin-top: 20px; }
 /* Récurrentes : carte « À valider » sur fond vert doux */
 .carte.a-valider { background: var(--doux); margin-bottom: 12px; }
 .carte.a-valider .ligne { cursor: default; }
+
+/* Prêts */
+.chiffres-pret { display: flex; gap: 12px; margin: 16px 0; }
+.chiffres-pret > div { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.chiffres-pret strong { font-size: 17px; font-weight: 800; }
+.badge-rembourse { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--doux); color: var(--positif); font-size: 13px; font-weight: 700; }
+.chiffres-pret .badge-rembourse { font-size: 13px; align-self: flex-start; }
+.bouton.texte-danger { color: var(--negatif); }

@@ -6,6 +6,9 @@
 - Police Manrope intégrée à l'appli (licence libre, pas une dépendance).
 - D23 : l'écran Catégories est placé dans l'onglet Comptes.
 - D24 : bibliothèque d'icônes Lucide validée (P3 tranché).
+- Étapes 3 à 6 codées et vérifiées dans l'aperçu : catégories avec icônes, saisie, liste et accueil, recherche, transferts. 12 tests automatiques réussis.
+- Projet Android créé ; fabrication du fichier d'installation en attente du kit Android sur le poste.
+- Bloc A complet dans l'aperçu ; point de contrôle sur téléphone à faire.
 
 ## 2026-11-03 — Critères de validation (phase 5)
 

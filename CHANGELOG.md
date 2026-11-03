@@ -5,6 +5,7 @@
 - Dépôt récupéré depuis GitHub ; 12 tests réussis ; fichier d'installation fabriqué et lancé sur le téléphone virtuel Android.
 - D25 : point de contrôle de fin de bloc par une autre IA sur le téléphone virtuel ; installation sur le vrai téléphone à la fin du projet.
 - Vérification du bloc A par une autre IA : 26 critères réussis sur 26 ; 4 défauts corrigés sans module ajouté : le bouton retour du téléphone ferme le panneau ou l'écran ouvert au lieu de quitter l'appli ; plus de contour orange après un choix ; le message d'erreur de la saisie disparaît dès la correction ; la liste ne défile plus sous l'heure.
+- Corrections revérifiées par une autre IA : tout réussi. Bloc A fusionné dans la branche principale avec l'accord de Kinder. Suite : bloc B, à partir d'un vrai export Money Lover.
 
 ## 2026-11-03 — Implémentation, bloc A (phase 6)
 

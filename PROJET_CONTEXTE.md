@@ -213,13 +213,13 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 ## 8. Méthode de travail
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
-Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc A.**
+Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc B (import).**
 
 **Avancement (2026-11-03)**
 
 | Bloc | État |
 |---|---|
-| A — Saisie de base (étapes 1 à 6) | Codé, 12 tests réussis, fichier d'installation fabriqué et lancé sur le téléphone virtuel. **Vérification par une autre IA (D25)**, puis fusion de la branche `bloc-a` avec l'accord de Kinder. |
+| A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | En attente d'un vrai export Money Lover (P4). |
 | C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |

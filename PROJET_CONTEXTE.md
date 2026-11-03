@@ -196,6 +196,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D22 | Critères de la section 10 validés, propositions comprises : suppression refusée d'un porte-monnaie ou d'une catégorie qui contient des opérations ; budget dépassé en rouge ; import sans doublons ; courbe du solde sur 12 mois ; en cas de modification sur deux appareils, la plus récente l'emporte. | 2026-11-03 |
 | D23 | Navigation (P2, en partie) : l'écran Catégories est accessible depuis l'onglet Comptes, sous les porte-monnaie. | 2026-11-03 |
 | D24 | Bibliothèque d'icônes (P3) : Lucide (licence ISC), dépendance validée par Kinder. Seules les icônes proposées dans l'appli y sont intégrées. | 2026-11-03 |
+| D25 | Point de contrôle de fin de bloc (remplace celui de D21) : vérification par une autre IA sur le téléphone virtuel Android du PC, avec capture et verdict par critère. Kinder installe l'appli sur son vrai téléphone une seule fois, à la fin du projet. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -218,12 +219,12 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 
 | Bloc | État |
 |---|---|
-| A — Saisie de base (étapes 1 à 6) | Codé, 12 tests réussis, vérifié dans l'aperçu. **À vérifier sur téléphone** (critère 1 de l'étape 1 compris), puis fusion de la branche `bloc-a` avec l'accord de Kinder. |
+| A — Saisie de base (étapes 1 à 6) | Codé, 12 tests réussis, fichier d'installation fabriqué et lancé sur le téléphone virtuel. **Vérification par une autre IA (D25)**, puis fusion de la branche `bloc-a` avec l'accord de Kinder. |
 | B — Import (étape 7) | En attente d'un vrai export Money Lover (P4). |
 | C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
-Reprise prévue sur le PC principal de Kinder : installer le kit Android (Android Studio), fabriquer le fichier d'installation, vérifier le bloc A sur le téléphone, fusionner, puis bloc B.
+Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.
 
 - Le plan découpe le produit en étapes ordonnées, chacune produisant quelque chose de visible à l'écran.
 - Critères de validation : proposés par Claude Code, validés par Kinder avant toute ligne de code (D21, section 10).
@@ -322,7 +323,7 @@ P1 (nom) se tranche avant la publication.
 3. Le transfert ne compte ni dans les entrées ni dans les sorties de la carte du mois.
 4. Il apparaît dans la liste des opérations avec un aspect distinct (ni rouge ni vert).
 
-→ **Point de contrôle Kinder** : vérification du bloc A sur le téléphone.
+→ **Point de contrôle** (D25) : vérification du bloc A par une autre IA sur le téléphone virtuel.
 
 ### Bloc B — Import
 

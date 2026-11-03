@@ -1,5 +1,10 @@
 # CHANGELOG — Moneta
 
+## 2026-11-03 — Reprise sur le PC principal (phase 6, bloc A)
+
+- Dépôt récupéré depuis GitHub ; 12 tests réussis ; fichier d'installation fabriqué et lancé sur le téléphone virtuel Android.
+- D25 : point de contrôle de fin de bloc par une autre IA sur le téléphone virtuel ; installation sur le vrai téléphone à la fin du projet.
+
 ## 2026-11-03 — Implémentation, bloc A (phase 6)
 
 - Étape 1 (coquille) et étape 2 (porte-monnaie) codées et vérifiées dans l'aperçu ; installation sur téléphone en attente du kit Android.

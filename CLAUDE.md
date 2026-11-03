@@ -18,6 +18,14 @@ et `CHANGELOG.md` (historique).
 - Toute nouvelle décision validée est ajoutée en section 6 du PROJET_CONTEXTE et notée au CHANGELOG.
 - Maximum 5 fichiers de documentation, 20 modules, 3 couches. Zéro structure vide « pour le futur ».
 
+## Commandes utiles (pour Claude Code)
+
+- Installer : `npm install`
+- Aperçu dans le navigateur intégré : configuration `moneta` de `.claude/launch.json` (port 5180, `npm run dev`). Vérifier en taille téléphone (390 × 600).
+- Tests automatiques : `npm test`
+- Version Android : `npm run android` (assemble l'appli et la copie dans `android/`), puis `android\gradlew assembleDebug` pour le fichier d'installation (`android/app/build/outputs/apk/debug/`). Nécessite le kit Android (SDK) installé via Android Studio.
+- ⚠️ Gradle 8.14 (projet Capacitor 8) ne fonctionne pas avec Java 25 (celui fourni par Android Studio sur le poste de travail du 2026-11-03) : il faudra soit un Java 21, soit une version plus récente de Gradle. Demander à Kinder avant toute installation.
+
 ## Hygiène git (règle uniforme, tous appareils)
 
 **Début de mission, avant tout travail**

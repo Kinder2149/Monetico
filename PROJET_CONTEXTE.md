@@ -3,7 +3,7 @@
 > Document de référence du projet. Toute décision figée est en section 6.
 > Ce qui n'est pas écrit ici n'est pas décidé : on demande à Kinder.
 
-Dernière mise à jour : 2026-11-03 — fin de la phase 3 (figeage).
+Dernière mise à jour : 2026-11-03 — bloc A codé (phase 6), à vérifier sur téléphone.
 
 ---
 
@@ -40,6 +40,21 @@ jamais vers un serveur de l'éditeur.
 - **Aucune dépendance ajoutée sans l'accord de Kinder.** Dépendances validées
   au-delà du socle : l'accès à la galerie photo (pour les icônes personnalisées) et les icônes Lucide (D24).
 - Projet totalement indépendant de Vault Watch (même socle, aucun code ni donnée partagés).
+
+### Organisation du code (état au 2026-11-03 : 13 modules sur 20)
+
+| Couche | Modules | Rôle |
+|---|---|---|
+| Interface (`src/ui/`) | App, Accueil, Operations, Saisie, Comptes, Categories, Commun, Icones | Écrans, barre du bas, panneaux de saisie |
+| Logique (`src/logique/`) | argent, dates | Format des montants, totaux du mois, regroupement par jour, recherche, dates |
+| Données (`src/donnees/`) | base, depot | Base sql.js conservée sur l'appareil, lectures et écritures |
+
+- Montants enregistrés en centimes ; affichage au format français (1 234,56 €).
+- La base évolue par étapes numérotées (`MIGRATIONS` dans `base.js`) : une mise à jour de l'appli ne perd jamais les données existantes.
+- Données conservées dans le stockage interne du téléphone (IndexedDB de l'appli).
+- Police Manrope intégrée (`public/polices/`), aucun chargement en ligne.
+- Identifiant Android de l'appli : `fr.kinder.moneta` (définitif une fois publiée).
+- Tests automatiques : `tests/bloc-a.test.js` (12 tests au 2026-11-03).
 
 ## 4. Fonctionnalités (périmètre complet du produit)
 
@@ -198,6 +213,17 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
 Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc A.**
+
+**Avancement (2026-11-03)**
+
+| Bloc | État |
+|---|---|
+| A — Saisie de base (étapes 1 à 6) | Codé, 12 tests réussis, vérifié dans l'aperçu. **À vérifier sur téléphone** (critère 1 de l'étape 1 compris), puis fusion de la branche `bloc-a` avec l'accord de Kinder. |
+| B — Import (étape 7) | En attente d'un vrai export Money Lover (P4). |
+| C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
+| D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
+
+Reprise prévue sur le PC principal de Kinder : installer le kit Android (Android Studio), fabriquer le fichier d'installation, vérifier le bloc A sur le téléphone, fusionner, puis bloc B.
 
 - Le plan découpe le produit en étapes ordonnées, chacune produisant quelque chose de visible à l'écran.
 - Critères de validation : proposés par Claude Code, validés par Kinder avant toute ligne de code (D21, section 10).

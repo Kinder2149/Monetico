@@ -112,3 +112,120 @@ button, input, select { font: inherit; color: inherit; }
 }
 
 .plus:active { background: var(--principal-appui); }
+
+/* Textes */
+.texte-2 { color: var(--texte-2); }
+.negatif { color: var(--negatif); }
+.positif { color: var(--positif); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* Cartes et listes */
+.carte {
+  background: var(--carte);
+  border-radius: var(--rayon);
+  padding: 16px;
+  margin: 0 0 16px;
+}
+
+.total { display: flex; flex-direction: column; gap: 4px; }
+.montant-total { font-size: 28px; font-weight: 800; }
+
+.liste { list-style: none; padding: 4px 16px; }
+.liste li + li { border-top: 1px solid var(--separateur); }
+
+.ligne {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  background: none;
+  padding: 8px 0;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ligne-nom { flex: 1; }
+
+.pastille {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--doux);
+  color: var(--principal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+/* Accueil */
+.selecteur select {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--carte);
+  padding: 0 16px;
+  font-weight: 700;
+}
+
+.libelle-solde { margin: 20px 0 2px; font-size: 13px; }
+.solde { margin: 0; font-size: 36px; font-weight: 800; }
+
+/* Boutons */
+.bouton {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--principal);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bouton:active { background: var(--principal-appui); }
+.bouton.secondaire { background: var(--piste); color: var(--texte); }
+.bouton.danger { background: var(--negatif); }
+.bouton.lien-danger { background: none; color: var(--negatif); margin-top: 8px; }
+
+.actions { display: flex; gap: 12px; margin-top: 16px; }
+
+/* Panneau du bas */
+.voile {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 26, 23, 0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10;
+}
+
+.feuille {
+  width: 100%;
+  max-width: 480px;
+  background: var(--carte);
+  border-radius: var(--rayon) var(--rayon) 0 0;
+  padding: 20px 16px calc(var(--bas) + 20px);
+}
+
+.titre-feuille { font-size: 18px; font-weight: 800; margin: 0 0 16px; }
+
+.champ { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--texte-2); }
+
+.champ input {
+  min-height: 48px;
+  border: 1px solid var(--piste);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 16px;
+  color: var(--texte);
+  background: var(--fond);
+}
+
+.champ input:focus { outline: 2px solid var(--principal); border-color: transparent; }
+
+.message { color: var(--negatif); font-size: 13px; margin: 0 0 12px; }

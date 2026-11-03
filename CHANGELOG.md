@@ -6,6 +6,7 @@
 - D26 : règles de l'import validées par Kinder (emplacement, catégories, opérations à venir, événement, doublons, solde de contrôle 649,54 €).
 - Étape 7 codée : bouton dans Comptes, résumé d'import, import en une seule fois (tout ou rien), 5 tests ajoutés (17 au total).
 - Vérifiée par une autre IA sur le téléphone virtuel avec le vrai export : tous les critères réussis. Corrigé : espace des milliers dans le résumé (« 1 858 »).
+- Bloc B fusionné dans la branche principale avec l'accord de Kinder. Suite : bloc C, étape 8 (budgets).
 
 ## 2026-11-03 — Reprise sur le PC principal (phase 6, bloc A)
 

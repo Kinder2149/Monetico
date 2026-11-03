@@ -9,6 +9,8 @@
 - Étapes 3 à 6 codées et vérifiées dans l'aperçu : catégories avec icônes, saisie, liste et accueil, recherche, transferts. 12 tests automatiques réussis.
 - Projet Android créé ; fabrication du fichier d'installation en attente du kit Android sur le poste.
 - Bloc A complet dans l'aperçu ; point de contrôle sur téléphone à faire.
+- Envoyé sur GitHub (branches `main` et `bloc-a`), non fusionné.
+- **Reprise sur le PC principal de Kinder**, dans cet ordre : installer le kit Android, fabriquer le fichier d'installation, vérifier le bloc A sur le téléphone, fusionner `bloc-a` avec l'accord de Kinder, puis bloc B (import) à partir d'un vrai export Money Lover.
 
 ## 2026-11-03 — Critères de validation (phase 5)
 

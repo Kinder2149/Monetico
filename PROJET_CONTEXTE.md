@@ -178,6 +178,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D19 | Projet indépendant de Vault Watch : aucun code, aucune donnée, aucun dépôt partagés. | 2026-11-02 |
 | D20 | Plan du produit en 15 étapes ordonnées (section 9), validé par Kinder. | 2026-11-03 |
 | D21 | Méthode : Claude Code propose les critères de validation de toutes les étapes (section 10), Kinder les valide d'un bloc ; le code s'enchaîne ensuite sans attendre entre les étapes, avec un point de contrôle de Kinder sur le téléphone à la fin de chaque bloc (A, B, C, D). | 2026-11-03 |
+| D22 | Critères de la section 10 validés, propositions comprises : suppression refusée d'un porte-monnaie ou d'une catégorie qui contient des opérations ; budget dépassé en rouge ; import sans doublons ; courbe du solde sur 12 mois ; en cas de modification sur deux appareils, la plus récente l'emporte. | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -188,7 +189,6 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | P3 | Choix de la bibliothèque d'icônes libre de droits (dépendance à faire valider). | Phase 5 de l'étape catégories |
 | P4 | Format exact de l'export Money Lover. | Phase 5 de l'étape import |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
-| P6 | Suppression d'un porte-monnaie ou d'une catégorie qui contient des opérations (proposition : refusée). | Validation des critères (section 10) |
 | P7 | Un prêt fait-il baisser le solde d'un porte-monnaie, et un remboursement le faire monter ? | Avant l'étape 10 |
 | P8 | Restauration des données depuis le Drive (ex. nouveau téléphone) : fait partie de l'étape sauvegarde ou non ? | Avant l'étape 14 |
 | P9 | Version ordinateur : forme (appli dans le navigateur ou installée) et règle en cas de modification sur les deux appareils. | Avant l'étape 15 |
@@ -196,7 +196,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 ## 8. Méthode de travail
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
-Phases 1 à 4 terminées le 2026-11-03. **Phase en cours : 5 — Cadrage** (critères de la section 10 en attente de validation).
+Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc A.**
 
 - Le plan découpe le produit en étapes ordonnées, chacune produisant quelque chose de visible à l'écran.
 - Critères de validation : proposés par Claude Code, validés par Kinder avant toute ligne de code (D21, section 10).
@@ -248,8 +248,8 @@ P1 (nom) se tranche avant la publication.
 
 ## 10. Critères de validation par étape
 
-> Proposés par Claude Code le 2026-11-03 — **en attente de validation par Kinder** (décision D21).
-> Chaque critère se vérifie à l'écran, sans lire de code. « Proposition » = règle non encore décidée, à confirmer ou corriger.
+> Proposés par Claude Code et **validés par Kinder le 2026-11-03**, propositions comprises (décisions D21, D22).
+> Chaque critère se vérifie à l'écran, sans lire de code. Les « propositions » sont validées et valent règle.
 
 **Valables pour toutes les étapes**
 - Tout fonctionne en mode avion.

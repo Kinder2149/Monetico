@@ -4,8 +4,8 @@
 
 - Dépôt relié à github.com/Kinder2149/Monetico (le nom affiché de l'appli reste Moneta, D1).
 - Nouvelle méthode validée par Kinder (D21) : critères proposés par Claude Code et validés d'un bloc, code enchaîné avec un point de contrôle à la fin de chaque bloc.
-- Critères des 15 étapes proposés (PROJET_CONTEXTE, section 10), en attente de validation.
-- Nouveaux points ouverts P6 à P9.
+- Critères des 15 étapes validés par Kinder, propositions comprises (PROJET_CONTEXTE, section 10 ; décision D22).
+- Nouveaux points ouverts P7 à P9 (P6 tranché par D22).
 
 ## 2026-11-03 — Plan (phase 4)
 

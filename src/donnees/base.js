@@ -68,6 +68,17 @@ const MIGRATIONS = [
    );
    ${modeleCategories()}`,
   iconesParDefaut(),
+  // Montant toujours positif ; le type dit s'il entre ou sort. Date au format AAAA-MM-JJ.
+  `CREATE TABLE operation (
+     id INTEGER PRIMARY KEY,
+     type TEXT NOT NULL,
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     categorie_id INTEGER REFERENCES categorie(id) ON DELETE RESTRICT,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT,
+     date TEXT NOT NULL,
+     note TEXT NOT NULL DEFAULT ''
+   );
+   CREATE INDEX operation_date ON operation (date)`,
 ];
 
 export function migrer(db) {

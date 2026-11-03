@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
 import { formaterEuros, lireMontant, montantPourSaisie, total } from '../logique/argent.js';
-import { creerPorteMonnaie, modifierPorteMonnaie, supprimerPorteMonnaie } from '../donnees/depot.js';
+import { creerPorteMonnaie, modifierPorteMonnaie, supprimerPorteMonnaie, porteMonnaieUtilise } from '../donnees/depot.js';
 
 function Formulaire({ base, porteMonnaie, fermer, rafraichir }) {
   const [nom, setNom] = useState(porteMonnaie?.nom ?? '');
@@ -19,6 +19,14 @@ function Formulaire({ base, porteMonnaie, fermer, rafraichir }) {
     else creerPorteMonnaie(base, valeurs);
     rafraichir();
     fermer();
+  }
+
+  function demanderSuppression() {
+    if (porteMonnaieUtilise(base, porteMonnaie.id)) {
+      setMessage('Ce porte-monnaie contient des opérations : supprime-les ou change-les de porte-monnaie avant de le supprimer.');
+    } else {
+      setConfirmer(true);
+    }
   }
 
   function supprimer() {
@@ -49,7 +57,7 @@ function Formulaire({ base, porteMonnaie, fermer, rafraichir }) {
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
         {porteMonnaie && (
-          <button className="bouton lien-danger" type="button" onClick={() => setConfirmer(true)}>
+          <button className="bouton lien-danger" type="button" onClick={demanderSuppression}>
             Supprimer ce porte-monnaie
           </button>
         )}

@@ -5,7 +5,12 @@ const parNom = (a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' 
 
 export function listerPorteMonnaie(base) {
   return base.lire(
-    `SELECT id, nom, solde_depart AS soldeDepart, solde_depart AS solde FROM porte_monnaie`
+    `SELECT p.id, p.nom, p.solde_depart AS soldeDepart,
+            p.solde_depart + COALESCE((
+              SELECT SUM(CASE o.type WHEN 'revenu' THEN o.montant ELSE -o.montant END)
+              FROM operation o WHERE o.porte_monnaie_id = p.id
+            ), 0) AS solde
+     FROM porte_monnaie p`
   ).sort(parNom);
 }
 
@@ -15,6 +20,11 @@ export function creerPorteMonnaie(base, { nom, soldeDepart }) {
 
 export function modifierPorteMonnaie(base, id, { nom, soldeDepart }) {
   base.ecrire('UPDATE porte_monnaie SET nom = ?, solde_depart = ? WHERE id = ?', [nom, soldeDepart, id]);
+}
+
+// Un porte-monnaie qui contient des opérations ne peut pas être supprimé (D22).
+export function porteMonnaieUtilise(base, id) {
+  return base.lire('SELECT 1 FROM operation WHERE porte_monnaie_id = ? LIMIT 1', [id]).length > 0;
 }
 
 export function supprimerPorteMonnaie(base, id) {
@@ -40,7 +50,57 @@ export function modifierCategorie(base, id, { nom, icone }) {
   base.ecrire('UPDATE categorie SET nom = ?, icone = ? WHERE id = ?', [nom, icone, id]);
 }
 
+// Une catégorie utilisée par des opérations (elle ou une de ses sous-catégories) ne peut pas être supprimée (D22).
+export function categorieUtilisee(base, id) {
+  return base.lire(
+    `SELECT 1 FROM operation WHERE categorie_id = ?
+       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?) LIMIT 1`, [id, id]
+  ).length > 0;
+}
+
 // Supprime la catégorie et ses sous-catégories.
 export function supprimerCategorie(base, id) {
   base.ecrire('DELETE FROM categorie WHERE id = ?', [id]);
+}
+
+// --- Opérations ---
+
+const CHAMPS_OPERATION = `
+  o.id, o.type, o.montant, o.date, o.note,
+  o.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie,
+  o.categorie_id AS categorieId, c.nom AS categorie, c.icone AS icone, parent.nom AS categorieParent`;
+
+const JOINTURES_OPERATION = `
+  FROM operation o
+  JOIN porte_monnaie p ON p.id = o.porte_monnaie_id
+  LEFT JOIN categorie c ON c.id = o.categorie_id
+  LEFT JOIN categorie parent ON parent.id = c.parent_id`;
+
+export function creerOperation(base, { type, montant, categorieId, porteMonnaieId, date, note = '' }) {
+  return base.ecrire(
+    `INSERT INTO operation (type, montant, categorie_id, porte_monnaie_id, date, note)
+     VALUES (?, ?, ?, ?, ?, ?)`, [type, montant, categorieId, porteMonnaieId, date, note]
+  );
+}
+
+export function modifierOperation(base, id, { type, montant, categorieId, porteMonnaieId, date, note = '' }) {
+  base.ecrire(
+    `UPDATE operation SET type = ?, montant = ?, categorie_id = ?, porte_monnaie_id = ?, date = ?, note = ?
+     WHERE id = ?`, [type, montant, categorieId, porteMonnaieId, date, note, id]
+  );
+}
+
+export function supprimerOperation(base, id) {
+  base.ecrire('DELETE FROM operation WHERE id = ?', [id]);
+}
+
+// Opérations les plus récentes d'abord ; filtres facultatifs : porte-monnaie, période.
+export function listerOperations(base, { porteMonnaieId = null, debut = null, fin = null } = {}) {
+  const conditions = [];
+  const params = [];
+  if (porteMonnaieId !== null) { conditions.push('o.porte_monnaie_id = ?'); params.push(porteMonnaieId); }
+  if (debut) { conditions.push('o.date >= ?'); params.push(debut); }
+  if (fin) { conditions.push('o.date <= ?'); params.push(fin); }
+  const ou = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+  return base.lire(`SELECT ${CHAMPS_OPERATION} ${JOINTURES_OPERATION} ${ou} ORDER BY o.date DESC, o.id DESC`, params);
 }

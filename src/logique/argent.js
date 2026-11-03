@@ -22,3 +22,35 @@ export function montantPourSaisie(centimes) {
 export function total(porteMonnaie) {
   return porteMonnaie.reduce((somme, p) => somme + p.solde, 0);
 }
+
+// Entrées et sorties d'une liste d'opérations (les transferts ne comptent ni dans l'un ni dans l'autre).
+export function entreesSorties(operations) {
+  let entrees = 0;
+  let sorties = 0;
+  for (const o of operations) {
+    if (o.type === 'revenu') entrees += o.montant;
+    else if (o.type === 'depense') sorties += o.montant;
+  }
+  return { entrees, sorties };
+}
+
+// Regroupe des opérations déjà triées par date en [{ jour, operations }].
+export function parJour(operations) {
+  const groupes = [];
+  for (const o of operations) {
+    const dernier = groupes.at(-1);
+    if (dernier?.jour === o.date) dernier.operations.push(o);
+    else groupes.push({ jour: o.date, operations: [o] });
+  }
+  return groupes;
+}
+
+// Recherche insensible aux majuscules et aux accents, dans la note et la catégorie.
+export function rechercher(operations, texte) {
+  const simplifier = (s) => (s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const cherche = simplifier(texte.trim());
+  if (!cherche) return operations;
+  return operations.filter((o) =>
+    [o.note, o.categorie, o.categorieParent].some((champ) => simplifier(champ).includes(cherche))
+  );
+}

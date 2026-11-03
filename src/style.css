@@ -285,3 +285,66 @@ button, input, select { font: inherit; color: inherit; }
 .grille-icones .pastille { width: 44px; height: 44px; border: 0; cursor: pointer; }
 .grille-icones .pastille.choisie { background: var(--principal); color: #fff; }
 .feuille { max-height: 90vh; overflow-y: auto; }
+
+/* Accueil */
+.haut-accueil { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.bouton-rond {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--carte);
+  color: var(--texte);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.mois { margin-top: 20px; }
+.titre-carte { margin: 0 0 10px; font-weight: 700; }
+.mois-colonnes { display: flex; gap: 16px; }
+.mois-colonnes > div { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.mois-colonnes strong { font-size: 17px; font-weight: 800; }
+
+/* Opérations */
+.detail { display: block; font-size: 12px; font-weight: 500; margin-top: 2px; }
+.recherche input { background: var(--carte); border-color: transparent; }
+section .titre-section { margin-top: 20px; }
+
+/* Saisie */
+.montant-saisie { font-size: 24px !important; font-weight: 800; }
+.champ select {
+  min-height: 48px;
+  border: 1px solid var(--piste);
+  border-radius: 12px;
+  padding: 0 10px;
+  font-size: 16px;
+  color: var(--texte);
+  background: var(--fond);
+}
+.choix-actuel { border: 1px solid var(--piste); border-radius: 12px; padding: 4px 12px; background: var(--fond); }
+.liste-choix {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--piste);
+  border-radius: 12px;
+  padding: 8px;
+  background: var(--fond);
+}
+.groupe-choix { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
+.groupe-choix + .groupe-choix { border-top: 1px solid var(--separateur); }
+.puce {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--carte);
+  padding: 4px 12px 4px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texte);
+  cursor: pointer;
+}
+.puce.choisie { background: var(--principal); color: #fff; }

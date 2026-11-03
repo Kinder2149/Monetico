@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import initSqlJs from 'sql.js';
 import { creerBase } from '../src/donnees/base.js';
 import * as depot from '../src/donnees/depot.js';
-import { formaterEuros, lireMontant, montantPourSaisie, total } from '../src/logique/argent.js';
+import { formaterEuros, lireMontant, montantPourSaisie, total, entreesSorties, parJour, rechercher } from '../src/logique/argent.js';
+import { libelleJour, bornesDuMois } from '../src/logique/dates.js';
 
 const SQL = await initSqlJs();
 
@@ -87,4 +88,71 @@ test('étape 3 : ajouter, renommer, supprimer catégories et sous-catégories', 
   depot.supprimerCategorie(base, id);
   assert.equal(depot.listerCategories(base, 'depense').length, 10);
   assert.equal(base.lire('SELECT COUNT(*) AS n FROM categorie WHERE parent_id = ?', [id])[0].n, 0);
+});
+
+function avecDonnees() {
+  const { base } = nouvelleBase();
+  const banque = depot.creerPorteMonnaie(base, { nom: 'Banque', soldeDepart: 100000 });
+  const especes = depot.creerPorteMonnaie(base, { nom: 'Espèces', soldeDepart: 5000 });
+  const cat = (nom) => base.lire('SELECT id FROM categorie WHERE nom = ?', [nom])[0].id;
+  return { base, banque, especes, cat };
+}
+
+test('étape 4 : une dépense baisse le solde, un revenu le monte', () => {
+  const { base, banque, cat } = avecDonnees();
+  depot.creerOperation(base, { type: 'depense', montant: 2350, categorieId: cat('Courses'), porteMonnaieId: banque, date: '2026-11-03' });
+  depot.creerOperation(base, { type: 'revenu', montant: 200000, categorieId: cat('Salaire'), porteMonnaieId: banque, date: '2026-11-01' });
+  const liste = depot.listerPorteMonnaie(base);
+  assert.equal(liste.find((p) => p.id === banque).solde, 100000 - 2350 + 200000);
+  assert.equal(total(liste), 105000 - 2350 + 200000);
+});
+
+test('étape 4 : montant nul refusé par la base', () => {
+  const { base, banque, cat } = avecDonnees();
+  assert.throws(() => depot.creerOperation(base, { type: 'depense', montant: 0, categorieId: cat('Courses'), porteMonnaieId: banque, date: '2026-11-03' }));
+});
+
+test('D22 : porte-monnaie et catégorie utilisés ne peuvent pas être supprimés', () => {
+  const { base, banque, especes, cat } = avecDonnees();
+  depot.creerOperation(base, { type: 'depense', montant: 500, categorieId: cat('Courses'), porteMonnaieId: banque, date: '2026-11-03' });
+  assert.equal(depot.porteMonnaieUtilise(base, banque), true);
+  assert.equal(depot.porteMonnaieUtilise(base, especes), false);
+  assert.equal(depot.categorieUtilisee(base, cat('Courses')), true);
+  assert.equal(depot.categorieUtilisee(base, cat('Alimentation')), true, 'la catégorie parente compte aussi');
+  assert.equal(depot.categorieUtilisee(base, cat('Logement')), false);
+  // Garde-fou : la base refuse même si l'écran laissait passer.
+  assert.throws(() => depot.supprimerPorteMonnaie(base, banque));
+  assert.throws(() => depot.supprimerCategorie(base, cat('Alimentation')));
+});
+
+test('étape 5 : liste, modification, suppression, filtre, recherche, mois', () => {
+  const { base, banque, especes, cat } = avecDonnees();
+  const a = depot.creerOperation(base, { type: 'depense', montant: 1200, categorieId: cat('Restaurant'), porteMonnaieId: banque, date: '2026-11-02', note: 'Pizzéria du coin' });
+  depot.creerOperation(base, { type: 'depense', montant: 300, categorieId: cat('Café/Bar'), porteMonnaieId: especes, date: '2026-11-03' });
+  depot.creerOperation(base, { type: 'revenu', montant: 5000, categorieId: cat('Vente'), porteMonnaieId: banque, date: '2026-10-28' });
+
+  const toutes = depot.listerOperations(base);
+  assert.deepEqual(toutes.map((o) => o.date), ['2026-11-03', '2026-11-02', '2026-10-28']);
+  assert.equal(toutes[1].categorieParent, 'Alimentation');
+  assert.deepEqual(parJour(toutes).map((g) => g.jour), ['2026-11-03', '2026-11-02', '2026-10-28']);
+  assert.equal(depot.listerOperations(base, { porteMonnaieId: especes }).length, 1);
+
+  assert.equal(rechercher(toutes, 'pizzeria').length, 1, 'sans accent');
+  assert.equal(rechercher(toutes, 'ALIMENT').length, 2, 'par catégorie parente');
+
+  const { debut, fin } = bornesDuMois('2026-11-15');
+  assert.deepEqual({ debut, fin }, { debut: '2026-11-01', fin: '2026-11-30' });
+  assert.deepEqual(entreesSorties(depot.listerOperations(base, { debut, fin })), { entrees: 0, sorties: 1500 });
+
+  depot.modifierOperation(base, a, { type: 'depense', montant: 1500, categorieId: cat('Restaurant'), porteMonnaieId: banque, date: '2026-11-02', note: '' });
+  assert.equal(depot.listerPorteMonnaie(base).find((p) => p.id === banque).solde, 100000 - 1500 + 5000);
+  depot.supprimerOperation(base, a);
+  assert.equal(depot.listerPorteMonnaie(base).find((p) => p.id === banque).solde, 100000 + 5000);
+});
+
+test('dates : libellés des jours', () => {
+  assert.equal(libelleJour('2026-11-03', '2026-11-03'), "Aujourd'hui");
+  assert.equal(libelleJour('2026-11-02', '2026-11-03'), 'Hier');
+  assert.equal(libelleJour('2026-10-26', '2026-11-03'), 'Lundi 26 octobre');
+  assert.equal(libelleJour('2025-12-31', '2026-11-03'), 'Mercredi 31 décembre 2025');
 });

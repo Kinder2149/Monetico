@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
 import { ICONES_CATEGORIES, IconeCategorie } from './Icones.jsx';
-import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie } from '../donnees/depot.js';
+import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie, categorieUtilisee } from '../donnees/depot.js';
 
 export function Pastille({ categorie, petite }) {
   return (
@@ -51,6 +51,14 @@ function Formulaire({ base, edition, fermer, rafraichir }) {
     fermer();
   }
 
+  function demanderSuppression() {
+    if (categorieUtilisee(base, categorie.id)) {
+      setMessage(`Cette ${genre} est utilisée par des opérations : change-les de catégorie avant de la supprimer.`);
+    } else {
+      setConfirmer(true);
+    }
+  }
+
   function supprimer() {
     supprimerCategorie(base, categorie.id);
     rafraichir();
@@ -85,7 +93,7 @@ function Formulaire({ base, edition, fermer, rafraichir }) {
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
         {categorie && (
-          <button className="bouton lien-danger" type="button" onClick={() => setConfirmer(true)}>
+          <button className="bouton lien-danger" type="button" onClick={demanderSuppression}>
             Supprimer cette {genre}
           </button>
         )}

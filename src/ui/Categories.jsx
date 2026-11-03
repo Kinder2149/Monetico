@@ -1,23 +1,55 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
-import { ICONES_CATEGORIES, IconeCategorie } from './Icones.jsx';
+import { ICONES_CATEGORIES, IconeCategorie, IconePhoto } from './Icones.jsx';
 import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie, categorieUtilisee } from '../donnees/depot.js';
+
+// Une icône est soit un nom du catalogue (src/ui/Icones.jsx), soit une photo de la galerie (image réduite).
+const estPhoto = (icone) => Boolean(icone?.startsWith('data:image/'));
 
 export function Pastille({ categorie, petite }) {
   return (
     <span className={'pastille' + (petite ? ' petite' : '')} aria-hidden="true">
-      {categorie.icone
-        ? <IconeCategorie nom={categorie.icone} taille={petite ? 16 : 20} />
-        : categorie.nom.charAt(0).toUpperCase()}
+      {estPhoto(categorie.icone) ? <img className="photo-icone" src={categorie.icone} alt="" />
+        : categorie.icone ? <IconeCategorie nom={categorie.icone} taille={petite ? 16 : 20} />
+          : categorie.nom.charAt(0).toUpperCase()}
     </span>
   );
 }
 
+// Photo choisie dans la galerie (D6, étape 12), recadrée en carré et réduite pour rester légère dans la base.
+async function photoEnIcone(fichier, taille = 96) {
+  const image = await createImageBitmap(fichier);
+  const cote = Math.min(image.width, image.height);
+  const toile = document.createElement('canvas');
+  toile.width = taille;
+  toile.height = taille;
+  toile.getContext('2d').drawImage(image, (image.width - cote) / 2, (image.height - cote) / 2, cote, cote, 0, 0, taille, taille);
+  return toile.toDataURL('image/jpeg', 0.85);
+}
+
 function ChoixIcone({ choisie, choisir }) {
+  const [erreur, setErreur] = useState('');
+
+  async function choisirPhoto(e) {
+    const fichier = e.target.files[0];
+    e.target.value = '';
+    if (!fichier) return;
+    try {
+      setErreur('');
+      choisir(await photoEnIcone(fichier));
+    } catch {
+      setErreur("Cette image n'a pas pu être lue. Essaie une autre photo.");
+    }
+  }
+
   return (
     <fieldset className="choix-icone">
       <legend>Icône</legend>
       <div className="grille-icones">
+        <label className={'pastille photo' + (estPhoto(choisie) ? ' choisie' : '')} aria-label="Choisir une photo de la galerie">
+          {estPhoto(choisie) ? <img className="photo-icone" src={choisie} alt="" /> : <IconePhoto />}
+          <input type="file" accept="image/*" hidden onChange={choisirPhoto} />
+        </label>
         {Object.keys(ICONES_CATEGORIES).map((nom) => (
           <button key={nom} type="button" aria-label={nom} aria-pressed={choisie === nom}
             className={'pastille' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}>
@@ -25,6 +57,7 @@ function ChoixIcone({ choisie, choisir }) {
           </button>
         ))}
       </div>
+      <Message texte={erreur} />
     </fieldset>
   );
 }

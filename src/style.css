@@ -411,3 +411,13 @@ section .titre-section { margin-top: 20px; }
 .courbe .negatif-point { stroke: var(--negatif); }
 .courbe .ligne-zero { stroke: var(--piste); stroke-width: 1; stroke-dasharray: 4 4; }
 .courbe .mois-courbe { font-size: 10px; fill: var(--texte-2); font-family: inherit; }
+
+/* Icône de catégorie en photo (étape 12) */
+.pastille { overflow: hidden; flex: none; }
+.photo-icone { width: 100%; height: 100%; object-fit: cover; display: block; }
+.grille-icones .pastille.photo { cursor: pointer; border: 2px dashed var(--piste); }
+.grille-icones .pastille.photo.choisie { border: 2px solid var(--principal); background: var(--doux); }
+
+/* Réglages (roue dentée en haut de l'onglet Comptes) */
+.bouton-rond.reglages { margin-left: auto; margin-top: -14px; }
+.titre-section.first { margin-top: 0; }

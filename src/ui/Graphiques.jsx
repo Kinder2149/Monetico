@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Pastille } from './Categories.jsx';
 import { formaterEuros, partsCamembert } from '../logique/argent.js';
 import { aujourdhui, bornesDuMois, decalerMois, moisCourt, nomDuMois } from '../logique/dates.js';
 import { depensesParCategorie, soldeTotalAu } from '../donnees/depot.js';
@@ -59,6 +60,7 @@ function Camembert({ base }) {
             {parts.map((p, i) => (
               <li key={p.id}>
                 <span className="puce-couleur" style={{ background: couleur(p, i) }} aria-hidden="true" />
+                <Pastille categorie={p.id === 'autres' ? { nom: '…', icone: 'ellipsis' } : p} petite />
                 <span className="ligne-nom">{p.nom}</span>
                 <span className="texte-2">{pourcentage(p.part)}</span>
                 <strong>{formaterEuros(p.montant)}</strong>

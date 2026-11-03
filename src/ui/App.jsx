@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconeAccueil, IconeOperations, IconeBudgets, IconeComptes, IconePlus } from './Icones.jsx';
+import { IconeAccueil, IconeOperations, IconeBudgets, IconeComptes, IconePlus, IconeReglages } from './Icones.jsx';
 import Accueil from './Accueil.jsx';
 import Operations from './Operations.jsx';
 import Comptes from './Comptes.jsx';
@@ -9,11 +9,12 @@ import Budgets from './Budgets.jsx';
 import Recurrentes from './Recurrentes.jsx';
 import Prets from './Prets.jsx';
 import Graphiques from './Graphiques.jsx';
+import Reglages from './Reglages.jsx';
 import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
 
 // Écrans secondaires (Graphiques depuis l'accueil, les autres depuis l'onglet Comptes), avec leur titre.
-const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes', prets: 'Prêts', graphiques: 'Graphiques' };
+const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes', prets: 'Prêts', graphiques: 'Graphiques', reglages: 'Réglages' };
 
 const ONGLETS = {
   accueil: { titre: 'Accueil', Icone: IconeAccueil },
@@ -66,6 +67,7 @@ export default function App({ ouvrir }) {
   if (erreur) contenu = <p className="vide">{erreur}</p>;
   else if (!base) contenu = null;
   else if (page === 'categories') contenu = <Categories base={base} />;
+  else if (page === 'reglages') contenu = <Reglages base={base} rafraichir={rafraichir} />;
   else if (page === 'graphiques') contenu = <Graphiques base={base} />;
   else if (page === 'prets') contenu = <Prets base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
   else if (page === 'recurrentes') contenu = <Recurrentes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
@@ -94,7 +96,14 @@ export default function App({ ouvrir }) {
             <h1 className="titre-ecran">{PAGES[page]}</h1>
           </div>
         ) : (
-          <h1 className="titre-ecran">{ONGLETS[actif].titre}</h1>
+          <div className="entete">
+            <h1 className="titre-ecran">{ONGLETS[actif].titre}</h1>
+            {actif === 'comptes' && (
+              <button className="bouton-rond reglages" onClick={() => setPage('reglages')} aria-label="Réglages">
+                <IconeReglages />
+              </button>
+            )}
+          </div>
         )}
         {contenu}
       </main>

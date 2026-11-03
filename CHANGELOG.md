@@ -7,6 +7,10 @@
 - 6 tests ajoutés (23 au total). Vérification par une autre IA prévue à la fin du bloc C (D25).
 - D27 : place des écrans Prêts, Graphiques et Réglages validée par Kinder (P2 tranché).
 - D28 : effet des prêts et remboursements sur le solde validé par Kinder (P7 tranché).
+- Étape 10 codée : prêts (personne, montant, date, porte-monnaie), remboursements, reste dû, « Remboursé » ; total « On me doit ».
+- Étape 11 codée : camembert des dépenses du mois (les 6 plus grosses catégories, le reste regroupé), changement de mois, courbe du solde total en fin de mois sur 12 mois ; dessinés dans l'appli, sans module ajouté.
+- Étape 12 codée : photo de la galerie comme icône de catégorie, recadrée et réduite ; choix par le sélecteur de photos d'Android, qui ne demande pas d'autorisation (écart avec le critère 1, qui en prévoyait une).
+- Étape 13 codée : écran Réglages (roue dentée de l'onglet Comptes) avec l'import Money Lover, déplacé depuis Comptes, et la version de l'appli. La sauvegarde y sera ajoutée à l'étape 14.
 
 ## 2026-11-03 — Bloc B, import Money Lover (phases 5 et 6)
 

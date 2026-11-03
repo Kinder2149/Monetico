@@ -177,6 +177,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D18 | Inspiration Money Lover uniquement : aucune reprise de ses icônes, mise en page exacte ou textes. | 2026-11-02 |
 | D19 | Projet indépendant de Vault Watch : aucun code, aucune donnée, aucun dépôt partagés. | 2026-11-02 |
 | D20 | Plan du produit en 15 étapes ordonnées (section 9), validé par Kinder. | 2026-11-03 |
+| D21 | Méthode : Claude Code propose les critères de validation de toutes les étapes (section 10), Kinder les valide d'un bloc ; le code s'enchaîne ensuite sans attendre entre les étapes, avec un point de contrôle de Kinder sur le téléphone à la fin de chaque bloc (A, B, C, D). | 2026-11-03 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -187,14 +188,19 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | P3 | Choix de la bibliothèque d'icônes libre de droits (dépendance à faire valider). | Phase 5 de l'étape catégories |
 | P4 | Format exact de l'export Money Lover. | Phase 5 de l'étape import |
 | P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
+| P6 | Suppression d'un porte-monnaie ou d'une catégorie qui contient des opérations (proposition : refusée). | Validation des critères (section 10) |
+| P7 | Un prêt fait-il baisser le solde d'un porte-monnaie, et un remboursement le faire monter ? | Avant l'étape 10 |
+| P8 | Restauration des données depuis le Drive (ex. nouveau téléphone) : fait partie de l'étape sauvegarde ou non ? | Avant l'étape 14 |
+| P9 | Version ordinateur : forme (appli dans le navigateur ou installée) et règle en cas de modification sur les deux appareils. | Avant l'étape 15 |
 
 ## 8. Méthode de travail
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
-Phases 1 à 4 terminées le 2026-11-03. **Prochaine phase : 5 — Cadrage de l'étape 1** (critère de validation écrit par Kinder).
+Phases 1 à 4 terminées le 2026-11-03. **Phase en cours : 5 — Cadrage** (critères de la section 10 en attente de validation).
 
 - Le plan découpe le produit en étapes ordonnées, chacune produisant quelque chose de visible à l'écran.
-- Avant chaque étape : Kinder écrit en français le critère de validation (phase 5), avant toute ligne de code.
+- Critères de validation : proposés par Claude Code, validés par Kinder avant toute ligne de code (D21, section 10).
+- Code enchaîné bloc par bloc ; point de contrôle de Kinder sur le téléphone à la fin de chaque bloc.
 - Le test de code ferme une étape ; la capture d'écran ferme la mission.
 - Résultats rendus en langage fonctionnel (critère réussi / échoué), jamais de logs bruts.
 - Une étape à la fois.
@@ -239,3 +245,116 @@ Chaque étape produit quelque chose de visible à l'écran. Une étape à la foi
 | 15 | Moneta sur PC | Moneta ouverte sur l'ordinateur avec les mêmes données que le téléphone. |
 
 P1 (nom) se tranche avant la publication.
+
+## 10. Critères de validation par étape
+
+> Proposés par Claude Code le 2026-11-03 — **en attente de validation par Kinder** (décision D21).
+> Chaque critère se vérifie à l'écran, sans lire de code. « Proposition » = règle non encore décidée, à confirmer ou corriger.
+
+**Valables pour toutes les étapes**
+- Tout fonctionne en mode avion.
+- Après fermeture complète et réouverture de l'appli, tout ce qui a été saisi est toujours là.
+- Les écrans respectent la charte « Menthe claire » (section 5) ; montants au format français (1 234,56 €).
+
+### Bloc A — Saisie de base
+
+**Étape 1 — Coquille de l'appli**
+1. Moneta s'installe sur le téléphone Android ; son nom « Moneta » apparaît sous son icône.
+2. À l'ouverture : fond menthe très clair, textes en police Manrope.
+3. La barre du bas montre Accueil · Opérations · « + » · Budgets · Comptes ; le « + » est un carré vert arrondi en relief.
+4. Toucher chaque onglet affiche un écran différent avec son titre ; l'onglet actif est en vert.
+
+**Étape 2 — Porte-monnaie**
+1. Dans Comptes, je crée un porte-monnaie (nom + solde de départ) ; il apparaît dans la liste avec son solde.
+2. Je peux le renommer, changer son solde de départ, le supprimer après une demande de confirmation.
+3. Le total « Tous les comptes » est égal à la somme des soldes.
+4. En haut de l'accueil, le sélecteur permet d'afficher « Tous les comptes » ou un seul porte-monnaie.
+5. Proposition (P6) : un porte-monnaie qui contient des opérations ne peut pas être supprimé ; un message l'explique.
+
+**Étape 3 — Catégories** — à trancher avant : P2 (où se trouve l'écran) et P3 (bibliothèque d'icônes)
+1. La liste de départ (section 4.3) s'affiche, séparée en Dépenses et Revenus, les sous-catégories sous leur catégorie.
+2. J'ajoute, renomme, supprime une catégorie ou une sous-catégorie.
+3. Je change l'icône d'une catégorie en la choisissant dans la bibliothèque ; elle s'affiche dans une pastille carrée arrondie.
+4. Proposition (P6) : une catégorie utilisée par des opérations ne peut pas être supprimée ; un message l'explique.
+
+**Étape 4 — Saisir une opération**
+1. Le « + » ouvre la saisie : Dépense ou Revenu, montant en euros, catégorie (ou sous-catégorie), porte-monnaie, date (aujourd'hui par défaut), note facultative.
+2. Après enregistrement, le solde du porte-monnaie et le total baissent (dépense) ou montent (revenu) du montant saisi.
+3. Sans montant ou sans catégorie, l'enregistrement est refusé avec un message clair.
+
+**Étape 5 — Liste et accueil**
+1. L'onglet Opérations liste toutes les opérations, regroupées par jour, les plus récentes en haut ; dépenses en rouge, revenus en vert.
+2. Toucher une opération permet de la modifier ou de la supprimer ; les soldes se recalculent.
+3. La loupe permet de retrouver une opération par sa note ou sa catégorie.
+4. Le sélecteur de porte-monnaie filtre la liste et l'accueil.
+5. L'accueil montre, comme la maquette : solde total, carte du mois (entrées et sorties du mois en cours), opérations du jour. Les cartes Budget et « À valider » arrivent aux étapes 8 et 9.
+
+**Étape 6 — Transferts**
+1. Dans la saisie, un choix « Transfert » : porte-monnaie de départ, d'arrivée, montant, date.
+2. Le départ baisse, l'arrivée monte, le total « Tous les comptes » ne change pas.
+3. Le transfert ne compte ni dans les entrées ni dans les sorties de la carte du mois.
+4. Il apparaît dans la liste des opérations avec un aspect distinct (ni rouge ni vert).
+
+→ **Point de contrôle Kinder** : vérification du bloc A sur le téléphone.
+
+### Bloc B — Import
+
+**Étape 7 — Import Money Lover** — à trancher avant : P4 (format, à partir d'un vrai export fourni par Kinder)
+1. Un bouton « Importer depuis Money Lover » permet de choisir le fichier d'export sur le téléphone (emplacement : voir P2).
+2. Après import, un résumé affiche le nombre d'opérations, de porte-monnaie et de catégories importés.
+3. Les soldes de 2 ou 3 porte-monnaie choisis par Kinder sont identiques à ceux de Money Lover à la date de l'export.
+4. Quelques opérations témoins choisies par Kinder ont la même date, le même montant, la même catégorie et la même note.
+5. Proposition : importer deux fois le même fichier ne crée pas de doublons.
+
+→ **Point de contrôle Kinder** : vérification de l'import sur ses vraies données.
+
+### Bloc C — Le reste
+
+**Étape 8 — Budgets**
+1. Dans Budgets, je crée un budget : nom, catégories cochées, montant maximum ; jour de départ le 1er par défaut, modifiable.
+2. Chaque budget affiche « dépensé / maximum » avec sa barre de progression.
+3. Proposition : en cas de dépassement, la barre et le montant passent en rouge.
+4. Je peux exclure une dépense précise d'un budget ; le montant dépensé baisse d'autant.
+5. Au jour de départ suivant, le budget repart à zéro.
+6. L'accueil affiche une carte budget, comme sur la maquette.
+
+**Étape 9 — Récurrentes**
+1. Je déclare une opération récurrente mensuelle : dépense ou revenu, montant, catégorie, porte-monnaie, jour prévu.
+2. Chaque mois, une carte « À valider » (fond vert doux) apparaît sur l'accueil avec un bouton Valider.
+3. Tant qu'elle n'est pas validée, aucun solde ne change.
+4. Valider demande la date réelle d'encaissement (jour prévu proposé) ; l'opération apparaît alors dans la liste à cette date et le solde change.
+5. La liste des récurrentes permet de les modifier ou de les supprimer.
+
+**Étape 10 — Prêts** — à trancher avant : P2 (où se trouve l'écran) et P7 (effet sur le solde)
+1. Je crée un prêt : personne, montant, date.
+2. J'ajoute des remboursements reçus ; le reste dû = montant prêté − remboursements.
+3. Un prêt entièrement remboursé est marqué « Remboursé ».
+
+**Étape 11 — Graphiques** — à trancher avant : P2 (où se trouve l'écran)
+1. Le camembert montre la répartition des dépenses du mois par catégorie, avec montants et pourcentages ; je peux changer de mois.
+2. La courbe montre le solde total en fin de mois. Proposition : sur les 12 derniers mois.
+3. Pour un mois choisi par Kinder, les montants du camembert correspondent à la liste des opérations.
+
+**Étape 12 — Icônes depuis la galerie**
+1. En changeant l'icône d'une catégorie, je peux choisir une photo de la galerie ; le téléphone demande l'autorisation la première fois.
+2. La photo s'affiche dans la pastille de la catégorie partout dans l'appli (liste, opérations, graphiques).
+
+**Étape 13 — Réglages** — à trancher avant : P2 (où se trouve l'écran)
+1. Un écran Réglages est accessible et regroupe les options. Proposition : Catégories, Import Money Lover, Sauvegarde, version de l'appli.
+
+**Étape 14 — Sauvegarde Google Drive** — à trancher avant : P5 (revue Hermès) et P8 (restauration)
+1. Sans connexion Google, toute l'appli fonctionne ; aucun compte n'est jamais demandé.
+2. Dans Réglages, je me connecte à Google ; l'écran affiche « Dernière sauvegarde : à l'instant ».
+3. Après une modification, le fichier de sauvegarde Moneta est mis à jour dans mon Drive (date visible dans Drive).
+4. En mode avion, une modification est marquée « en attente » ; au retour du réseau, elle part seule et l'écran revient à « à l'instant ».
+
+→ **Point de contrôle Kinder** : vérification du bloc C sur le téléphone.
+
+### Bloc D — Version ordinateur
+
+**Étape 15 — Moneta sur PC** — à trancher avant : P9 (forme et règle de conflit)
+1. Moneta s'ouvre sur l'ordinateur et, après connexion au même compte Google, affiche les mêmes porte-monnaie, opérations et soldes que le téléphone.
+2. Une opération ajoutée sur le PC apparaît sur le téléphone, et inversement.
+3. Proposition : si le même élément est modifié sur les deux appareils, la modification la plus récente l'emporte.
+
+→ **Point de contrôle Kinder** : vérification finale sur les deux appareils.

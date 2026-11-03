@@ -8,7 +8,8 @@ et `CHANGELOG.md` (historique).
 - Tout en français. Termes fonctionnels avec Kinder, jamais de jargon technique.
 - Kinder est product owner : il ne lit pas le code ; il valide par capture d'écran.
 - Toujours dire dans quelle phase on se trouve (1 à 6). Aucune phase ne se saute.
-- Une étape à la fois. Pas de code sans critère de validation écrit par Kinder (phase 5).
+- Pas de code sans critère de validation validé par Kinder (section 10 du PROJET_CONTEXTE, décision D21).
+- Les étapes d'un même bloc s'enchaînent ; arrêt pour vérification par Kinder à la fin de chaque bloc.
 - Résultats de test rendus en langage fonctionnel : quel critère, réussi ou échoué.
 - Aucune dépendance ajoutée sans l'accord de Kinder (seule validée : accès à la galerie photo).
 - Ne jamais toucher à Vault Watch ni à aucun autre projet.

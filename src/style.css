@@ -1,0 +1,114 @@
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: block;
+  src: url('/polices/manrope-latin.woff2') format('woff2');
+}
+
+/* Charte « Menthe claire » (PROJET_CONTEXTE, section 5) */
+:root {
+  --fond: #F4F7F6;
+  --carte: #FFFFFF;
+  --texte: #0F1A17;
+  --texte-2: #4B5B56;
+  --principal: #0F766E;
+  --principal-appui: #115E59;
+  --doux: #E6F4F1;
+  --piste: #E3ECE9;
+  --separateur: #EDF2F0;
+  --positif: #067647;
+  --negatif: #B42318;
+  --rayon: 20px;
+  --haut: env(safe-area-inset-top, 0px);
+  --bas: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, select { font: inherit; color: inherit; }
+
+#racine { height: 100%; }
+
+.appli {
+  max-width: 480px;
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--fond);
+}
+
+.ecran {
+  flex: 1;
+  overflow-y: auto;
+  padding: calc(var(--haut) + 20px) 16px 24px;
+}
+
+.titre-ecran {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 4px 0 18px;
+}
+
+.vide {
+  color: var(--texte-2);
+  text-align: center;
+  margin-top: 48px;
+}
+
+/* Barre du bas */
+.barre {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  background: var(--carte);
+  border-top: 1px solid var(--separateur);
+  padding: 6px 4px calc(var(--bas) + 6px);
+}
+
+.onglet {
+  flex: 1;
+  min-height: 52px;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texte-2);
+  cursor: pointer;
+}
+
+.onglet.actif { color: var(--principal); font-weight: 800; }
+
+.plus {
+  width: 56px;
+  height: 56px;
+  margin: 0 6px 6px;
+  transform: translateY(-14px);
+  border: 0;
+  border-radius: 16px;
+  background: var(--principal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.35);
+  cursor: pointer;
+}
+
+.plus:active { background: var(--principal-appui); }

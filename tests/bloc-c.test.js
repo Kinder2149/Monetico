@@ -77,3 +77,53 @@ test('étape 8 : modifier et supprimer un budget ; une opération supprimée sor
   assert.equal(depot.listerBudgets(base).length, 0);
   assert.equal(base.lire('SELECT COUNT(*) AS n FROM budget_categorie')[0].n, 0);
 });
+
+test('étape 9 : une récurrente « À valider » ne change le solde qu\'une fois validée', () => {
+  const base = nouvelleBase();
+  const pm = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 100000 });
+  const loyer = categorie(base, 'Loyer');
+  const id = depot.creerRecurrente(base, { type: 'depense', montant: 65000, categorieId: loyer, porteMonnaieId: pm, jour: 5, note: 'Loyer' });
+  depot.creerRecurrente(base, { type: 'revenu', montant: 200000, categorieId: categorie(base, 'Salaire', 'revenu'), porteMonnaieId: pm, jour: 28 });
+
+  assert.equal(depot.recurrentesAValider(base, '2026-11').length, 2);
+  assert.equal(depot.listerPorteMonnaie(base)[0].solde, 100000);
+  assert.equal(depot.listerOperations(base).length, 0);
+
+  const [r] = depot.recurrentesAValider(base, '2026-11').filter((x) => x.id === id);
+  const operationId = depot.validerRecurrente(base, r, '2026-11', '2026-11-06');
+  assert.equal(depot.listerPorteMonnaie(base)[0].solde, 35000);
+  const [o] = depot.listerOperations(base);
+  assert.deepEqual([o.date, o.montant, o.categorie, o.note], ['2026-11-06', 65000, 'Loyer', 'Loyer']);
+  assert.deepEqual(depot.recurrentesAValider(base, '2026-11').map((x) => x.id).includes(id), false);
+  // Le mois suivant, elle revient « À valider ».
+  assert.equal(depot.recurrentesAValider(base, '2026-12').length, 2);
+  // Supprimer l'opération validée remet le mois « À valider ».
+  depot.supprimerOperation(base, operationId);
+  assert.equal(depot.recurrentesAValider(base, '2026-11').length, 2);
+});
+
+test('étape 9 : modifier, supprimer ; catégorie et porte-monnaie d\'une récurrente protégés', () => {
+  const base = nouvelleBase();
+  const pm = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 0 });
+  const abonnements = categorie(base, 'Abonnements');
+  const id = depot.creerRecurrente(base, { type: 'depense', montant: 1599, categorieId: abonnements, porteMonnaieId: pm, jour: 28 });
+  assert.equal(depot.categorieUtilisee(base, abonnements), true);
+  assert.equal(depot.porteMonnaieUtilise(base, pm), true);
+
+  depot.modifierRecurrente(base, id, { type: 'depense', montant: 1999, categorieId: abonnements, porteMonnaieId: pm, jour: 31, note: 'Basic fit' });
+  const [r] = depot.listerRecurrentes(base);
+  assert.deepEqual([r.montant, r.jour, r.note], [1999, 31, 'Basic fit']);
+
+  const operationId = depot.validerRecurrente(base, r, '2026-11', '2026-11-30');
+  depot.supprimerRecurrente(base, id);
+  assert.equal(depot.listerRecurrentes(base).length, 0);
+  assert.equal(depot.listerOperations(base)[0].id, operationId);
+  assert.equal(depot.categorieUtilisee(base, abonnements), true);
+});
+
+test('étape 9 : jour prévu dans le mois', async () => {
+  const { jourPrevu } = await import('../src/logique/dates.js');
+  assert.equal(jourPrevu(28, '2026-11-03'), '2026-11-28');
+  assert.equal(jourPrevu(31, '2026-04-10'), '2026-04-30');
+  assert.equal(jourPrevu(31, '2026-02-01'), '2026-02-28');
+});

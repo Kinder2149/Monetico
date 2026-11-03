@@ -213,7 +213,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 ## 8. Méthode de travail
 
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
-Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc C (étape 8, budgets).**
+Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc C.**
 
 **Avancement (2026-11-03)**
 
@@ -221,7 +221,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
-| C — Le reste (étapes 8 à 14) | Pas commencé. Avant de coder : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
+| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 (budgets) et 9 (récurrentes, écran placé dans l'onglet Comptes) codées, 23 tests réussis. Avant les étapes 10 à 14 : P2 (étapes 10, 11, 13), P7 (étape 10), P5 et P8 (étape 14). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.

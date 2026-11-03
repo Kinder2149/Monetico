@@ -94,7 +94,7 @@ function ResumeImport({ resultat, fermer }) {
   );
 }
 
-export default function Comptes({ base, porteMonnaie, rafraichir, ouvrirCategories }) {
+export default function Comptes({ base, porteMonnaie, rafraichir, ouvrirCategories, ouvrirRecurrentes }) {
   const [edition, setEdition] = useState(null); // null, 'nouveau' ou un porte-monnaie
   const [resultat, setResultat] = useState(null);
   const [enCours, setEnCours] = useState(false);
@@ -143,6 +143,12 @@ export default function Comptes({ base, porteMonnaie, rafraichir, ouvrirCategori
       <h2 className="titre-section">Catégories</h2>
       <button className="carte ligne lien" onClick={ouvrirCategories}>
         <span className="ligne-nom">Gérer les catégories de dépenses et de revenus</span>
+        <span aria-hidden="true">›</span>
+      </button>
+
+      <h2 className="titre-section">Récurrentes</h2>
+      <button className="carte ligne lien" onClick={ouvrirRecurrentes}>
+        <span className="ligne-nom">Dépenses et revenus de chaque mois (loyer, salaire…)</span>
         <span aria-hidden="true">›</span>
       </button>
 

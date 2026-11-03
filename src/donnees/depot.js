@@ -27,7 +27,8 @@ export function modifierPorteMonnaie(base, id, { nom, soldeDepart }) {
 // Un porte-monnaie qui contient des opérations ne peut pas être supprimé (D22).
 export function porteMonnaieUtilise(base, id) {
   return base.lire(
-    'SELECT 1 FROM operation WHERE porte_monnaie_id = ? OR vers_porte_monnaie_id = ? LIMIT 1', [id, id]
+    `SELECT 1 FROM operation WHERE porte_monnaie_id = ? OR vers_porte_monnaie_id = ?
+     UNION SELECT 1 FROM recurrente WHERE porte_monnaie_id = ? LIMIT 1`, [id, id, id]
   ).length > 0;
 }
 
@@ -58,7 +59,9 @@ export function modifierCategorie(base, id, { nom, icone }) {
 export function categorieUtilisee(base, id) {
   return base.lire(
     `SELECT 1 FROM operation WHERE categorie_id = ?
-       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?) LIMIT 1`, [id, id]
+       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?)
+     UNION SELECT 1 FROM recurrente WHERE categorie_id = ?
+       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?) LIMIT 1`, [id, id, id, id]
   ).length > 0;
 }
 
@@ -159,6 +162,62 @@ export function exclureDuBudget(base, budgetId, operationId, exclue) {
   base.ecrire(exclue
     ? 'INSERT OR IGNORE INTO budget_exclusion (budget_id, operation_id) VALUES (?, ?)'
     : 'DELETE FROM budget_exclusion WHERE budget_id = ? AND operation_id = ?', [budgetId, operationId]);
+}
+
+// --- Récurrentes (D10) ---
+
+export function listerRecurrentes(base) {
+  return base.lire(
+    `SELECT r.id, r.type, r.montant, r.jour, r.note,
+            r.categorie_id AS categorieId, c.nom AS categorie, c.icone AS icone, parent.nom AS categorieParent,
+            r.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+     FROM recurrente r
+     JOIN categorie c ON c.id = r.categorie_id
+     LEFT JOIN categorie parent ON parent.id = c.parent_id
+     JOIN porte_monnaie p ON p.id = r.porte_monnaie_id
+     ORDER BY r.jour, c.nom`
+  );
+}
+
+const valeursRecurrente = ({ type, montant, categorieId, porteMonnaieId, jour, note = '' }) =>
+  [type, montant, categorieId, porteMonnaieId, jour, note];
+
+export function creerRecurrente(base, recurrente) {
+  return base.ecrire(
+    `INSERT INTO recurrente (type, montant, categorie_id, porte_monnaie_id, jour, note)
+     VALUES (?, ?, ?, ?, ?, ?)`, valeursRecurrente(recurrente)
+  );
+}
+
+export function modifierRecurrente(base, id, recurrente) {
+  base.ecrire(
+    `UPDATE recurrente SET type = ?, montant = ?, categorie_id = ?, porte_monnaie_id = ?, jour = ?, note = ?
+     WHERE id = ?`, [...valeursRecurrente(recurrente), id]
+  );
+}
+
+// Les opérations déjà validées restent dans la liste.
+export function supprimerRecurrente(base, id) {
+  base.ecrire('DELETE FROM recurrente WHERE id = ?', [id]);
+}
+
+// Récurrentes pas encore validées pour le mois `mois` (« AAAA-MM »).
+export function recurrentesAValider(base, mois) {
+  const validees = new Set(base.lire('SELECT recurrente_id AS id FROM recurrente_validation WHERE mois = ?', [mois]).map((v) => v.id));
+  return listerRecurrentes(base).filter((r) => !validees.has(r.id));
+}
+
+// Valider = créer l'opération à la date réelle d'encaissement ; c'est seulement là que le solde change.
+export function validerRecurrente(base, recurrente, mois, date) {
+  return base.lot(() => {
+    const operationId = creerOperation(base, {
+      type: recurrente.type, montant: recurrente.montant, categorieId: recurrente.categorieId,
+      porteMonnaieId: recurrente.porteMonnaieId, date, note: recurrente.note,
+    });
+    base.ecrire('INSERT INTO recurrente_validation (recurrente_id, mois, operation_id) VALUES (?, ?, ?)',
+      [recurrente.id, mois, operationId]);
+    return operationId;
+  });
 }
 
 // --- Import (D26) ---

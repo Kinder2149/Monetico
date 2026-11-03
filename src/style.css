@@ -375,3 +375,7 @@ section .titre-section { margin-top: 20px; }
 .depenses-budget li { display: flex; align-items: center; gap: 10px; min-height: 56px; }
 .depenses-budget li.exclue .ligne-nom, .depenses-budget li.exclue .montant-budget { opacity: 0.45; text-decoration: line-through; }
 .bouton-petit { min-height: 44px; padding: 0 12px; border: 1px solid var(--piste); border-radius: 12px; background: var(--fond); font-weight: 700; font-size: 13px; color: var(--principal); }
+
+/* Récurrentes : carte « À valider » sur fond vert doux */
+.carte.a-valider { background: var(--doux); margin-bottom: 12px; }
+.carte.a-valider .ligne { cursor: default; }

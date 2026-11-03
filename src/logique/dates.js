@@ -40,6 +40,12 @@ export function periodeBudget(jourDepart, jour = aujourdhui()) {
   return { debut: aujourdhui(debut), fin: aujourdhui(fin) };
 }
 
+// Jour prévu d'une récurrente dans le mois de `jour` (le 31 devient le 30 en avril).
+export function jourPrevu(jourDuMoisPrevu, jour = aujourdhui()) {
+  const d = enDate(jour);
+  return aujourdhui(jourDuMois(d.getFullYear(), d.getMonth(), jourDuMoisPrevu));
+}
+
 const FORMAT_COURT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 
 // « du 1 nov. au 30 nov. »

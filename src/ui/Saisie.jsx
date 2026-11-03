@@ -5,7 +5,7 @@ import { lireMontant, montantPourSaisie } from '../logique/argent.js';
 import { aujourdhui } from '../logique/dates.js';
 import { listerCategories, creerOperation, modifierOperation, supprimerOperation } from '../donnees/depot.js';
 
-function ChoixCategorie({ base, type, choisie, choisir }) {
+export function ChoixCategorie({ base, type, choisie, choisir }) {
   const [ouvert, setOuvert] = useState(!choisie);
   const categories = listerCategories(base, type);
   const toutes = categories.flatMap((c) => [c, ...c.sous]);
@@ -44,7 +44,7 @@ function ChoixCategorie({ base, type, choisie, choisir }) {
   );
 }
 
-function ChoixPorteMonnaie({ libelle, porteMonnaie, valeur, choisir }) {
+export function ChoixPorteMonnaie({ libelle, porteMonnaie, valeur, choisir }) {
   return (
     <label className="champ">
       <span>{libelle}</span>

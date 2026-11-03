@@ -1,5 +1,11 @@
 # CHANGELOG — Moneta
 
+## 2026-11-03 — Bloc C (phase 6)
+
+- Étape 8 codée : budgets (nom, catégories cochées, maximum, jour de départ), « dépensé / maximum » avec barre, rouge en cas de dépassement, exclusion d'une dépense, carte sur l'accueil. Cocher une catégorie inclut ses sous-catégories.
+- Étape 9 codée : récurrentes mensuelles, carte « À valider » sur l'accueil, validation avec la date réelle ; écran des récurrentes placé dans l'onglet Comptes (comme Catégories, D23). Supprimer l'opération validée remet le mois « À valider ».
+- 6 tests ajoutés (23 au total). Vérification par une autre IA prévue à la fin du bloc C (D25).
+
 ## 2026-11-03 — Bloc B, import Money Lover (phases 5 et 6)
 
 - Export réel analysé : 1 866 opérations, un compte, 49 catégories, 8 opérations à venir. P4 tranché.

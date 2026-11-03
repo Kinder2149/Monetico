@@ -1,11 +1,12 @@
 import { ListeOperations } from './Operations.jsx';
 import { budgetsEnCours, BarreBudget } from './Budgets.jsx';
+import { AValider } from './Recurrentes.jsx';
 import { formaterEuros, total, entreesSorties } from '../logique/argent.js';
 import { aujourdhui, bornesDuMois, nomDuMois } from '../logique/dates.js';
 import { listerOperations } from '../donnees/depot.js';
 
 // Écran d'accueil : sélecteur de porte-monnaie, solde, carte du mois, opérations du jour.
-export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets }) {
+export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets, rafraichir }) {
   const porteMonnaieId = choix === 'tous' ? null : choix;
   const affiches = choix === 'tous' ? porteMonnaie : porteMonnaie.filter((p) => p.id === choix);
   const jour = aujourdhui();
@@ -53,6 +54,8 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
           {budgets.map((b) => <BarreBudget key={b.id} budget={b} />)}
         </button>
       )}
+
+      <AValider base={base} rafraichir={rafraichir} />
 
       <ListeOperations operations={duJour} ouvrir={ouvrir} vide="Aucune opération aujourd'hui." />
     </>

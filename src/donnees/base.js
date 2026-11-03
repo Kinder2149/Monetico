@@ -98,6 +98,23 @@ const MIGRATIONS = [
      operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
      PRIMARY KEY (budget_id, operation_id)
    )`,
+  // Récurrentes (D10) : une par opération mensuelle ; chaque mois validé garde l'opération créée.
+  // Supprimer cette opération remet le mois « À valider ».
+  `CREATE TABLE recurrente (
+     id INTEGER PRIMARY KEY,
+     type TEXT NOT NULL CHECK (type IN ('depense', 'revenu')),
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     categorie_id INTEGER NOT NULL REFERENCES categorie(id) ON DELETE RESTRICT,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT,
+     jour INTEGER NOT NULL CHECK (jour BETWEEN 1 AND 31),
+     note TEXT NOT NULL DEFAULT ''
+   );
+   CREATE TABLE recurrente_validation (
+     recurrente_id INTEGER NOT NULL REFERENCES recurrente(id) ON DELETE CASCADE,
+     mois TEXT NOT NULL,
+     operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
+     PRIMARY KEY (recurrente_id, mois)
+   )`,
 ];
 
 export function migrer(db) {

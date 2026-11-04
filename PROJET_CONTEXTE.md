@@ -3,7 +3,7 @@
 > Document de référence du projet. Toute décision figée est en section 6.
 > Ce qui n'est pas écrit ici n'est pas décidé : on demande à Kinder.
 
-Dernière mise à jour : 2026-11-03 — bloc A codé (phase 6), à vérifier sur téléphone.
+Dernière mise à jour : 2026-11-04 — bloc C : étapes 8 à 13 vérifiées, étape 14 codée, vérification à faire (phase 6).
 
 ---
 
@@ -221,13 +221,13 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 Six phases, aucune ne se saute : débroussaillage → réflexion → figeage → plan → cadrage d'étape → implémentation.
 Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 6 — Implémentation, bloc C.**
 
-**Avancement (2026-11-03)**
+**Avancement (2026-11-04)**
 
 | Bloc | État |
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
-| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Étape 14 codée (sauvegarde automatique, attente hors connexion, restauration), 27 tests réussis ; à vérifier après la préparation du projet Google par Kinder. |
+| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Étape 14 codée (sauvegarde automatique, attente hors connexion, restauration), 27 tests réussis ; projet Google « Moneta » prêt (`moneta-513715`). **Reprise** : sur le PC utilisé, ajouter le client Android de ce PC dans le projet Google s'il n'existe pas (seul celui du PC portable est créé), ajouter le compte Google de Kinder sur le téléphone virtuel, puis vérifier les 7 critères de l'étape 14 ; ensuite fusion de `bloc-c` avec l'accord de Kinder. |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.

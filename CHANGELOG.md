@@ -10,6 +10,8 @@
 - Étape 14 (sauvegarde Google Drive) non commencée.
 - D30 : P5 abandonné (pas de revue Hermès). D31 : la restauration depuis le Drive fait partie de l'étape 14 (P8 tranché). D32 : critères de restauration 14.5 à 14.7 validés. D33 : bibliothèque officielle Google de connexion validée comme dépendance.
 - Étape 14 codée : connexion Google dans Réglages, envoi automatique de « Moneta - sauvegarde.sqlite » au Drive après chaque modification, « en attente du réseau » hors connexion puis envoi au retour du réseau, restauration (proposée à la connexion si une sauvegarde existe, et bouton « Restaurer depuis le Drive »), avec confirmation si le téléphone contient déjà des données. 2 tests ajoutés (27 au total). À vérifier sur le téléphone virtuel une fois le projet Google préparé par Kinder.
+- Projet Google Cloud « Moneta » (`moneta-513715`, compte personnel de Kinder) : accès au Drive activé, écran de consentement en mode test (Kinder seul utilisateur de test, règlement Google accepté avec son accord), client Android pour le PC portable. Reste à ajouter le client Android de l'autre PC (empreinte de sa clé de test).
+- Mission close pour aujourd'hui : vérification de l'étape 14 reportée (probablement sur un autre PC), `bloc-c` non fusionné.
 
 ## 2026-11-03 — Bloc C (phase 6)
 

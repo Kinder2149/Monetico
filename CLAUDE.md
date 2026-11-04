@@ -24,7 +24,7 @@ et `CHANGELOG.md` (historique).
 - Aperçu dans le navigateur intégré : configuration `moneta` de `.claude/launch.json` (port 5180, `npm run dev`). Vérifier en taille téléphone (390 × 600).
 - Tests automatiques : `npm test`
 - Version Android : `npm run android` (assemble l'appli et la copie dans `android/`), puis `android\gradlew assembleDebug` pour le fichier d'installation (`android/app/build/outputs/apk/debug/`). Nécessite le kit Android (SDK) installé via Android Studio.
-- ⚠️ Gradle 8.14 (projet Capacitor 8) ne fonctionne pas avec Java 25 (celui fourni par Android Studio sur le poste de travail du 2026-11-03) : il faudra soit un Java 21, soit une version plus récente de Gradle. Demander à Kinder avant toute installation.
+- ⚠️ Gradle 8.14 (projet Capacitor 8) ne fonctionne pas avec Java 25 (celui fourni par Android Studio) : utiliser un Java 21. Poste portable : Java 21 Temurin installé le 2026-11-04 (Java par défaut), chemin du kit dans `android/local.properties` (propre au poste, non suivi). Demander à Kinder avant toute autre installation.
 
 ## Hygiène git (règle uniforme, tous appareils)
 

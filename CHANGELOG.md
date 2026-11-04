@@ -1,5 +1,14 @@
 # CHANGELOG — Moneta
 
+## 2026-11-04 — Vérification du bloc C, étapes 8 à 13 (phase 6)
+
+- Poste de travail équipé pour fabriquer l'appli : Java 21 (Temurin), kit Android 36, téléphone virtuel `Medium_Phone_API_36.1`. Ce poste n'a que 8 Go de mémoire : le téléphone virtuel y est lent et Android s'est arrêté une fois (pas Moneta).
+- Vérification sur le téléphone virtuel, avec le vrai export (1 858 opérations, solde 649,54 € retrouvé) : tous les critères des étapes 8 à 13 réussis, ainsi que les critères généraux (mode avion, données conservées après arrêt complet du téléphone).
+- Recoupements : camembert de novembre = 724,13 € = sorties du mois ; octobre = 1 793,50 € = somme des 40 dépenses de la liste.
+- D29 : écart de l'étape 12 accepté par Kinder (aucune autorisation demandée par le sélecteur de photos d'Android, critère 1).
+- Remarques sans échec : la courbe du solde n'affiche que la valeur du dernier mois ; elle montre un solde négatif de janvier à octobre, à comparer avec Money Lover.
+- Étape 14 (sauvegarde Google Drive) non commencée : P5 et P8 à trancher avant.
+
 ## 2026-11-03 — Bloc C (phase 6)
 
 - Étape 8 codée : budgets (nom, catégories cochées, maximum, jour de départ), « dépensé / maximum » avec barre, rouge en cas de dépassement, exclusion d'une dépense, carte sur l'accueil. Cocher une catégorie inclut ses sous-catégories.

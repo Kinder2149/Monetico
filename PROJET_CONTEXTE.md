@@ -200,6 +200,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D26 | Import Money Lover (P4 tranché sur l'export réel du 2026-11-03 : fichier CSV, colonnes ID, Note, Amount, Category, Account, Currency, Date JJ/MM/AAAA, Event, Exclude Report). Bouton d'import dans l'onglet Comptes, sous Catégories. Catégories reprises telles quelles : rattachées à une catégorie Moneta de même nom (majuscules, accents et ponctuation ignorés), sinon créées. Opérations datées après le jour de l'import non importées (elles relèvent des récurrentes, étape 9). L'événement est ajouté à la note. Réimporter le même fichier n'ajoute rien, les doubles réels de l'historique sont gardés. Solde de contrôle : Caisse D'épargne 649,54 € au 2026-11-03, confirmé par Kinder. | 2026-11-03 |
 | D27 | Navigation (P2 tranché) : Prêts = rubrique de l'onglet Comptes, sous Récurrentes ; Graphiques = s'ouvrent en touchant la carte du mois de l'accueil ; Réglages = bouton roue dentée en haut de l'onglet Comptes, regroupant Import Money Lover, Sauvegarde et version de l'appli (Catégories reste aussi dans Comptes, D23). Récurrentes : rubrique de l'onglet Comptes. | 2026-11-03 |
 | D28 | Prêts (P7 tranché) : un prêt fait baisser le solde du porte-monnaie d'où part l'argent, un remboursement fait monter celui où il arrive ; ni l'un ni l'autre ne compte dans les entrées et sorties du mois ni dans les budgets. L'import Money Lover ne crée pas de prêts. | 2026-11-03 |
+| D29 | Icône depuis la galerie (étape 12, critère 1) : le choix passe par le sélecteur de photos d'Android, qui ne demande aucune autorisation ; écart avec le critère accepté par Kinder. | 2026-11-04 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -221,7 +222,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
-| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis. Avant l'étape 14 : P5 (revue Hermès) et P8 (restauration). |
+| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Avant l'étape 14 : P5 (revue Hermès) et P8 (restauration). |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.
@@ -364,7 +365,7 @@ P1 (nom) se tranche avant la publication.
 3. Pour un mois choisi par Kinder, les montants du camembert correspondent à la liste des opérations.
 
 **Étape 12 — Icônes depuis la galerie**
-1. En changeant l'icône d'une catégorie, je peux choisir une photo de la galerie ; le téléphone demande l'autorisation la première fois.
+1. En changeant l'icône d'une catégorie, je peux choisir une photo de la galerie ~~; le téléphone demande l'autorisation la première fois~~ (D29 : aucune autorisation demandée par le sélecteur de photos d'Android).
 2. La photo s'affiche dans la pastille de la catégorie partout dans l'appli (liste, opérations, graphiques).
 
 **Étape 13 — Réglages** — à trancher avant : P2 (où se trouve l'écran)

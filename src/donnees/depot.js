@@ -367,3 +367,12 @@ export function listerOperations(base, { porteMonnaieId = null, debut = null, fi
   const ou = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   return base.lire(`SELECT ${CHAMPS_OPERATION} ${JOINTURES_OPERATION} ${ou} ORDER BY o.date DESC, o.id DESC`, params);
 }
+
+// Le téléphone contient-il déjà des données saisies ou importées ? (restauration, critère 14.6)
+export function contientDonnees(base) {
+  const [{ n }] = base.lire(
+    `SELECT (SELECT COUNT(*) FROM porte_monnaie) + (SELECT COUNT(*) FROM operation)
+          + (SELECT COUNT(*) FROM budget) + (SELECT COUNT(*) FROM recurrente) + (SELECT COUNT(*) FROM pret) AS n`
+  );
+  return n > 0;
+}

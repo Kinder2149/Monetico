@@ -421,3 +421,10 @@ section .titre-section { margin-top: 20px; }
 /* Réglages (roue dentée en haut de l'onglet Comptes) */
 .bouton-rond.reglages { margin-left: auto; margin-top: -14px; }
 .titre-section.first { margin-top: 0; }
+
+/* Sauvegarde Google Drive (Réglages, étape 14) */
+.carte.ligne { background: var(--carte); padding: 8px 16px; }
+.intro-sauvegarde { margin: 0 0 14px; font-size: 14px; }
+.statut-sauvegarde { color: var(--positif); font-weight: 700; }
+.choix-sauvegarde { margin-top: 12px; }
+.message-sauvegarde { margin-top: -6px; }

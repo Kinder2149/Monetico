@@ -11,7 +11,7 @@ et `CHANGELOG.md` (historique).
 - Pas de code sans critère de validation validé par Kinder (section 10 du PROJET_CONTEXTE, décision D21).
 - Les étapes d'un même bloc s'enchaînent ; arrêt pour vérification par Kinder à la fin de chaque bloc.
 - Résultats de test rendus en langage fonctionnel : quel critère, réussi ou échoué.
-- Aucune dépendance ajoutée sans l'accord de Kinder (validées : accès à la galerie photo, icônes Lucide).
+- Aucune dépendance ajoutée sans l'accord de Kinder (validées : accès à la galerie photo, icônes Lucide, bibliothèque officielle Google de connexion).
 - Ne jamais toucher à Vault Watch ni à aucun autre projet.
 - Une option recommandée avec justification, une question à la fois.
 - Challenge au format : « ⚠️ [le problème en une phrase] — je continue ou on ajuste ? »

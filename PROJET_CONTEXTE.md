@@ -38,23 +38,26 @@ jamais vers un serveur de l'éditeur.
 - Limites du projet : 20 modules maximum, 5 fichiers de documentation maximum,
   3 couches (Interface / Logique / Données), aucune structure vide « pour le futur ».
 - **Aucune dépendance ajoutée sans l'accord de Kinder.** Dépendances validées
-  au-delà du socle : l'accès à la galerie photo (pour les icônes personnalisées) et les icônes Lucide (D24).
+  au-delà du socle : l'accès à la galerie photo (pour les icônes personnalisées), les icônes Lucide (D24)
+  et la bibliothèque officielle Google de connexion (D33).
 - Projet totalement indépendant de Vault Watch (même socle, aucun code ni donnée partagés).
 
-### Organisation du code (état au 2026-11-03 : 13 modules sur 20)
+### Organisation du code (état au 2026-11-04 : 19 modules sur 20)
 
 | Couche | Modules | Rôle |
 |---|---|---|
-| Interface (`src/ui/`) | App, Accueil, Operations, Saisie, Comptes, Categories, Commun, Icones | Écrans, barre du bas, panneaux de saisie |
-| Logique (`src/logique/`) | argent, dates | Format des montants, totaux du mois, regroupement par jour, recherche, dates |
-| Données (`src/donnees/`) | base, depot | Base sql.js conservée sur l'appareil, lectures et écritures |
+| Interface (`src/ui/`) | App, Accueil, Operations, Saisie, Comptes, Categories, Commun, Icones, Budgets, Recurrentes, Prets, Graphiques, Reglages | Écrans, barre du bas, panneaux de saisie |
+| Logique (`src/logique/`) | argent, dates, importMoneyLover | Format des montants, totaux, regroupement par jour, recherche, dates, lecture de l'export Money Lover |
+| Données (`src/donnees/`) | base, depot, sauvegarde | Base sql.js conservée sur l'appareil, lectures et écritures, sauvegarde et restauration Google Drive |
+
+- Côté Android, un pont (`GoogleDrivePlugin.java`) obtient l'autorisation Google (D33) ; le fichier « Moneta - sauvegarde.sqlite » est envoyé directement au Drive.
 
 - Montants enregistrés en centimes ; affichage au format français (1 234,56 €).
 - La base évolue par étapes numérotées (`MIGRATIONS` dans `base.js`) : une mise à jour de l'appli ne perd jamais les données existantes.
 - Données conservées dans le stockage interne du téléphone (IndexedDB de l'appli).
 - Police Manrope intégrée (`public/polices/`), aucun chargement en ligne.
 - Identifiant Android de l'appli : `fr.kinder.moneta` (définitif une fois publiée).
-- Tests automatiques : `tests/bloc-a.test.js` (12 tests au 2026-11-03).
+- Tests automatiques : `tests/` (27 tests au 2026-11-04).
 
 ## 4. Fonctionnalités (périmètre complet du produit)
 
@@ -201,14 +204,16 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D27 | Navigation (P2 tranché) : Prêts = rubrique de l'onglet Comptes, sous Récurrentes ; Graphiques = s'ouvrent en touchant la carte du mois de l'accueil ; Réglages = bouton roue dentée en haut de l'onglet Comptes, regroupant Import Money Lover, Sauvegarde et version de l'appli (Catégories reste aussi dans Comptes, D23). Récurrentes : rubrique de l'onglet Comptes. | 2026-11-03 |
 | D28 | Prêts (P7 tranché) : un prêt fait baisser le solde du porte-monnaie d'où part l'argent, un remboursement fait monter celui où il arrive ; ni l'un ni l'autre ne compte dans les entrées et sorties du mois ni dans les budgets. L'import Money Lover ne crée pas de prêts. | 2026-11-03 |
 | D29 | Icône depuis la galerie (étape 12, critère 1) : le choix passe par le sélecteur de photos d'Android, qui ne demande aucune autorisation ; écart avec le critère accepté par Kinder. | 2026-11-04 |
+| D30 | P5 abandonné : pas de revue Hermès avant la sauvegarde Google Drive. | 2026-11-04 |
+| D31 | P8 tranché : la restauration des données depuis le Drive (ex. nouveau téléphone) fait partie de l'étape 14. | 2026-11-04 |
+| D32 | Critères de restauration 14.5 à 14.7 (section 10) validés par Kinder. | 2026-11-04 |
+| D33 | Dépendance validée par Kinder : bibliothèque officielle Google de connexion (Google Play services), reliée à Moneta par un pont écrit dans le projet, pour autoriser l'accès aux seuls fichiers créés par Moneta dans le Drive. | 2026-11-04 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
 | # | Point | Quand |
 |---|---|---|
 | P1 | **Nom** : « Moneta » est aussi une banque tchèque (MONETA Money Bank) présente sur le Play Store ; « Monetico » est le service de paiement du Crédit Mutuel / CIC. Vérifier la disponibilité du nom avant publication (mission Recherche). | Avant la version publiée |
-| P5 | Revue d'équipe Hermès (Chef, avec Recherche et Technique) sur la sauvegarde Google Drive, et mise à jour de la fiche du parc par Claude Code après accord de Kinder. | Avant l'étape sauvegarde Drive |
-| P8 | Restauration des données depuis le Drive (ex. nouveau téléphone) : fait partie de l'étape sauvegarde ou non ? | Avant l'étape 14 |
 | P9 | Version ordinateur : forme (appli dans le navigateur ou installée) et règle en cas de modification sur les deux appareils. | Avant l'étape 15 |
 
 ## 8. Méthode de travail
@@ -222,7 +227,7 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 |---|---|
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
-| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Avant l'étape 14 : P5 (revue Hermès) et P8 (restauration). |
+| C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Étape 14 codée (sauvegarde automatique, attente hors connexion, restauration), 27 tests réussis ; à vérifier après la préparation du projet Google par Kinder. |
 | D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.
@@ -265,7 +270,7 @@ Chaque étape produit quelque chose de visible à l'écran. Une étape à la foi
 | 11 | Graphiques | Camembert des dépenses du mois et courbe du solde mois après mois (P2). |
 | 12 | Icônes depuis la galerie | Choisir une photo du téléphone comme icône de catégorie. |
 | 13 | Réglages | Écran Réglages regroupant les options, dont l'entrée de la sauvegarde (P2). |
-| 14 | Sauvegarde Google Drive | Après connexion Google : « dernière sauvegarde : à l'instant », fichier visible dans le Drive (P5 avant l'étape). |
+| 14 | Sauvegarde Google Drive | Après connexion Google : « dernière sauvegarde : à l'instant », fichier visible dans le Drive ; restauration sur un autre téléphone (D31). |
 
 **Bloc D — Version ordinateur**
 
@@ -371,11 +376,14 @@ P1 (nom) se tranche avant la publication.
 **Étape 13 — Réglages** — à trancher avant : P2 (où se trouve l'écran)
 1. Un écran Réglages est accessible et regroupe les options. Proposition : Catégories, Import Money Lover, Sauvegarde, version de l'appli.
 
-**Étape 14 — Sauvegarde Google Drive** — à trancher avant : P5 (revue Hermès) et P8 (restauration)
+**Étape 14 — Sauvegarde Google Drive** — restauration incluse (D31)
 1. Sans connexion Google, toute l'appli fonctionne ; aucun compte n'est jamais demandé.
 2. Dans Réglages, je me connecte à Google ; l'écran affiche « Dernière sauvegarde : à l'instant ».
 3. Après une modification, le fichier de sauvegarde Moneta est mis à jour dans mon Drive (date visible dans Drive).
 4. En mode avion, une modification est marquée « en attente » ; au retour du réseau, elle part seule et l'écran revient à « à l'instant ».
+5. Sur un téléphone où Moneta vient d'être installée, après connexion au même compte Google dans Réglages, Moneta propose « Restaurer la sauvegarde du [date] » ; après confirmation, porte-monnaie, opérations, catégories (icônes comprises), budgets, récurrentes et prêts réapparaissent, avec les mêmes soldes.
+6. Si le téléphone contient déjà des données, une confirmation annonce clairement que la restauration remplace ce qu'il y a sur le téléphone ; en cas de refus, rien ne change.
+7. Un bouton « Restaurer depuis le Drive » reste disponible à tout moment dans Réglages.
 
 → **Point de contrôle Kinder** : vérification du bloc C sur le téléphone.
 

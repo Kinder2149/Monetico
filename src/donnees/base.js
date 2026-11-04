@@ -177,6 +177,10 @@ export function creerBase(db, enregistrer = () => {}) {
       if (!enLot) enregistrer(db.export());
       return id;
     },
+    // Contenu complet de la base (pour la sauvegarde dans le Drive).
+    exporter() {
+      return db.export();
+    },
   };
 }
 
@@ -210,10 +214,26 @@ async function ecrireStockage(contenu) {
   stockage.transaction('fichiers', 'readwrite').objectStore('fichiers').put(contenu, CLE);
 }
 
+// Remplace toutes les données de l'appareil (restauration depuis le Drive), en attendant
+// que l'écriture soit terminée : l'appli est relancée juste après.
+export async function remplacerStockage(contenu) {
+  const stockage = await ouvrirStockage();
+  return new Promise((resoudre, rejeter) => {
+    const transaction = stockage.transaction('fichiers', 'readwrite');
+    transaction.objectStore('fichiers').put(contenu, CLE);
+    transaction.oncomplete = () => resoudre();
+    transaction.onerror = () => rejeter(transaction.error);
+  });
+}
+
 // Ouvre la base enregistrée sur l'appareil (ou une base neuve la première fois).
-export async function ouvrirBase(initSqlJs, urlWasm) {
+// `apresEnregistrement` est prévenu de chaque modification (envoi de la sauvegarde).
+export async function ouvrirBase(initSqlJs, urlWasm, apresEnregistrement = () => {}) {
   const SQL = await initSqlJs({ locateFile: () => urlWasm });
   const contenu = await lireStockage();
   const db = new SQL.Database(contenu);
-  return creerBase(db, ecrireStockage);
+  return creerBase(db, (nouveau) => {
+    ecrireStockage(nouveau);
+    apresEnregistrement(nouveau);
+  });
 }

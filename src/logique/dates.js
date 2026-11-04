@@ -82,3 +82,26 @@ export function nomDuMois(jour) {
   const texte = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(enDate(jour));
   return texte.charAt(0).toUpperCase() + texte.slice(1);
 }
+
+const FORMAT_HEURE = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+// Moment de la dernière sauvegarde (date et heure complètes, en millisecondes) :
+// « à l'instant », « il y a 5 min », « aujourd'hui à 14:03 », « hier à 09:12 », « le 3 nov. à 18:40 ».
+export function libelleSauvegarde(moment, maintenant = Date.now()) {
+  const ecart = maintenant - moment;
+  if (ecart < 60_000) return "à l'instant";
+  if (ecart < 3_600_000) return `il y a ${Math.floor(ecart / 60_000)} min`;
+  const jour = aujourdhui(new Date(moment));
+  const reference = aujourdhui(new Date(maintenant));
+  const heure = FORMAT_HEURE.format(new Date(moment));
+  if (jour === reference) return `aujourd'hui à ${heure}`;
+  if (jour === decaler(reference, -1)) return `hier à ${heure}`;
+  return `le ${FORMAT_COURT.format(enDate(jour))} à ${heure}`;
+}
+
+// « 3 novembre 2026 à 14:03 » (date d'une sauvegarde du Drive à restaurer).
+export function libelleDateHeure(moment) {
+  const date = new Date(moment);
+  const jour = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  return `${jour} à ${FORMAT_HEURE.format(date)}`;
+}

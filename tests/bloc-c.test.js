@@ -4,7 +4,7 @@ import initSqlJs from 'sql.js';
 import { creerBase } from '../src/donnees/base.js';
 import * as depot from '../src/donnees/depot.js';
 import { etatBudget } from '../src/logique/argent.js';
-import { periodeBudget, libellePeriode } from '../src/logique/dates.js';
+import { periodeBudget, libellePeriode, libelleSauvegarde, libelleDateHeure } from '../src/logique/dates.js';
 
 const SQL = await initSqlJs();
 const nouvelleBase = () => creerBase(new SQL.Database());
@@ -196,4 +196,29 @@ test('étape 11 : camembert du mois et solde en fin de mois', async () => {
 
   assert.equal(decalerMois('2026-11-03', -11), '2025-12-03');
   assert.equal(decalerMois('2026-03-31', -1), '2026-02-28');
+});
+
+test('étape 14 : libellés de la dernière sauvegarde', () => {
+  const maintenant = new Date(2026, 10, 4, 15, 30).getTime();
+  const avant = (ms) => maintenant - ms;
+  assert.equal(libelleSauvegarde(avant(20_000), maintenant), "à l'instant");
+  assert.equal(libelleSauvegarde(avant(5 * 60_000), maintenant), 'il y a 5 min');
+  assert.equal(libelleSauvegarde(new Date(2026, 10, 4, 9, 5).getTime(), maintenant), "aujourd'hui à 09:05");
+  assert.equal(libelleSauvegarde(new Date(2026, 10, 3, 18, 40).getTime(), maintenant), 'hier à 18:40');
+  assert.equal(libelleSauvegarde(new Date(2026, 9, 28, 8, 0).getTime(), maintenant), 'le 28 oct. à 08:00');
+  assert.equal(libelleDateHeure(new Date(2026, 10, 3, 14, 3).getTime()), '3 novembre 2026 à 14:03');
+});
+
+test('étape 14 : téléphone vide ou non, contenu restaurable', () => {
+  const base = nouvelleBase();
+  assert.equal(depot.contientDonnees(base), false); // les catégories du modèle ne comptent pas
+  const pm = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 1000 });
+  assert.equal(depot.contientDonnees(base), true);
+
+  // Le contenu exporté redonne exactement les mêmes données une fois rouvert (restauration).
+  depot.creerOperation(base, { type: 'depense', montant: 250, categorieId: categorie(base, 'Courses'), porteMonnaieId: pm, date: '2026-11-03', note: 'Marché' });
+  const copie = creerBase(new SQL.Database(base.exporter()));
+  assert.deepEqual(depot.listerPorteMonnaie(copie), depot.listerPorteMonnaie(base));
+  assert.equal(depot.listerPorteMonnaie(copie)[0].solde, 750);
+  assert.equal(new TextDecoder().decode(base.exporter().slice(0, 15)), 'SQLite format 3');
 });

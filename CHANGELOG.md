@@ -7,7 +7,9 @@
 - Recoupements : camembert de novembre = 724,13 € = sorties du mois ; octobre = 1 793,50 € = somme des 40 dépenses de la liste.
 - D29 : écart de l'étape 12 accepté par Kinder (aucune autorisation demandée par le sélecteur de photos d'Android, critère 1).
 - Remarques sans échec : la courbe du solde n'affiche que la valeur du dernier mois ; elle montre un solde négatif de janvier à octobre, à comparer avec Money Lover.
-- Étape 14 (sauvegarde Google Drive) non commencée : P5 et P8 à trancher avant.
+- Étape 14 (sauvegarde Google Drive) non commencée.
+- D30 : P5 abandonné (pas de revue Hermès). D31 : la restauration depuis le Drive fait partie de l'étape 14 (P8 tranché). D32 : critères de restauration 14.5 à 14.7 validés. D33 : bibliothèque officielle Google de connexion validée comme dépendance.
+- Étape 14 codée : connexion Google dans Réglages, envoi automatique de « Moneta - sauvegarde.sqlite » au Drive après chaque modification, « en attente du réseau » hors connexion puis envoi au retour du réseau, restauration (proposée à la connexion si une sauvegarde existe, et bouton « Restaurer depuis le Drive »), avec confirmation si le téléphone contient déjà des données. 2 tests ajoutés (27 au total). À vérifier sur le téléphone virtuel une fois le projet Google préparé par Kinder.
 
 ## 2026-11-03 — Bloc C (phase 6)
 

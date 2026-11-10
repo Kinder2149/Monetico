@@ -1,5 +1,9 @@
 # CHANGELOG — Moneta
 
+## 2026-11-10 — Tri des projets (lot 6)
+
+- Bloc STATUT écrit dans PROJET_CONTEXTE.md (mission « Bloc C », phase 6), d'accord avec la version en ligne : étapes 8 à 13 vérifiées, étape 14 codée, vérification à faire. La copie locale de `bloc-c` a été alignée sur la version en ligne ; son seul commit local (D29, restauration depuis le Drive) est gardé dans `V:\DEV\_archives\monetico-bloc-c-local-2026-11\` et sur la branche `archive/monetico-bloc-c-local-2026-11`.
+
 ## 2026-11-04 — Vérification du bloc C, étapes 8 à 13 (phase 6)
 
 - Poste de travail équipé pour fabriquer l'appli : Java 21 (Temurin), kit Android 36, téléphone virtuel `Medium_Phone_API_36.1`. Ce poste n'a que 8 Go de mémoire : le téléphone virtuel y est lent et Android s'est arrêté une fois (pas Moneta).

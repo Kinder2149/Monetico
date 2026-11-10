@@ -7,6 +7,26 @@ Dernière mise à jour : 2026-11-04 — bloc C : étapes 8 à 13 vérifiées, é
 
 ---
 
+## STATUT — fait foi pour les statuts (lu par Pilotage et par le tableau de mission)
+
+```
+STATUT DU PROJET : En développement
+MISSION : Bloc A — Saisie de base (étapes 1 à 6) — Close
+MISSION : Bloc B — Import (étape 7) — Close
+MISSION : Bloc C — Le reste (étapes 8 à 14) — En implémentation (seule mission active, R29)
+PHASE : 6 Implémentation
+  Étape : 8 à 13 Budgets, récurrentes, prêts, graphiques, icône galerie, réglages — Close — critère : critères de la section 10 vérifiés sur le téléphone virtuel le 2026-11-04 (écart de l'étape 12 accepté, D29)
+  Étape : 14 Sauvegarde Google Drive — Codée, vérification à faire — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
+  Étape : 15 Moneta sur PC — Planifiée — critère : voir section 10 (P9 à trancher avant)
+MISSION : Bloc D — Version ordinateur (étape 15) — En attente (1)
+SESSIONS : aucune
+IDÉES PARQUÉES :
+  - aucune notée
+```
+*(Bloc écrit le 2026-11-10 par le tri des projets, d'après la version en ligne de la branche `bloc-c` du 2026-11-04.)*
+
+---
+
 ## 1. Vision
 
 Moneta est une application mobile Android de **comptes personnels en saisie manuelle**.

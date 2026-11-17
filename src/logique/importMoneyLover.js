@@ -11,7 +11,7 @@ export const cleNom = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerC
 // Les catégories absentes de cette table sont reprises telles quelles (D26).
 
 // Icônes des parents créés à l'import (les autres parents existent dans le modèle de départ).
-export const PARENTS_IMPORT = { 'Assurances': 'shield', 'Banque': 'landmark', 'Bureau de tabac': 'cigarette' };
+export const PARENTS_IMPORT = { 'Banque': 'landmark', 'Factures': 'receipt' };
 
 const DEPENSES = {
   'Alimentation': [null, 'Alimentation', 'utensils'], 'Courses': ['Alimentation', 'Courses', 'shopping-cart'],
@@ -19,9 +19,10 @@ const DEPENSES = {
   'Fast Food': ['Alimentation', 'Fast-food', 'sandwich'], 'Café': ['Alimentation', 'Café', 'coffee'],
   'Bar': ['Alimentation', 'Bar', 'beer'], 'Boulangerie': ['Alimentation', 'Boulangerie', 'bread'],
   'Locations': ['Logement', 'Locations', 'house'], 'Maison': ['Logement', 'Maison', 'sofa'],
-  'Factures': ['Logement', 'Factures', 'receipt'], "Facture d'électricité": ['Logement', 'Électricité', 'zap'],
-  'Facture de téléphone': ['Logement', 'Facture de téléphone', 'smartphone'],
-  'Assurances': [null, 'Assurances', 'shield'],
+  // Rangement des factures comme dans Money Lover (D44).
+  'Factures': [null, 'Factures', 'receipt'], "Facture d'électricité": ['Factures', "Facture d'électricité", 'zap'],
+  'Facture de téléphone': ['Factures', 'Facture de téléphone', 'smartphone'],
+  'Assurances': ['Factures', 'Assurances', 'shield'], 'Abonnement': ['Factures', 'Abonnement', 'repeat'],
   'Transports': [null, 'Transports', 'car'], 'Essence': ['Transports', 'Carburant', 'fuel'],
   'Frais de stationnement': ['Transports', 'Stationnement', 'parking'],
   'Vehicle Maintenance': ['Transports', 'Entretien', 'wrench'], 'Taxi': ['Transports', 'Taxi', 'car'],
@@ -32,12 +33,12 @@ const DEPENSES = {
   'Loisirs': [null, 'Loisirs', 'party'], 'Jeux': ['Loisirs', 'Jeux', 'gamepad'], 'Cinéma': ['Loisirs', 'Cinéma', 'film'],
   'Soirée': ['Loisirs', 'Soirée', 'cocktail'], 'Sports': ['Loisirs', 'Sport', 'dumbbell'],
   'Vacances': ['Loisirs', 'Vacances', 'plane'], 'Amis & conjoint': ['Loisirs', 'Amis & conjoint', 'hand-heart'],
-  'Abonnement': [null, 'Abonnements', 'repeat'], 'Cadeau': [null, 'Cadeaux', 'gift'],
+  'Cadeau': [null, 'Cadeaux', 'gift'],
   'Banque': [null, 'Banque', 'landmark'], 'Frais & charges': ['Banque', 'Frais & charges', 'receipt'],
   'Retrait': ['Banque', 'Retraits', 'cash'], 'Retrait B': ['Banque', 'Retraits', 'cash'],
   'Bureau de tabac': [null, 'Bureau de tabac', 'cigarette'],
-  'Autres dépenses': ['Divers', 'Autres dépenses', 'ellipsis'], 'En Attente': ['Divers', 'En Attente', 'hourglass'],
-  'Famille': ['Divers', 'Famille', 'hand-heart'],
+  'Autres dépenses': [null, 'Autres dépenses', 'ellipsis'], 'En Attente': [null, 'En Attente', 'hourglass'],
+  'Famille': [null, 'Famille', 'hand-heart'],
 };
 
 const REVENUS = {

@@ -125,27 +125,50 @@ export function ListeOperations({ operations, ouvrir, vide, prevues = [], croiss
   );
 }
 
-// Entrées, sorties et total de la période affichée.
-// `soldePrevu` (onglet « À venir », D41) : le solde une fois ces opérations passées.
-function ResumePeriode({ elements, soldePrevu = null }) {
+const eurosSignes = (v) => `${v < 0 ? '− ' : ''}${formaterEuros(Math.abs(v))}`;
+
+// Résumé de la période (D44) : le solde du compte en grand au centre, puis entrées, sorties et variation.
+// `solde` : solde du compte à la fin de la période ; `legende` : d'où il vient.
+function ResumePeriode({ elements, titre, solde, legende, libelleVariation }) {
   const { entrees, sorties } = entreesSorties(elements);
-  const solde = entrees - sorties;
+  const variation = entrees - sorties;
   return (
     <div className="carte resume-periode">
-      {soldePrevu !== null && (
-        <div className="solde-prevu">
-          <span>Solde prévu</span>
-          <strong className={soldePrevu < 0 ? 'negatif' : ''}>{soldePrevu < 0 ? '− ' : ''}{formaterEuros(Math.abs(soldePrevu))}</strong>
-        </div>
-      )}
+      <div className="solde-hero">
+        <span className="texte-2">{titre}</span>
+        <strong className={'solde-grand' + (solde < 0 ? ' negatif' : '')}>{eurosSignes(solde)}</strong>
+        {legende && <small className="texte-2">{legende}</small>}
+      </div>
       <div><span className="texte-2">Entrées</span><strong className="positif">+ {formaterEuros(entrees)}</strong></div>
       <div><span className="texte-2">Sorties</span><strong className="negatif">− {formaterEuros(sorties)}</strong></div>
       <div className="total-periode">
-        <span>Total</span>
-        <strong className={solde < 0 ? 'negatif' : ''}>{solde < 0 ? '− ' : ''}{formaterEuros(Math.abs(solde))}</strong>
+        <span>{libelleVariation}</span>
+        <strong className={variation < 0 ? 'negatif' : ''}>{eurosSignes(variation)}</strong>
       </div>
     </div>
   );
+}
+
+// Solde des porte-monnaie affichés au soir du jour donné.
+const soldeAu = (base, porteMonnaieId, date) =>
+  listerPorteMonnaie(base, date).filter((p) => porteMonnaieId === null || p.id === porteMonnaieId)
+    .reduce((somme, p) => somme + p.solde, 0);
+
+// Glisser le doigt à l'horizontale change de période : vers la gauche = plus tard, vers la droite = plus tôt (D44).
+function useGlisser(versPlusTard, versPlusTot) {
+  const depart = useRef(null);
+  return {
+    onTouchStart: (e) => { depart.current = [e.touches[0].clientX, e.touches[0].clientY]; },
+    onTouchEnd: (e) => {
+      if (!depart.current) return;
+      const [x, y] = depart.current;
+      depart.current = null;
+      const dx = e.changedTouches[0].clientX - x;
+      const dy = e.changedTouches[0].clientY - y;
+      if (Math.abs(dx) < 70 || Math.abs(dx) < 1.6 * Math.abs(dy)) return;
+      if (dx < 0) versPlusTard(); else versPlusTot();
+    },
+  };
 }
 
 // Récurrentes pas encore validées, ce mois-ci et le mois prochain, datées au plus tôt demain.
@@ -177,6 +200,13 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
     ongletActif.current?.scrollIntoView({ inline: 'center', block: 'nearest' });
   }, [periode]);
 
+  const periodes = [...mois, A_VENIR];
+  const position = periodes.indexOf(periode);
+  const glisser = useGlisser(
+    () => position < periodes.length - 1 && setPeriode(periodes[position + 1]),
+    () => position > 0 && setPeriode(periodes[position - 1]),
+  );
+
   let contenu;
   if (recherche.trim()) {
     contenu = (
@@ -185,13 +215,17 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   } else if (periode === A_VENIR) {
     const operations = toutes.filter((o) => o.date > jour);
     const prevues = recurrentesPrevues(base, porteMonnaieId, jour);
-    // Solde avec toutes les opérations, futures comprises, puis les récurrentes encore à valider.
-    const tous = listerPorteMonnaie(base).filter((p) => porteMonnaieId === null || p.id === porteMonnaieId);
-    const { entrees, sorties } = entreesSorties(prevues);
-    const soldePrevu = tous.reduce((somme, p) => somme + p.solde, 0) + entrees - sorties;
+    // Solde prévu = solde d'aujourd'hui + opérations datées plus tard + récurrentes encore à valider.
+    const actuel = soldeAu(base, porteMonnaieId, jour);
+    const { entrees, sorties } = entreesSorties([...operations, ...prevues]);
+    const soldePrevu = soldeAu(base, porteMonnaieId, '9999-12-31') + entreesSorties(prevues).entrees - entreesSorties(prevues).sorties;
+    const legende = operations.length + prevues.length === 0
+      ? "Rien de prévu : le solde prévu est le solde d'aujourd'hui."
+      : `Aujourd'hui ${eurosSignes(actuel)} ${entrees - sorties < 0 ? '−' : '+'} à venir ${formaterEuros(Math.abs(entrees - sorties))}`;
     contenu = (
       <>
-        <ResumePeriode elements={[...operations, ...prevues]} soldePrevu={soldePrevu} />
+        <ResumePeriode elements={[...operations, ...prevues]} titre="Solde prévu" solde={soldePrevu}
+          legende={legende} libelleVariation="Total à venir" />
         <ListeOperations operations={operations} prevues={prevues} croissant ouvrir={ouvrir}
           vide="Rien de prévu : ni opération datée après aujourd'hui, ni récurrente à valider." />
       </>
@@ -199,9 +233,11 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   } else {
     const { debut, fin } = bornesDuMois(`${periode}-01`);
     const operations = toutes.filter((o) => o.date >= debut && o.date <= (fin < jour ? fin : jour));
+    const soldeFin = soldeAu(base, porteMonnaieId, fin < jour ? fin : jour);
     contenu = (
       <>
-        <ResumePeriode elements={operations} />
+        <ResumePeriode elements={operations} titre={fin >= jour ? "Solde aujourd'hui" : 'Solde en fin de mois'} solde={soldeFin}
+          legende="Solde du compte, tout l'historique compris" libelleVariation="Variation du mois (entrées − sorties)" />
         <ListeOperations operations={operations} ouvrir={ouvrir}
           vide={toutes.length ? 'Aucune opération ce mois-là.' : 'Aucune opération pour le moment. Touche « + » pour en ajouter une.'} />
       </>
@@ -217,7 +253,7 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
       </label>
       {!recherche.trim() && (
         <div className="onglets-mois" role="tablist">
-          {[...mois, A_VENIR].map((m) => (
+          {periodes.map((m) => (
             <button key={m} role="tab" aria-selected={periode === m} ref={periode === m ? ongletActif : null}
               className={periode === m ? 'actif' : ''} onClick={() => setPeriode(m)}>
               {m === A_VENIR ? 'À venir' : libelleOngletMois(m, jour)}
@@ -225,7 +261,7 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
           ))}
         </div>
       )}
-      {contenu}
+      <div className="zone-glisser" {...(recherche.trim() ? {} : glisser)}>{contenu}</div>
     </>
   );
 }

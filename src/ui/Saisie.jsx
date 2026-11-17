@@ -1,18 +1,60 @@
 import { useEffect, useState } from 'react';
-import { Feuille, Champ, Message } from './Commun.jsx';
+import { Feuille, Champ, Message, useRetour } from './Commun.jsx';
 import { Pastille } from './Categories.jsx';
 import { lireMontant, montantPourSaisie } from '../logique/argent.js';
 import { aujourdhui } from '../logique/dates.js';
 import { listerCategories, creerOperation, modifierOperation, supprimerOperation } from '../donnees/depot.js';
 
-// Menu déroulant des catégories (D36) : le champ montre la catégorie choisie ; ouvert, il liste
-// les catégories, et la flèche d'une catégorie déplie ses sous-catégories.
+// Choix de la catégorie en fenêtre (D44) : le champ du formulaire montre la catégorie choisie ;
+// toucher le champ ouvre une fenêtre pleine page, avec recherche, catégories et sous-catégories.
+function FenetreCategories({ categories, choisie, prendre, fermer }) {
+  useRetour(true, fermer);
+  const [recherche, setRecherche] = useState('');
+  const mot = recherche.trim().toLowerCase();
+  const filtrees = categories
+    .map((c) => (!mot || c.nom.toLowerCase().includes(mot)
+      ? c
+      : { ...c, sous: c.sous.filter((x) => x.nom.toLowerCase().includes(mot)), masquee: true }))
+    .filter((c) => !c.masquee || c.sous.length > 0);
+  return (
+    <div className="fenetre-plein" role="dialog" aria-label="Choisir une catégorie">
+      <div className="entete-plein">
+        <button type="button" className="retour" aria-label="Fermer" onClick={fermer}>←</button>
+        <h2>Choisir une catégorie</h2>
+      </div>
+      <label className="champ recherche">
+        <span className="sr">Rechercher une catégorie</span>
+        <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher" />
+      </label>
+      <ul className="liste-categories">
+        {filtrees.map((c) => (
+          <li key={c.id}>
+            {!c.masquee && (
+              <button type="button" className={'option' + (c.id === choisie ? ' choisie' : '')} onClick={() => prendre(c.id)}>
+                <Pastille categorie={c} />
+                <span className="ligne-nom">{c.nom}</span>
+              </button>
+            )}
+            {c.sous.map((x) => (
+              <button key={x.id} type="button" className={'option sous' + (x.id === choisie ? ' choisie' : '')}
+                onClick={() => prendre(x.id)}>
+                <Pastille categorie={x} petite />
+                <span className="ligne-nom">{c.masquee ? `${c.nom} › ${x.nom}` : x.nom}</span>
+              </button>
+            ))}
+          </li>
+        ))}
+        {filtrees.length === 0 && <li className="vide">Aucune catégorie ne correspond.</li>}
+      </ul>
+    </div>
+  );
+}
+
 export function ChoixCategorie({ base, type, choisie, choisir }) {
   const categories = listerCategories(base, type);
   const actuelle = categories.flatMap((c) => [c, ...c.sous]).find((c) => c.id === choisie);
   const parent = categories.find((c) => c.sous.some((s) => s.id === choisie));
   const [ouvert, setOuvert] = useState(false);
-  const [deplie, setDeplie] = useState(parent?.id ?? null);
 
   function prendre(id) {
     choisir(id);
@@ -22,42 +64,14 @@ export function ChoixCategorie({ base, type, choisie, choisir }) {
   return (
     <div className="champ">
       <span>Catégorie</span>
-      <button type="button" className={'ligne choix-actuel' + (ouvert ? ' ouvert' : '')} aria-expanded={ouvert}
-        onClick={() => setOuvert(!ouvert)}>
+      <button type="button" className="ligne choix-actuel" aria-haspopup="dialog" onClick={() => setOuvert(true)}>
         {actuelle ? <Pastille categorie={actuelle} petite /> : null}
         <span className="ligne-nom">
           {actuelle ? (parent ? `${parent.nom} › ${actuelle.nom}` : actuelle.nom) : 'Choisir une catégorie'}
         </span>
-        <span className="fleche" aria-hidden="true">{ouvert ? '▴' : '▾'}</span>
+        <span className="fleche" aria-hidden="true">›</span>
       </button>
-      {ouvert && (
-        <ul className="liste-deroulante">
-          {categories.map((c) => (
-            <li key={c.id}>
-              <div className="option-categorie">
-                <button type="button" className={'option' + (c.id === choisie ? ' choisie' : '')} onClick={() => prendre(c.id)}>
-                  <Pastille categorie={c} petite />
-                  <span className="ligne-nom">{c.nom}</span>
-                </button>
-                {c.sous.length > 0 && (
-                  <button type="button" className="deplier" aria-expanded={deplie === c.id}
-                    aria-label={`${deplie === c.id ? 'Replier' : 'Déplier'} les sous-catégories de ${c.nom}`}
-                    onClick={() => setDeplie(deplie === c.id ? null : c.id)}>
-                    {c.sous.length} {deplie === c.id ? '▴' : '▾'}
-                  </button>
-                )}
-              </div>
-              {deplie === c.id && c.sous.map((x) => (
-                <button key={x.id} type="button" className={'option sous' + (x.id === choisie ? ' choisie' : '')}
-                  onClick={() => prendre(x.id)}>
-                  <Pastille categorie={x} petite />
-                  <span className="ligne-nom">{x.nom}</span>
-                </button>
-              ))}
-            </li>
-          ))}
-        </ul>
-      )}
+      {ouvert && <FenetreCategories categories={categories} choisie={choisie} prendre={prendre} fermer={() => setOuvert(false)} />}
     </div>
   );
 }

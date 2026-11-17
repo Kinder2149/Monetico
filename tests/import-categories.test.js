@@ -36,14 +36,14 @@ test('D43 : chaque catégorie Money Lover est rangée sous le bon parent, avec u
   assert.equal(resume.operations, 49);
   const arbre = Object.fromEntries(depot.listerCategories(base, 'depense').map((c) => [c.nom, c.sous.map((s) => s.nom)]));
   for (const nom of ['Bar', 'Boulangerie', 'Café', 'Courses', 'Fast-food', 'Restaurant']) assert.ok(arbre.Alimentation.includes(nom), nom);
-  for (const nom of ['Locations', 'Maison', 'Factures', 'Électricité', 'Facture de téléphone']) assert.ok(arbre.Logement.includes(nom), nom);
+  for (const nom of ['Locations', 'Maison']) assert.ok(arbre.Logement.includes(nom), nom);
+  for (const nom of ['Abonnement', 'Assurances', "Facture d'électricité", 'Facture de téléphone']) assert.ok(arbre.Factures.includes(nom), nom);
   for (const nom of ['Carburant', 'Stationnement', 'Entretien', 'Taxi']) assert.ok(arbre.Transports.includes(nom), nom);
   assert.ok(arbre.Santé.includes('Visite médicale'));
   for (const nom of ['Vêtements', 'Chaussures', 'Accessoires', 'Électronique', 'Hygiène']) assert.ok(arbre.Shopping.includes(nom), nom);
   for (const nom of ['Jeux', 'Cinéma', 'Soirée', 'Sport', 'Vacances', 'Amis & conjoint']) assert.ok(arbre.Loisirs.includes(nom), nom);
   assert.deepEqual([...arbre.Banque].sort(), ['Frais & charges', 'Retraits']);
-  for (const nom of ['Autres dépenses', 'En Attente', 'Famille']) assert.ok(arbre.Divers.includes(nom), nom);
-  for (const nom of ['Assurances', 'Banque', 'Bureau de tabac', 'Abonnements', 'Cadeaux']) assert.ok(nom in arbre, nom);
+  for (const nom of ['Factures', 'Autres dépenses', 'En Attente', 'Famille', 'Banque', 'Bureau de tabac', 'Cadeaux']) assert.ok(nom in arbre, nom);
   // L'opération « Maison » de Money Lover va sous Logement, pas sous la sous-catégorie Maison de Shopping (D43).
   const maison = depot.listerOperations(base).find((o) => o.categorie === 'Maison' && o.montant === 1000);
   assert.equal(maison.categorieParent, 'Logement');

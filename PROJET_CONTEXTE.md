@@ -240,6 +240,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D40 | Export au modèle Money Lover : bouton dans Réglages, fichier CSV aux mêmes colonnes que l'import, envoyé par le menu « Partager » d'Android. Réimporter ce fichier n'ajoute rien. Transferts, prêts, budgets et récurrentes non exportés (absents du modèle). | 2026-11-17 |
 | D41 | Solde du jour : une opération (ou un prêt compté) datée dans le futur ne compte dans les soldes qu'à sa date ; la courbe du mois en cours s'arrête aussi à aujourd'hui. L'onglet « À venir » affiche ces opérations, leur total et le « Solde prévu » une fois elles passées (récurrentes à valider comprises), comme Money Lover. | 2026-11-17 |
 | D42 | Icônes de catégorie (remplace D35 et la partie « catégories » de D24) : dessins en couleur « Fluent Emoji Flat » de Microsoft (licence MIT), choisis par Kinder parmi trois styles ; copiés dans `src/ui/dessins.js`, aucune dépendance ajoutée ; plus de rond de couleur ; catégorie sans icône (import) : dessin deviné d'après son nom, sinon un colis. Lucide reste pour les icônes de l'interface. | 2026-11-17 |
+| D43 | Import Money Lover, catégories (complète D26 sur l'export réel du 2026-11-16 : 1 889 lignes, 49 catégories), validé par Kinder : table de correspondance dans `src/logique/importMoneyLover.js` ; chaque catégorie Money Lover est rangée sous un parent Moneta (Alimentation, Logement, Assurances, Transports, Santé, Shopping, Loisirs, Abonnements, Cadeaux, Banque, Bureau de tabac, Divers ; revenus au premier niveau), avec une icône à la création. Les noms Moneta déjà existants sont réutilisés (Essence → Carburant, Sports → Sport, Vehicle Maintenance → Entretien, Électronique & électroménager → Électronique, Facture d'électricité → Électricité) ; Retrait et Retrait B → Retraits ; Cadeaux (revenu) → Cadeau reçu ; Autres revenus → Autres. Catégorie absente de la table : reprise telle quelle (D26). | 2026-11-17 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -371,6 +372,12 @@ P1 (nom) se tranche avant la publication.
 3. Les soldes de 2 ou 3 porte-monnaie choisis par Kinder sont identiques à ceux de Money Lover à la date de l'export.
 4. Quelques opérations témoins choisies par Kinder ont la même date, le même montant, la même catégorie et la même note.
 5. Proposition : importer deux fois le même fichier ne crée pas de doublons.
+
+**Import Money Lover propre (2026-11-17, D43)**
+1. Importer l'export du 16/11 : 1 885 opérations importées, 4 à venir non importées, aucune erreur.
+2. Les catégories sont rangées sous leurs parents (Alimentation : Courses, Restaurant, Fast-food, Café, Bar, Boulangerie ; Banque : Frais & charges, Retraits ; etc.), sans doublon avec les catégories existantes.
+3. Aucune catégorie utilisée n'est sans dessin : chaque pastille de la liste, de la saisie et des graphiques montre un dessin en couleur.
+4. Réimporter le même fichier n'ajoute aucune opération ni catégorie.
 
 → **Point de contrôle Kinder** : vérification de l'import sur ses vraies données.
 

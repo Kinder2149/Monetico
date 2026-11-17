@@ -1,4 +1,5 @@
 // Lectures et écritures métier. Les montants sont en centimes.
+import { cleNom, PARENTS_IMPORT } from '../logique/importMoneyLover.js';
 
 // Tri alphabétique français (accents compris : « Électricité » avant « Internet »).
 const parNom = (a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' });
@@ -305,9 +306,6 @@ export function soldeTotalAu(base, date) {
 
 // --- Import (D26) ---
 
-// « Fast Food » et « Fast-food », « Électricité » et « electricite » désignent la même chose.
-const cleNom = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
 // Importe des opérations { type, montant, categorie, porteMonnaie, date, note } en une seule fois.
 // Porte-monnaie et catégories sont retrouvés par leur nom, ou créés. Une opération déjà présente
 // n'est pas ajoutée une seconde fois (les doubles réels du fichier sont gardés).
@@ -315,7 +313,15 @@ export function importerOperations(base, operations) {
   return base.lot(() => {
     const resume = { operations: 0, dejaPresentes: 0, porteMonnaieCrees: 0, categoriesCreees: 0, porteMonnaie: new Set() };
     const porteMonnaie = new Map(base.lire('SELECT id, nom FROM porte_monnaie').map((p) => [cleNom(p.nom), p.id]));
-    const categories = new Map(base.lire('SELECT id, nom, type FROM categorie').map((c) => [c.type + cleNom(c.nom), c.id]));
+    // Catégories existantes : par (type, parent, nom), et par nom seul pour celles sans correspondance.
+    const categories = new Map();
+    const parNomSeul = new Map();
+    const lignesCategories = base.lire('SELECT id, nom, type, parent_id AS parentId FROM categorie');
+    const nomParId = new Map(lignesCategories.map((c) => [c.id, c.nom]));
+    for (const c of lignesCategories) {
+      categories.set(`${c.type}/${c.parentId ? cleNom(nomParId.get(c.parentId)) : ''}/${cleNom(c.nom)}`, c.id);
+      if (!parNomSeul.has(c.type + cleNom(c.nom))) parNomSeul.set(c.type + cleNom(c.nom), c.id);
+    }
 
     function idPorteMonnaie(nom) {
       if (!porteMonnaie.has(cleNom(nom))) {
@@ -325,12 +331,22 @@ export function importerOperations(base, operations) {
       return porteMonnaie.get(cleNom(nom));
     }
 
-    function idCategorie(nom, type) {
-      if (!categories.has(type + cleNom(nom))) {
-        categories.set(type + cleNom(nom), creerCategorie(base, { nom, type }));
+    function creer(nom, type, parent, parentId, icone) {
+      const cle = `${type}/${parent ? cleNom(parent) : ''}/${cleNom(nom)}`;
+      if (!categories.has(cle)) {
+        categories.set(cle, creerCategorie(base, { nom, type, parentId, icone: icone ?? null }));
         resume.categoriesCreees++;
       }
-      return categories.get(type + cleNom(nom));
+      return categories.get(cle);
+    }
+
+    // Avec une correspondance (D43) : catégorie rangée sous son parent, créés au besoin avec leur icône.
+    // Sans correspondance : retrouvée par son nom, sinon créée au premier niveau (D26).
+    function idCategorie(o) {
+      const { categorie: nom, type, categorieParent: parent, categorieIcone: icone } = o;
+      if (!parent && !icone) return parNomSeul.get(type + cleNom(nom)) ?? creer(nom, type, null, null, null);
+      const parentId = parent ? creer(parent, type, null, null, PARENTS_IMPORT[parent]) : null;
+      return creer(nom, type, parent, parentId, icone);
     }
 
     // Nombre d'opérations déjà en base pour chaque contenu identique.
@@ -345,7 +361,7 @@ export function importerOperations(base, operations) {
       const valeurs = {
         type: o.type, montant: o.montant, date: o.date, note: o.note,
         porteMonnaieId: idPorteMonnaie(o.porteMonnaie),
-        categorieId: idCategorie(o.categorie, o.type),
+        categorieId: idCategorie(o),
       };
       resume.porteMonnaie.add(valeurs.porteMonnaieId);
       const s = signature(valeurs);

@@ -1,5 +1,12 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Import Money Lover propre (D43)
+
+- Nouvel export de Kinder (16/11) : 1 889 lignes, 49 catégories, un compte ; 4 opérations à venir non importées. Le solde obtenu est −197,79 € (649,54 € sur l'export du 03/11) : à confirmer par Kinder avec le solde affiché par Money Lover.
+- D43 : table de correspondance catégories Money Lover → catégories Moneta (parents, noms existants réutilisés, icône à la création), validée par Kinder. Dessins ajoutés : chaussure, sac à main, sablier, billets, cocktail.
+- Vérifié sur le vrai fichier : 1 885 opérations, 22 catégories créées, aucune sans icône, réimport sans aucun ajout. 3 tests ajoutés (35 au total).
+- Connexion Google : l'adresse de Kinder ajoutée aux utilisateurs tests du projet (erreur « accès bloqué » sur le téléphone).
+
 ## 2026-11-17 — Nouvelles icônes (D42) et vérification du bloc C
 
 - Kinder trouve les icônes laides : trois styles comparés, choix du style A. D42 : dessins en couleur « Fluent Emoji Flat » (Microsoft, MIT), copiés dans `src/ui/dessins.js` (pas de dépendance ajoutée), sans rond de couleur ; catégories créées par l'import : dessin deviné d'après le nom.

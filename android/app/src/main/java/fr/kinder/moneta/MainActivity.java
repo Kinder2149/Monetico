@@ -11,6 +11,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         registerPlugin(GoogleDrivePlugin.class);
+        registerPlugin(PartagePlugin.class);
         super.onCreate(savedInstanceState);
         OnBackPressedCallback retour = new OnBackPressedCallback(true) {
             @Override

@@ -3,7 +3,7 @@
 > Document de référence du projet. Toute décision figée est en section 6.
 > Ce qui n'est pas écrit ici n'est pas décidé : on demande à Kinder.
 
-Dernière mise à jour : 2026-11-04 — bloc C : étapes 8 à 13 vérifiées, étape 14 codée, vérification à faire (phase 6).
+Dernière mise à jour : 2026-11-17 — bloc C : corrections après le test de Kinder codées (D34 à D40) ; étape 14 toujours à vérifier (phase 6).
 
 ---
 
@@ -17,6 +17,7 @@ MISSION : Bloc C — Le reste (étapes 8 à 14) — En implémentation (seule mi
 PHASE : 6 Implémentation
   Étape : 8 à 13 Budgets, récurrentes, prêts, graphiques, icône galerie, réglages — Close — critère : critères de la section 10 vérifiés sur le téléphone virtuel le 2026-11-04 (écart de l'étape 12 accepté, D29)
   Étape : 14 Sauvegarde Google Drive — Codée, vérification à faire — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
+  Étape : Corrections après test (D34 à D40) — Codées, vérifiées dans l'aperçu — critère : section 10, « Corrections après test »
   Étape : 15 Moneta sur PC — Planifiée — critère : voir section 10 (P9 à trancher avant)
 MISSION : Bloc D — Version ordinateur (étape 15) — En attente (1)
 SESSIONS : aucune
@@ -62,7 +63,7 @@ jamais vers un serveur de l'éditeur.
   et la bibliothèque officielle Google de connexion (D33).
 - Projet totalement indépendant de Vault Watch (même socle, aucun code ni donnée partagés).
 
-### Organisation du code (état au 2026-11-04 : 19 modules sur 20)
+### Organisation du code (état au 2026-11-17 : 19 modules sur 20)
 
 | Couche | Modules | Rôle |
 |---|---|---|
@@ -77,7 +78,8 @@ jamais vers un serveur de l'éditeur.
 - Données conservées dans le stockage interne du téléphone (IndexedDB de l'appli).
 - Police Manrope intégrée (`public/polices/`), aucun chargement en ligne.
 - Identifiant Android de l'appli : `fr.kinder.moneta` (définitif une fois publiée).
-- Tests automatiques : `tests/` (27 tests au 2026-11-04).
+- Tests automatiques : `tests/` (31 tests au 2026-11-17).
+- Partie Android écrite dans le projet : `GoogleDrivePlugin` (D33) et `PartagePlugin` (menu « Partager » d'Android pour l'export, D40), sans bibliothèque ajoutée.
 
 ## 4. Fonctionnalités (périmètre complet du produit)
 
@@ -121,6 +123,7 @@ Liste de départ (modèle) :
 ### 4.4 Prêts (argent qu'on me doit)
 - Uniquement l'argent prêté à une autre personne, qu'elle doit rembourser.
 - Suivi : montant prêté, personne, remboursements reçus, reste dû.
+- Case « Compter dans mon solde », décochée par défaut (D34) : un prêt sert de mémoire, la dépense étant notée à part.
 - Pas de suivi de mes propres dettes.
 
 ### 4.5 Budgets
@@ -182,7 +185,7 @@ Maquette de référence (écran d'accueil) : https://claude.ai/artifact/EPjjEzJ3
 - Police : **Manrope** (400 à 800), embarquée dans l'application (pas de chargement en ligne).
 - Solde total : 36 px, gras 800. Textes courants : 15 px. Libellés secondaires : 12–13 px.
 - Cartes : coins arrondis 20 px, fond blanc sur fond menthe très clair.
-- Icônes de catégorie : pastille carrée arrondie (12 px) de couleur douce, pictogramme au trait.
+- Icônes de catégorie : pastille **ronde de couleur vive**, pictogramme blanc au trait ; la couleur est donnée par l'icône (D35).
 - Bouton « + » central : carré arrondi 56 px, couleur principale, légère ombre, en relief dans la barre du bas.
 - Barre du bas : Accueil · Opérations · « + » · Budgets · Comptes.
 - Zones tactiles : 44 px minimum. Contrastes lisibles (4,5:1 minimum pour le texte).
@@ -228,6 +231,13 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D31 | P8 tranché : la restauration des données depuis le Drive (ex. nouveau téléphone) fait partie de l'étape 14. | 2026-11-04 |
 | D32 | Critères de restauration 14.5 à 14.7 (section 10) validés par Kinder. | 2026-11-04 |
 | D33 | Dépendance validée par Kinder : bibliothèque officielle Google de connexion (Google Play services), reliée à Moneta par un pont écrit dans le projet, pour autoriser l'accès aux seuls fichiers créés par Moneta dans le Drive. | 2026-11-04 |
+| D34 | Prêts (modifie D28) : case « Compter dans mon solde », décochée par défaut. Décochée, ni le prêt ni ses remboursements ne changent les soldes (pour mémoire). Cochée, D28 s'applique. Les prêts créés avant passent pour mémoire. | 2026-11-17 |
+| D35 | Icônes de catégorie en couleur (modifie la section 5) : pastille ronde de couleur vive, pictogramme Lucide blanc ; couleur fixée par l'icône (couleur stable tirée du nom pour une catégorie sans icône). Aucune reprise des dessins de Money Lover (D18). | 2026-11-17 |
+| D36 | Choix de la catégorie à la saisie (et dans les récurrentes) : menu déroulant ; la flèche d'une catégorie déplie ses sous-catégories. | 2026-11-17 |
+| D37 | Onglet Opérations rangé par mois : un onglet par mois (« Ce mois-ci », « Mois dernier », puis « Octobre 2026 »…) et « À venir », chacun avec entrées, sorties et total. « Ce mois-ci » s'arrête à aujourd'hui ; « À venir » = opérations datées après aujourd'hui + récurrentes pas encore validées de ce mois et du suivant. La carte du mois de l'accueil compte aussi jusqu'à aujourd'hui. La recherche porte sur toutes les opérations. | 2026-11-17 |
+| D38 | Appui long sur une opération : menu Modifier / Supprimer (avec confirmation). Le simple toucher ouvre toujours la modification. | 2026-11-17 |
+| D39 | Accueil : camembert du mois et courbe du solde en bas de l'accueil (l'écran Graphiques reste accessible par la carte du mois, D27). | 2026-11-17 |
+| D40 | Export au modèle Money Lover : bouton dans Réglages, fichier CSV aux mêmes colonnes que l'import, envoyé par le menu « Partager » d'Android. Réimporter ce fichier n'ajoute rien. Transferts, prêts, budgets et récurrentes non exportés (absents du modèle). | 2026-11-17 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -404,6 +414,15 @@ P1 (nom) se tranche avant la publication.
 5. Sur un téléphone où Moneta vient d'être installée, après connexion au même compte Google dans Réglages, Moneta propose « Restaurer la sauvegarde du [date] » ; après confirmation, porte-monnaie, opérations, catégories (icônes comprises), budgets, récurrentes et prêts réapparaissent, avec les mêmes soldes.
 6. Si le téléphone contient déjà des données, une confirmation annonce clairement que la restauration remplace ce qu'il y a sur le téléphone ; en cas de refus, rien ne change.
 7. Un bouton « Restaurer depuis le Drive » reste disponible à tout moment dans Réglages.
+
+**Corrections après test (2026-11-17, D34 à D40)** — vérification avec le reste du bloc C, à la fin
+1. Icônes : chaque catégorie s'affiche dans un rond de couleur vive avec un pictogramme blanc, partout (liste, saisie, graphiques, catégories).
+2. Saisie : la catégorie se choisit dans un menu déroulant ; la flèche d'une catégorie montre ses sous-catégories.
+3. Prêts : la case « Compter dans mon solde » est décochée au départ ; décochée, le solde ne bouge ni au prêt ni au remboursement ; cochée, il baisse puis remonte.
+4. Opérations : onglets par mois et « À venir », chacun avec entrées, sorties et total ; « À venir » montre les opérations datées après aujourd'hui et les récurrentes à valider.
+5. Appui long sur une opération : menu Modifier / Supprimer ; Supprimer demande confirmation.
+6. Accueil : le camembert du mois et la courbe du solde apparaissent en bas.
+7. Réglages : « Exporter au format Money Lover » ouvre le menu Partager avec un fichier CSV ; réimporté dans Moneta, il n'ajoute aucune opération.
 
 → **Point de contrôle Kinder** : vérification du bloc C sur le téléphone.
 

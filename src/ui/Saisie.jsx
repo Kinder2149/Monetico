@@ -5,41 +5,59 @@ import { lireMontant, montantPourSaisie } from '../logique/argent.js';
 import { aujourdhui } from '../logique/dates.js';
 import { listerCategories, creerOperation, modifierOperation, supprimerOperation } from '../donnees/depot.js';
 
+// Menu déroulant des catégories (D36) : le champ montre la catégorie choisie ; ouvert, il liste
+// les catégories, et la flèche d'une catégorie déplie ses sous-catégories.
 export function ChoixCategorie({ base, type, choisie, choisir }) {
-  const [ouvert, setOuvert] = useState(!choisie);
   const categories = listerCategories(base, type);
-  const toutes = categories.flatMap((c) => [c, ...c.sous]);
-  const actuelle = toutes.find((c) => c.id === choisie);
+  const actuelle = categories.flatMap((c) => [c, ...c.sous]).find((c) => c.id === choisie);
+  const parent = categories.find((c) => c.sous.some((s) => s.id === choisie));
+  const [ouvert, setOuvert] = useState(false);
+  const [deplie, setDeplie] = useState(parent?.id ?? null);
 
-  if (!ouvert && actuelle) {
-    return (
-      <div className="champ">
-        <span>Catégorie</span>
-        <button type="button" className="ligne choix-actuel" onClick={() => setOuvert(true)}>
-          <Pastille categorie={actuelle} />
-          <span className="ligne-nom">{actuelle.nom}</span>
-          <span className="texte-2">Changer</span>
-        </button>
-      </div>
-    );
+  function prendre(id) {
+    choisir(id);
+    setOuvert(false);
   }
 
   return (
     <div className="champ">
       <span>Catégorie</span>
-      <div className="liste-choix">
-        {categories.map((c) => (
-          <div key={c.id} className="groupe-choix">
-            {[c, ...c.sous].map((x) => (
-              <button key={x.id} type="button" className={'puce' + (x.id === choisie ? ' choisie' : '')}
-                onClick={() => { choisir(x.id); setOuvert(false); }}>
-                <Pastille categorie={x} petite />
-                {x.nom}
-              </button>
-            ))}
-          </div>
-        ))}
-      </div>
+      <button type="button" className={'ligne choix-actuel' + (ouvert ? ' ouvert' : '')} aria-expanded={ouvert}
+        onClick={() => setOuvert(!ouvert)}>
+        {actuelle ? <Pastille categorie={actuelle} petite /> : null}
+        <span className="ligne-nom">
+          {actuelle ? (parent ? `${parent.nom} › ${actuelle.nom}` : actuelle.nom) : 'Choisir une catégorie'}
+        </span>
+        <span className="fleche" aria-hidden="true">{ouvert ? '▴' : '▾'}</span>
+      </button>
+      {ouvert && (
+        <ul className="liste-deroulante">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <div className="option-categorie">
+                <button type="button" className={'option' + (c.id === choisie ? ' choisie' : '')} onClick={() => prendre(c.id)}>
+                  <Pastille categorie={c} petite />
+                  <span className="ligne-nom">{c.nom}</span>
+                </button>
+                {c.sous.length > 0 && (
+                  <button type="button" className="deplier" aria-expanded={deplie === c.id}
+                    aria-label={`${deplie === c.id ? 'Replier' : 'Déplier'} les sous-catégories de ${c.nom}`}
+                    onClick={() => setDeplie(deplie === c.id ? null : c.id)}>
+                    {c.sous.length} {deplie === c.id ? '▴' : '▾'}
+                  </button>
+                )}
+              </div>
+              {deplie === c.id && c.sous.map((x) => (
+                <button key={x.id} type="button" className={'option sous' + (x.id === choisie ? ' choisie' : '')}
+                  onClick={() => prendre(x.id)}>
+                  <Pastille categorie={x} petite />
+                  <span className="ligne-nom">{x.nom}</span>
+                </button>
+              ))}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -69,7 +87,8 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
   const [date, setDate] = useState(operation?.date ?? aujourdhui());
   const [note, setNote] = useState(operation?.note ?? '');
   const [message, setMessage] = useState('');
-  const [confirmer, setConfirmer] = useState(false);
+  // Venu de l'appui long « Supprimer » (D38) : on ouvre directement la confirmation.
+  const [confirmer, setConfirmer] = useState(Boolean(operation?.aSupprimer));
 
   // Le message d'erreur disparaît dès que l'utilisateur corrige le formulaire.
   useEffect(() => setMessage(''), [type, montant, categorieId, porteMonnaieId, versId, date]);
@@ -114,7 +133,7 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
       <Feuille titre="Supprimer cette opération ?" fermer={fermer}>
         <p className="texte-2">Elle sera supprimée définitivement et les soldes seront recalculés.</p>
         <div className="actions">
-          <button className="bouton secondaire" onClick={() => setConfirmer(false)}>Annuler</button>
+          <button className="bouton secondaire" onClick={() => (operation.aSupprimer ? fermer() : setConfirmer(false))}>Annuler</button>
           <button className="bouton danger" onClick={supprimer}>Supprimer</button>
         </div>
       </Feuille>

@@ -65,3 +65,29 @@ export function lireExportMoneyLover(texte, jour = aujourdhui()) {
   }
   return { operations, aVenir };
 }
+
+// --- Export au même modèle (D40) ---
+
+const ENTETE = ['ID', 'Note', 'Amount', 'Category', 'Account', 'Currency', 'Date', 'Event', 'Exclude Report'];
+
+// Champ CSV : entre guillemets s'il contient une virgule, un guillemet ou un retour à la ligne.
+const champCsv = (v) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+
+// « 2026-11-28 » → « 28/11/2026 »
+const dateMoneyLover = (jour) => jour.split('-').reverse().join('/');
+
+// Opérations de Moneta → texte CSV au modèle de l'export Money Lover (réimportable sans doublons).
+// Les transferts n'existent pas dans ce modèle : ils ne sont que comptés.
+export function ecrireExportMoneyLover(operations) {
+  const lignes = [ENTETE.join(',')];
+  let transferts = 0;
+  for (const o of operations) {
+    if (o.type === 'transfert') { transferts++; continue; }
+    const montant = (o.type === 'depense' ? -o.montant : o.montant) / 100;
+    lignes.push([
+      String(lignes.length), o.note ?? '', String(montant), o.categorie ?? '', o.porteMonnaie, 'EUR',
+      dateMoneyLover(o.date), '', 'False',
+    ].map(champCsv).join(','));
+  }
+  return { texte: '﻿' + lignes.join('\n') + '\n', operations: lignes.length - 1, transferts };
+}

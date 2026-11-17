@@ -105,3 +105,21 @@ export function libelleDateHeure(moment) {
   const jour = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
   return `${jour} à ${FORMAT_HEURE.format(date)}`;
 }
+
+// « AAAA-MM » du mois contenant `jour`.
+export const moisDe = (jour) => jour.slice(0, 7);
+
+// Mois de `debut` à `fin` (jours quelconques de ces mois), du plus ancien au plus récent, en « AAAA-MM ».
+export function moisEntre(debut, fin) {
+  const liste = [];
+  for (let m = `${moisDe(debut)}-01`; moisDe(m) <= moisDe(fin); m = decalerMois(m, 1)) liste.push(moisDe(m));
+  return liste;
+}
+
+// Titre de l'onglet d'un mois (« AAAA-MM ») de la liste des opérations (D37) :
+// « Ce mois-ci », « Mois dernier », sinon « Octobre 2026 ».
+export function libelleOngletMois(mois, reference = aujourdhui()) {
+  if (mois === moisDe(reference)) return 'Ce mois-ci';
+  if (mois === moisDe(decalerMois(`${moisDe(reference)}-01`, -1))) return 'Mois dernier';
+  return nomDuMois(`${mois}-01`);
+}

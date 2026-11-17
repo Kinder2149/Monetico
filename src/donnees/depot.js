@@ -12,9 +12,10 @@ export function listerPorteMonnaie(base) {
             ), 0) + COALESCE((
               SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id
             ), 0) - COALESCE((
-              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id
+              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id AND pr.compte_solde = 1
             ), 0) + COALESCE((
-              SELECT SUM(r.montant) FROM remboursement r WHERE r.porte_monnaie_id = p.id
+              SELECT SUM(r.montant) FROM remboursement r JOIN pret pr ON pr.id = r.pret_id
+              WHERE r.porte_monnaie_id = p.id AND pr.compte_solde = 1
             ), 0) AS solde
      FROM porte_monnaie p`
   ).sort(parNom);
@@ -236,23 +237,26 @@ export function listerPrets(base) {
      ORDER BY r.date DESC, r.id DESC`
   );
   return base.lire(
-    `SELECT pr.id, pr.personne, pr.montant, pr.date, pr.note, pr.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+    `SELECT pr.id, pr.personne, pr.montant, pr.date, pr.note, pr.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie,
+            pr.compte_solde AS compteSolde
      FROM pret pr JOIN porte_monnaie p ON p.id = pr.porte_monnaie_id`
-  ).map((pr) => {
+  ).map(({ compteSolde, ...pr }) => {
     const siens = remboursements.filter((r) => r.pretId === pr.id);
     const rembourse = siens.reduce((somme, r) => somme + r.montant, 0);
-    return { ...pr, remboursements: siens, rembourse, resteDu: pr.montant - rembourse };
+    return { ...pr, compteSolde: compteSolde === 1, remboursements: siens, rembourse, resteDu: pr.montant - rembourse };
   }).sort((a, b) => (a.resteDu === 0) - (b.resteDu === 0) || b.date.localeCompare(a.date) || b.id - a.id);
 }
 
-const valeursPret = ({ personne, montant, date, porteMonnaieId, note = '' }) => [personne, montant, date, porteMonnaieId, note];
+// compteSolde (D34) : faux par défaut, le prêt n'est qu'un pense-bête ; vrai, il suit D28.
+const valeursPret = ({ personne, montant, date, porteMonnaieId, note = '', compteSolde = false }) =>
+  [personne, montant, date, porteMonnaieId, note, compteSolde ? 1 : 0];
 
 export function creerPret(base, pret) {
-  return base.ecrire('INSERT INTO pret (personne, montant, date, porte_monnaie_id, note) VALUES (?, ?, ?, ?, ?)', valeursPret(pret));
+  return base.ecrire('INSERT INTO pret (personne, montant, date, porte_monnaie_id, note, compte_solde) VALUES (?, ?, ?, ?, ?, ?)', valeursPret(pret));
 }
 
 export function modifierPret(base, id, pret) {
-  base.ecrire('UPDATE pret SET personne = ?, montant = ?, date = ?, porte_monnaie_id = ?, note = ? WHERE id = ?', [...valeursPret(pret), id]);
+  base.ecrire('UPDATE pret SET personne = ?, montant = ?, date = ?, porte_monnaie_id = ?, note = ?, compte_solde = ? WHERE id = ?', [...valeursPret(pret), id]);
 }
 
 // Supprime le prêt et ses remboursements : les soldes reviennent comme avant le prêt.
@@ -285,14 +289,15 @@ export function depensesParCategorie(base, { debut, fin }) {
   );
 }
 
-// Solde total de tous les porte-monnaie le soir du jour `date` (prêts et remboursements compris, D28).
+// Solde total de tous les porte-monnaie le soir du jour `date` (prêts comptés dans le solde compris, D28, D34).
 export function soldeTotalAu(base, date) {
   return base.lire(
     `SELECT (SELECT COALESCE(SUM(solde_depart), 0) FROM porte_monnaie)
           + (SELECT COALESCE(SUM(CASE type WHEN 'revenu' THEN montant WHEN 'depense' THEN -montant ELSE 0 END), 0)
              FROM operation WHERE date <= ?)
-          - (SELECT COALESCE(SUM(montant), 0) FROM pret WHERE date <= ?)
-          + (SELECT COALESCE(SUM(montant), 0) FROM remboursement WHERE date <= ?) AS solde`, [date, date, date]
+          - (SELECT COALESCE(SUM(montant), 0) FROM pret WHERE date <= ? AND compte_solde = 1)
+          + (SELECT COALESCE(SUM(r.montant), 0) FROM remboursement r JOIN pret pr ON pr.id = r.pret_id
+             WHERE r.date <= ? AND pr.compte_solde = 1) AS solde`, [date, date, date]
   )[0].solde;
 }
 

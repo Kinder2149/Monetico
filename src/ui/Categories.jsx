@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
-import { ICONES_CATEGORIES, IconeCategorie, IconePhoto } from './Icones.jsx';
+import { ICONES_CATEGORIES, IconeCategorie, IconePhoto, couleurCategorie } from './Icones.jsx';
 import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie, categorieUtilisee } from '../donnees/depot.js';
 
 // Une icône est soit un nom du catalogue (src/ui/Icones.jsx), soit une photo de la galerie (image réduite).
 const estPhoto = (icone) => Boolean(icone?.startsWith('data:image/'));
 
+// Pastille ronde colorée, pictogramme blanc (D35) ; une photo occupe tout le rond.
 export function Pastille({ categorie, petite }) {
+  const photo = estPhoto(categorie.icone);
   return (
-    <span className={'pastille' + (petite ? ' petite' : '')} aria-hidden="true">
+    <span className={'pastille ronde' + (petite ? ' petite' : '')} aria-hidden="true"
+      style={photo ? undefined : { background: couleurCategorie(categorie) }}>
       {estPhoto(categorie.icone) ? <img className="photo-icone" src={categorie.icone} alt="" />
         : categorie.icone ? <IconeCategorie nom={categorie.icone} taille={petite ? 16 : 20} />
           : categorie.nom.charAt(0).toUpperCase()}
@@ -52,7 +55,8 @@ function ChoixIcone({ choisie, choisir }) {
         </label>
         {Object.keys(ICONES_CATEGORIES).map((nom) => (
           <button key={nom} type="button" aria-label={nom} aria-pressed={choisie === nom}
-            className={'pastille' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}>
+            className={'pastille ronde' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}
+            style={{ background: couleurCategorie({ icone: nom }) }}>
             <IconeCategorie nom={nom} />
           </button>
         ))}

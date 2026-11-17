@@ -1,5 +1,16 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Corrections après le test de Kinder (phase 6, bloc C)
+
+- Retours de Kinder sur 8 points ; il demande de corriger directement, les tests finaux se feront à la fin du projet.
+- D34 : prêt « pour mémoire » par défaut (case « Compter dans mon solde ») ; les prêts existants passent pour mémoire.
+- D35 : icônes de catégorie en ronds de couleur vive, pictogramme blanc. D36 : catégorie choisie dans un menu déroulant.
+- D37 : onglet Opérations par mois + « À venir », avec entrées, sorties et total ; la carte du mois de l'accueil s'arrête à aujourd'hui.
+- D38 : appui long sur une opération (Modifier / Supprimer). D39 : graphiques en bas de l'accueil. D40 : export au modèle Money Lover par le menu Partager.
+- 4 tests ajoutés (31 au total, tous réussis) ; parcours vérifié dans l'aperçu en taille téléphone. Pas de module ajouté (19 sur 20) ; partie Android de l'export écrite mais pas encore fabriquée (pas de kit Android sur ce poste).
+- Question de Kinder sur la récupération des données par Google : la restauration est codée mais l'étape 14 n'a jamais été vérifiée ; la connexion n'est autorisée que pour l'appli fabriquée sur le PC portable.
+- Travail sur la branche `claude/correction-plan-post-test-swy1de`, partie de `bloc-c` (non fusionnée).
+
 ## 2026-11-10 — Tri des projets (lot 6)
 
 - Bloc STATUT écrit dans PROJET_CONTEXTE.md (mission « Bloc C », phase 6), d'accord avec la version en ligne : étapes 8 à 13 vérifiées, étape 14 codée, vérification à faire. La copie locale de `bloc-c` a été alignée sur la version en ligne ; son seul commit local (D29, restauration depuis le Drive) est gardé dans `V:\DEV\_archives\monetico-bloc-c-local-2026-11\` et sur la branche `archive/monetico-bloc-c-local-2026-11`.

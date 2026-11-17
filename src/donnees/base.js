@@ -131,6 +131,9 @@ const MIGRATIONS = [
      date TEXT NOT NULL,
      porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT
    )`,
+  // Prêt « pour mémoire » (D34) : par défaut, ni le prêt ni ses remboursements ne touchent au solde
+  // (la dépense est déjà notée à part). Les prêts existants passent aussi pour mémoire.
+  `ALTER TABLE pret ADD COLUMN compte_solde INTEGER NOT NULL DEFAULT 0`,
 ];
 
 export function migrer(db) {

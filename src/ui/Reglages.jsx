@@ -1,9 +1,10 @@
 ﻿import { useEffect, useState } from 'react';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Feuille } from './Commun.jsx';
-import { contientDonnees, importerOperations } from '../donnees/depot.js';
+import { contientDonnees, importerOperations, listerOperations } from '../donnees/depot.js';
 import * as sauvegarde from '../donnees/sauvegarde.js';
-import { lireExportMoneyLover } from '../logique/importMoneyLover.js';
-import { libelleDateHeure, libelleSauvegarde } from '../logique/dates.js';
+import { lireExportMoneyLover, ecrireExportMoneyLover } from '../logique/importMoneyLover.js';
+import { aujourdhui, libelleDateHeure, libelleSauvegarde } from '../logique/dates.js';
 import { version } from '../../package.json';
 
 // Espace fine des milliers (quasi invisible en Manrope) remplacée par une espace insécable, comme pour les montants.
@@ -28,6 +29,34 @@ function ResumeImport({ resultat, fermer }) {
         {resultat.dejaPresentes > 0 && <li>{pluriel(resultat.dejaPresentes, 'opération')} déjà présente{resultat.dejaPresentes > 1 ? 's' : ''}, non ajoutée{resultat.dejaPresentes > 1 ? 's' : ''}</li>}
         {resultat.aVenir > 0 && <li>{pluriel(resultat.aVenir, 'opération')} à venir, non importée{resultat.aVenir > 1 ? 's' : ''}</li>}
       </ul>
+      <button className="bouton" onClick={fermer}>Compris</button>
+    </Feuille>
+  );
+}
+
+// Export au modèle Money Lover (D40) : menu « Partager » d'Android, ou téléchargement dans l'aperçu.
+async function partagerFichier(nom, texte) {
+  if (Capacitor.isNativePlatform()) {
+    await registerPlugin('Partage').partager({ nom, texte, type: 'text/csv' });
+    return;
+  }
+  const lien = document.createElement('a');
+  lien.href = URL.createObjectURL(new Blob([texte], { type: 'text/csv' }));
+  lien.download = nom;
+  lien.click();
+  URL.revokeObjectURL(lien.href);
+}
+
+function ResumeExport({ resultat, fermer }) {
+  return (
+    <Feuille titre={resultat.erreur ? 'Export impossible' : 'Export prêt'} fermer={fermer}>
+      {resultat.erreur ? <p className="texte-2">{resultat.erreur}</p> : (
+        <ul className="resume-import">
+          <li>{pluriel(resultat.operations, 'opération')} exportée{resultat.operations > 1 ? 's' : ''} dans « {resultat.nom} »</li>
+          {resultat.transferts > 0 && <li>{pluriel(resultat.transferts, 'transfert')} non exporté{resultat.transferts > 1 ? 's' : ''} (absents du modèle Money Lover)</li>}
+          <li>Prêts, budgets et récurrentes ne font pas partie de ce modèle.</li>
+        </ul>
+      )}
       <button className="bouton" onClick={fermer}>Compris</button>
     </Feuille>
   );
@@ -149,6 +178,18 @@ function Sauvegarde({ base }) {
 export default function Reglages({ base, rafraichir }) {
   const [resultat, setResultat] = useState(null);
   const [enCours, setEnCours] = useState(false);
+  const [export_, setExport] = useState(null);
+
+  async function exporter() {
+    const nom = `Moneta - export Money Lover ${aujourdhui()}.csv`;
+    try {
+      const { texte, operations, transferts } = ecrireExportMoneyLover(listerOperations(base));
+      await partagerFichier(nom, texte);
+      setExport({ nom, operations, transferts });
+    } catch (erreur) {
+      setExport({ erreur: `Le fichier n'a pas pu être créé. (${erreur.message})` });
+    }
+  }
 
   async function importer(e) {
     const fichier = e.target.files[0];
@@ -168,13 +209,18 @@ export default function Reglages({ base, rafraichir }) {
 
   return (
     <>
-      <h2 className="titre-section first">Import</h2>
+      <h2 className="titre-section first">Import et export</h2>
       <label className={'carte ligne lien' + (enCours ? ' occupe' : '')}>
         <span className="ligne-nom">{enCours ? 'Import en cours…' : 'Importer depuis Money Lover'}</span>
         <span aria-hidden="true">›</span>
         <input type="file" accept=".csv,text/csv,text/comma-separated-values,text/plain" hidden
           disabled={enCours} onChange={importer} />
       </label>
+
+      <button className="carte ligne lien bouton-ligne" onClick={exporter}>
+        <span className="ligne-nom">Exporter au format Money Lover</span>
+        <span aria-hidden="true">›</span>
+      </button>
 
       <h2 className="titre-section">Sauvegarde</h2>
       <Sauvegarde base={base} />
@@ -186,6 +232,7 @@ export default function Reglages({ base, rafraichir }) {
       </div>
 
       {resultat && <ResumeImport resultat={resultat} fermer={() => setResultat(null)} />}
+      {export_ && <ResumeExport resultat={export_} fermer={() => setExport(null)} />}
     </>
   );
 }

@@ -63,6 +63,36 @@ export const ICONES_CATEGORIES = {
   'hand-heart': HandHeart, cigarette: Cigarette, ellipsis: Ellipsis,
 };
 
+// Couleur vive de la pastille ronde de chaque icône (D35) : pictogramme blanc sur fond coloré,
+// contraste d'au moins 3:1 avec le blanc. Même icône = même couleur partout dans l'appli.
+const ROUGE = '#E03131', ORANGE = '#E8590C', AMBRE = '#C27C0E', VERT = '#2B8A3E', SARCELLE = '#0C8599',
+  BLEU = '#1C7ED6', INDIGO = '#4263EB', VIOLET = '#7048E8', ROSE = '#D6336C', BRUN = '#A0522D', ARDOISE = '#495057';
+
+const COULEURS_ICONES = {
+  'shopping-cart': ORANGE, utensils: ROUGE, sandwich: AMBRE, coffee: BRUN, pizza: ORANGE, beer: AMBRE, wine: ROSE,
+  house: SARCELLE, zap: AMBRE, droplet: BLEU, wifi: INDIGO, shield: ARDOISE,
+  bus: BLEU, train: BLEU, car: INDIGO, fuel: ROUGE, parking: BLEU, wrench: ARDOISE, bike: VERT, plane: SARCELLE, luggage: BRUN,
+  'heart-pulse': ROUGE, pill: ROSE, stethoscope: SARCELLE,
+  'shopping-bag': VIOLET, shirt: INDIGO, sofa: BRUN, smartphone: ARDOISE, sparkles: VIOLET, scissors: ROSE,
+  party: VIOLET, gamepad: INDIGO, dumbbell: ORANGE, music: ROSE, film: ARDOISE, tv: BLEU, ticket: ORANGE,
+  book: BRUN, school: INDIGO, baby: ROSE, dog: BRUN, cat: AMBRE,
+  repeat: VIOLET, gift: ROSE, landmark: ARDOISE, receipt: SARCELLE, hammer: BRUN, paint: ORANGE, lightbulb: AMBRE,
+  flame: ROUGE, umbrella: BLEU, store: VERT, briefcase: VERT, trophy: AMBRE, 'rotate-ccw': SARCELLE, tag: VIOLET,
+  'hand-coins': VERT, 'piggy-bank': ROSE, banknote: VERT, wallet: BRUN, 'hand-heart': ROSE, cigarette: ARDOISE,
+  ellipsis: ARDOISE,
+};
+
+const PALETTE = [ROUGE, ORANGE, AMBRE, VERT, SARCELLE, BLEU, INDIGO, VIOLET, ROSE, BRUN];
+
+// Couleur d'une catégorie : celle de son icône, sinon une couleur stable tirée de son nom
+// (catégories créées par l'import, sans icône).
+export function couleurCategorie({ icone, nom = '' }) {
+  if (COULEURS_ICONES[icone]) return COULEURS_ICONES[icone];
+  let somme = 0;
+  for (const lettre of nom) somme = (somme * 31 + lettre.codePointAt(0)) % 9973;
+  return PALETTE[somme % PALETTE.length];
+}
+
 export function IconeCategorie({ nom, taille = 20 }) {
   const Icone = ICONES_CATEGORIES[nom];
   return Icone ? <Icone size={taille} strokeWidth={2} aria-hidden="true" /> : null;

@@ -22,6 +22,7 @@ function FormulairePret({ base, porteMonnaie, pret, fermer, rafraichir }) {
   const [date, setDate] = useState(pret?.date ?? aujourdhui());
   const [porteMonnaieId, setPorteMonnaieId] = useState(pret?.porteMonnaieId ?? porteMonnaie[0]?.id ?? null);
   const [note, setNote] = useState(pret?.note ?? '');
+  const [compteSolde, setCompteSolde] = useState(pret?.compteSolde ?? false); // D34 : pour mémoire par défaut
   const [message, setMessage] = useState('');
 
   useEffect(() => setMessage(''), [personne, montant, date]);
@@ -37,7 +38,7 @@ function FormulairePret({ base, porteMonnaie, pret, fermer, rafraichir }) {
       return setMessage(`Le montant ne peut pas être inférieur aux remboursements déjà reçus (${formaterEuros(pret.rembourse)}).`);
     }
     if (!date) return setMessage('Choisis une date.');
-    const valeurs = { personne: personne.trim(), montant: centimes, date, porteMonnaieId, note: note.trim() };
+    const valeurs = { personne: personne.trim(), montant: centimes, date, porteMonnaieId, note: note.trim(), compteSolde };
     if (pret) modifierPret(base, pret.id, valeurs);
     else creerPret(base, valeurs);
     rafraichir();
@@ -52,7 +53,18 @@ function FormulairePret({ base, porteMonnaie, pret, fermer, rafraichir }) {
         <Champ libelle="Montant prêté (€)" value={montant} onChange={(e) => setMontant(e.target.value)}
           inputMode="decimal" placeholder="0,00" />
         <Champ libelle="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <ChoixPorteMonnaie libelle="L'argent part de" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+        <label className="case case-pret">
+          <input type="checkbox" checked={compteSolde} onChange={(e) => setCompteSolde(e.target.checked)} />
+          Compter dans mon solde
+        </label>
+        <p className="texte-2 aide-case">
+          {compteSolde
+            ? 'Le prêt fait baisser le solde du porte-monnaie, chaque remboursement le fait remonter.'
+            : 'Pour mémoire : ni le prêt ni ses remboursements ne changent tes soldes.'}
+        </p>
+        {compteSolde && (
+          <ChoixPorteMonnaie libelle="L'argent part de" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+        )}
         <Champ libelle="Note (facultative)" value={note} onChange={(e) => setNote(e.target.value)} />
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
@@ -85,7 +97,9 @@ function FormulaireRemboursement({ base, porteMonnaie, pret, fermer, rafraichir 
       <form onSubmit={enregistrer}>
         <Champ libelle="Montant reçu (€)" value={montant} onChange={(e) => setMontant(e.target.value)} inputMode="decimal" />
         <Champ libelle="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <ChoixPorteMonnaie libelle="L'argent arrive sur" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+        {pret.compteSolde && (
+          <ChoixPorteMonnaie libelle="L'argent arrive sur" porteMonnaie={porteMonnaie} valeur={porteMonnaieId} choisir={setPorteMonnaieId} />
+        )}
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
       </form>
@@ -113,7 +127,7 @@ function Detail({ base, pret: p, rembourser, modifier, fermer, rafraichir }) {
       <Feuille titre={aSupprimer === 'pret' ? 'Supprimer ce prêt ?' : 'Supprimer ce remboursement ?'} fermer={() => setASupprimer(null)}>
         <p className="texte-2">
           {aSupprimer === 'pret'
-            ? 'Le prêt et ses remboursements seront supprimés ; les soldes reviendront comme avant le prêt.'
+            ? `Le prêt et ses remboursements seront supprimés${p.compteSolde ? ' ; les soldes reviendront comme avant le prêt' : ''}.`
             : `Le remboursement de ${formaterEuros(aSupprimer.montant)} sera supprimé et le reste dû remontera d'autant.`}
         </p>
         <div className="actions">
@@ -127,7 +141,8 @@ function Detail({ base, pret: p, rembourser, modifier, fermer, rafraichir }) {
   return (
     <Feuille titre={p.personne} fermer={fermer}>
       <p className="texte-2">
-        {[`Prêté ${libelleJour(p.date).toLowerCase()} depuis ${p.porteMonnaie}`, p.note].filter(Boolean).join(' · ')}
+        {[`Prêté ${libelleJour(p.date).toLowerCase()}`, p.compteSolde ? `depuis ${p.porteMonnaie}` : 'pour mémoire (hors solde)', p.note]
+          .filter(Boolean).join(' · ')}
       </p>
       <div className="chiffres-pret">
         <div><span className="texte-2">Prêté</span><strong>{formaterEuros(p.montant)}</strong></div>
@@ -148,7 +163,7 @@ function Detail({ base, pret: p, rembourser, modifier, fermer, rafraichir }) {
             <li key={r.id}>
               <span className="ligne-nom">
                 {libelleJour(r.date)}
-                <small className="texte-2 detail">Sur {r.porteMonnaie}</small>
+                {p.compteSolde && <small className="texte-2 detail">Sur {r.porteMonnaie}</small>}
               </span>
               <span className="positif">+ {formaterEuros(r.montant)}</span>
               <button className="bouton-petit" onClick={() => setASupprimer(r)}>Supprimer</button>
@@ -192,7 +207,7 @@ export default function Prets({ base, porteMonnaie, rafraichir }) {
                 <span className="ligne-nom">
                   {p.personne}
                   <small className="texte-2 detail">
-                    Prêté : {formaterEuros(p.montant)} · {libelleJour(p.date)}
+                    Prêté : {formaterEuros(p.montant)} · {libelleJour(p.date)}{p.compteSolde ? '' : ' · pour mémoire'}
                   </small>
                 </span>
                 {p.resteDu === 0

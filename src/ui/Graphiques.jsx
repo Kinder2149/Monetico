@@ -26,7 +26,7 @@ function arc(debut, fin, r = 80, epaisseur = 28) {
   return `M${x1} ${y1} A${r} ${r} 0 ${grand} 1 ${x2} ${y2} L${x3} ${y3} A${ri} ${ri} 0 ${grand} 0 ${x4} ${y4} Z`;
 }
 
-function Camembert({ base }) {
+export function Camembert({ base }) {
   const [mois, setMois] = useState(aujourdhui());
   const { total, parts } = partsCamembert(depensesParCategorie(base, bornesDuMois(mois)));
   let cumul = 0;
@@ -74,7 +74,7 @@ function Camembert({ base }) {
 }
 
 // Solde total à la fin de chacun des 12 derniers mois (D22).
-function CourbeSolde({ base }) {
+export function CourbeSolde({ base }) {
   const jour = aujourdhui();
   const points = Array.from({ length: 12 }, (_, i) => {
     const mois = decalerMois(jour, i - 11);

@@ -132,7 +132,7 @@ test('étape 10 : prêt, remboursements, reste dû, effet sur les soldes (D28)',
   const base = nouvelleBase();
   const courant = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 100000 });
   const especes = depot.creerPorteMonnaie(base, { nom: 'Especes', soldeDepart: 0 });
-  const id = depot.creerPret(base, { personne: 'Léa', montant: 5000, date: '2026-11-01', porteMonnaieId: courant });
+  const id = depot.creerPret(base, { personne: 'Léa', montant: 5000, date: '2026-11-01', porteMonnaieId: courant, compteSolde: true });
   const soldes = () => Object.fromEntries(depot.listerPorteMonnaie(base).map((p) => [p.nom, p.solde]));
   assert.deepEqual(soldes(), { Courant: 95000, Especes: 0 });
 
@@ -149,7 +149,7 @@ test('étape 10 : prêt, remboursements, reste dû, effet sur les soldes (D28)',
   assert.equal(p.resteDu, 0);
 
   // Un prêt remboursé passe après ceux encore dus.
-  depot.creerPret(base, { personne: 'Tom', montant: 1000, date: '2026-10-01', porteMonnaieId: courant });
+  depot.creerPret(base, { personne: 'Tom', montant: 1000, date: '2026-10-01', porteMonnaieId: courant, compteSolde: true });
   assert.deepEqual(depot.listerPrets(base).map((x) => x.personne), ['Tom', 'Léa']);
 
   depot.supprimerRemboursement(base, r2);
@@ -175,7 +175,7 @@ test('étape 11 : camembert du mois et solde en fin de mois', async () => {
   op('depense', 6000, 'Loyer', '2026-11-01');
   op('depense', 999, 'Courses', '2026-10-31');
   op('revenu', 50000, 'Salaire', '2026-10-28');
-  depot.creerPret(base, { personne: 'Léa', montant: 2000, date: '2026-11-02', porteMonnaieId: pm });
+  depot.creerPret(base, { personne: 'Léa', montant: 2000, date: '2026-11-02', porteMonnaieId: pm, compteSolde: true });
 
   // Les sous-catégories comptent dans leur catégorie ; seulement le mois choisi.
   const categories = depot.depensesParCategorie(base, { debut: '2026-11-01', fin: '2026-11-30' });

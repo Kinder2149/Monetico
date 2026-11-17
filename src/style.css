@@ -279,6 +279,9 @@ label.lien { cursor: pointer; }
 .ligne.sous { padding-left: 52px; min-height: 48px; font-weight: 500; }
 .ligne.ajout { color: var(--principal); font-weight: 700; font-size: 13px; min-height: 44px; }
 .pastille.petite { width: 30px; height: 30px; border-radius: 10px; font-size: 13px; }
+/* Pastille de catégorie (D35) : ronde, couleur vive donnée par l'icône, pictogramme blanc. */
+.pastille.ronde { border-radius: 50%; color: #fff; }
+.grille-icones .pastille.photo { border-radius: 50%; }
 
 .choix-icone { border: 0; padding: 0; margin: 0 0 14px; }
 .choix-icone legend { font-size: 13px; font-weight: 600; color: var(--texte-2); margin-bottom: 6px; }
@@ -290,7 +293,7 @@ label.lien { cursor: pointer; }
   overflow-y: auto;
 }
 .grille-icones .pastille { width: 44px; height: 44px; border: 0; cursor: pointer; }
-.grille-icones .pastille.choisie { background: var(--principal); color: #fff; }
+.grille-icones .pastille.choisie { outline: 3px solid var(--texte); outline-offset: 2px; }
 .feuille { max-height: 90vh; overflow-y: auto; }
 
 /* Accueil */
@@ -329,7 +332,51 @@ section .titre-section { margin-top: 20px; }
   color: var(--texte);
   background: var(--fond);
 }
-.choix-actuel { border: 1px solid var(--piste); border-radius: 12px; padding: 4px 12px; background: var(--fond); }
+.choix-actuel { border: 1px solid var(--piste); border-radius: 12px; padding: 4px 12px; background: var(--fond); color: var(--texte); font-size: 15px; }
+.choix-actuel.ouvert { border-color: var(--principal); }
+.fleche { color: var(--texte-2); }
+/* Menu déroulant des catégories (D36) */
+.liste-deroulante {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--piste);
+  border-radius: 12px;
+  background: var(--carte);
+}
+.liste-deroulante li + li { border-top: 1px solid var(--separateur); }
+.option-categorie { display: flex; align-items: center; }
+.option {
+  flex: 1;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--texte);
+  cursor: pointer;
+}
+.option.sous { padding-left: 34px; font-weight: 500; }
+.option.choisie { background: var(--doux); color: var(--principal); }
+.deplier {
+  min-width: 56px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fond);
+  color: var(--texte-2);
+  font-weight: 700;
+  cursor: pointer;
+}
 .liste-choix {
   max-height: 220px;
   overflow-y: auto;
@@ -338,24 +385,7 @@ section .titre-section { margin-top: 20px; }
   padding: 8px;
   background: var(--fond);
 }
-.groupe-choix { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
-.groupe-choix + .groupe-choix { border-top: 1px solid var(--separateur); }
-.puce {
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--carte);
-  padding: 4px 12px 4px 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--texte);
-  cursor: pointer;
-}
-.puce.choisie { background: var(--principal); color: #fff; }
-.pastille.transfert { background: var(--piste); color: var(--texte-2); }
+.pastille.transfert { background: var(--piste); color: var(--texte-2); border-radius: 50%; }
 
 /* Budgets */
 .carte.budget { display: block; width: 100%; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; margin-bottom: 12px; }
@@ -428,3 +458,37 @@ section .titre-section { margin-top: 20px; }
 .statut-sauvegarde { color: var(--positif); font-weight: 700; }
 .choix-sauvegarde { margin-top: 12px; }
 .message-sauvegarde { margin-top: -6px; }
+
+/* Liste des opérations par mois (D37) */
+.onglets-mois {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px 14px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--piste);
+}
+.onglets-mois::-webkit-scrollbar { display: none; }
+.onglets-mois button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texte-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.onglets-mois button.actif { color: var(--texte); border-bottom-color: var(--principal); }
+.resume-periode { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.resume-periode > div { display: flex; justify-content: space-between; align-items: baseline; }
+.resume-periode .total-periode { border-top: 1px solid var(--separateur); padding-top: 8px; font-weight: 700; }
+.ligne.prevue { cursor: default; opacity: 0.75; }
+
+/* Appui long sur une opération (D38) : pas de sélection de texte ni de menu du téléphone. */
+.liste .ligne { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.espace-haut { margin-top: 8px; }

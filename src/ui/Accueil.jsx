@@ -1,16 +1,21 @@
 import { ListeOperations } from './Operations.jsx';
+import { budgetsEnCours, BarreBudget } from './Budgets.jsx';
+import { AValider } from './Recurrentes.jsx';
+import { Camembert, CourbeSolde } from './Graphiques.jsx';
 import { formaterEuros, total, entreesSorties } from '../logique/argent.js';
 import { aujourdhui, bornesDuMois, nomDuMois } from '../logique/dates.js';
 import { listerOperations } from '../donnees/depot.js';
 
-// Écran d'accueil : sélecteur de porte-monnaie, solde, carte du mois, opérations du jour.
-export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir }) {
+// Écran d'accueil : sélecteur de porte-monnaie, solde, carte du mois, opérations du jour, graphiques (D39).
+export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, ouvrir, voirBudgets, voirGraphiques, rafraichir }) {
   const porteMonnaieId = choix === 'tous' ? null : choix;
   const affiches = choix === 'tous' ? porteMonnaie : porteMonnaie.filter((p) => p.id === choix);
   const jour = aujourdhui();
-  const { debut, fin } = bornesDuMois(jour);
-  const { entrees, sorties } = entreesSorties(listerOperations(base, { porteMonnaieId, debut, fin }));
+  // Comme l'onglet « Ce mois-ci » des opérations (D37) : du 1er à aujourd'hui, l'avenir est à part.
+  const { debut } = bornesDuMois(jour);
+  const { entrees, sorties } = entreesSorties(listerOperations(base, { porteMonnaieId, debut, fin: jour }));
   const duJour = listerOperations(base, { porteMonnaieId, debut: jour, fin: jour });
+  const budgets = budgetsEnCours(base);
 
   return (
     <>
@@ -31,8 +36,8 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
       <p className="texte-2 libelle-solde">Solde</p>
       <p className="solde">{formaterEuros(total(affiches))}</p>
 
-      <div className="carte mois">
-        <p className="titre-carte">{nomDuMois(jour)}</p>
+      <button className="carte mois" onClick={voirGraphiques} aria-label={`${nomDuMois(jour)} : voir les graphiques`}>
+        <p className="titre-carte">{nomDuMois(jour)}<span className="texte-2 lien-graphiques">Graphiques ›</span></p>
         <div className="mois-colonnes">
           <div>
             <span className="texte-2">Entrées</span>
@@ -43,9 +48,22 @@ export default function Accueil({ base, porteMonnaie, choix, choisir, chercher, 
             <strong className="negatif">− {formaterEuros(sorties)}</strong>
           </div>
         </div>
-      </div>
+      </button>
+
+      {budgets.length > 0 && (
+        <button className="carte budget" onClick={voirBudgets}>
+          <p className="titre-carte">Budgets</p>
+          {budgets.map((b) => <BarreBudget key={b.id} budget={b} />)}
+        </button>
+      )}
+
+      <AValider base={base} rafraichir={rafraichir} />
 
       <ListeOperations operations={duJour} ouvrir={ouvrir} vide="Aucune opération aujourd'hui." />
+
+      <h2 className="titre-section">Graphiques</h2>
+      <Camembert base={base} />
+      <CourbeSolde base={base} />
     </>
   );
 }

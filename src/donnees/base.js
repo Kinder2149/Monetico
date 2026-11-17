@@ -81,6 +81,59 @@ const MIGRATIONS = [
    CREATE INDEX operation_date ON operation (date)`,
   // Transfert : l'argent sort de porte_monnaie_id et entre dans vers_porte_monnaie_id.
   `ALTER TABLE operation ADD COLUMN vers_porte_monnaie_id INTEGER REFERENCES porte_monnaie(id) ON DELETE RESTRICT`,
+  // Budgets (D9) : catégories suivies (une catégorie cochée inclut ses sous-catégories) et dépenses exclues.
+  `CREATE TABLE budget (
+     id INTEGER PRIMARY KEY,
+     nom TEXT NOT NULL,
+     maximum INTEGER NOT NULL CHECK (maximum > 0),
+     jour_depart INTEGER NOT NULL DEFAULT 1 CHECK (jour_depart BETWEEN 1 AND 31)
+   );
+   CREATE TABLE budget_categorie (
+     budget_id INTEGER NOT NULL REFERENCES budget(id) ON DELETE CASCADE,
+     categorie_id INTEGER NOT NULL REFERENCES categorie(id) ON DELETE CASCADE,
+     PRIMARY KEY (budget_id, categorie_id)
+   );
+   CREATE TABLE budget_exclusion (
+     budget_id INTEGER NOT NULL REFERENCES budget(id) ON DELETE CASCADE,
+     operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
+     PRIMARY KEY (budget_id, operation_id)
+   )`,
+  // Récurrentes (D10) : une par opération mensuelle ; chaque mois validé garde l'opération créée.
+  // Supprimer cette opération remet le mois « À valider ».
+  `CREATE TABLE recurrente (
+     id INTEGER PRIMARY KEY,
+     type TEXT NOT NULL CHECK (type IN ('depense', 'revenu')),
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     categorie_id INTEGER NOT NULL REFERENCES categorie(id) ON DELETE RESTRICT,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT,
+     jour INTEGER NOT NULL CHECK (jour BETWEEN 1 AND 31),
+     note TEXT NOT NULL DEFAULT ''
+   );
+   CREATE TABLE recurrente_validation (
+     recurrente_id INTEGER NOT NULL REFERENCES recurrente(id) ON DELETE CASCADE,
+     mois TEXT NOT NULL,
+     operation_id INTEGER NOT NULL REFERENCES operation(id) ON DELETE CASCADE,
+     PRIMARY KEY (recurrente_id, mois)
+   )`,
+  // Prêts (D8, D28) : l'argent prêté sort d'un porte-monnaie, chaque remboursement entre dans un porte-monnaie.
+  `CREATE TABLE pret (
+     id INTEGER PRIMARY KEY,
+     personne TEXT NOT NULL,
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     date TEXT NOT NULL,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT,
+     note TEXT NOT NULL DEFAULT ''
+   );
+   CREATE TABLE remboursement (
+     id INTEGER PRIMARY KEY,
+     pret_id INTEGER NOT NULL REFERENCES pret(id) ON DELETE CASCADE,
+     montant INTEGER NOT NULL CHECK (montant > 0),
+     date TEXT NOT NULL,
+     porte_monnaie_id INTEGER NOT NULL REFERENCES porte_monnaie(id) ON DELETE RESTRICT
+   )`,
+  // Prêt « pour mémoire » (D34) : par défaut, ni le prêt ni ses remboursements ne touchent au solde
+  // (la dépense est déjà notée à part). Les prêts existants passent aussi pour mémoire.
+  `ALTER TABLE pret ADD COLUMN compte_solde INTEGER NOT NULL DEFAULT 0`,
 ];
 
 export function migrer(db) {
@@ -127,6 +180,10 @@ export function creerBase(db, enregistrer = () => {}) {
       if (!enLot) enregistrer(db.export());
       return id;
     },
+    // Contenu complet de la base (pour la sauvegarde dans le Drive).
+    exporter() {
+      return db.export();
+    },
   };
 }
 
@@ -160,10 +217,26 @@ async function ecrireStockage(contenu) {
   stockage.transaction('fichiers', 'readwrite').objectStore('fichiers').put(contenu, CLE);
 }
 
+// Remplace toutes les données de l'appareil (restauration depuis le Drive), en attendant
+// que l'écriture soit terminée : l'appli est relancée juste après.
+export async function remplacerStockage(contenu) {
+  const stockage = await ouvrirStockage();
+  return new Promise((resoudre, rejeter) => {
+    const transaction = stockage.transaction('fichiers', 'readwrite');
+    transaction.objectStore('fichiers').put(contenu, CLE);
+    transaction.oncomplete = () => resoudre();
+    transaction.onerror = () => rejeter(transaction.error);
+  });
+}
+
 // Ouvre la base enregistrée sur l'appareil (ou une base neuve la première fois).
-export async function ouvrirBase(initSqlJs, urlWasm) {
+// `apresEnregistrement` est prévenu de chaque modification (envoi de la sauvegarde).
+export async function ouvrirBase(initSqlJs, urlWasm, apresEnregistrement = () => {}) {
   const SQL = await initSqlJs({ locateFile: () => urlWasm });
   const contenu = await lireStockage();
   const db = new SQL.Database(contenu);
-  return creerBase(db, ecrireStockage);
+  return creerBase(db, (nouveau) => {
+    ecrireStockage(nouveau);
+    apresEnregistrement(nouveau);
+  });
 }

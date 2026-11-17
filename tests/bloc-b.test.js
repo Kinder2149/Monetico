@@ -28,7 +28,8 @@ test('étape 7 : lecture de l\'export, opérations à venir écartées', () => {
   assert.equal(aVenir, 1);
   assert.equal(operations.length, 6);
   assert.deepEqual(operations[2], {
-    type: 'depense', montant: 4550, categorie: 'Restaurant', porteMonnaie: "Caisse D'épargne",
+    type: 'depense', montant: 4550, categorie: 'Restaurant', categorieParent: 'Alimentation', categorieIcone: 'utensils',
+    porteMonnaie: "Caisse D'épargne",
     date: '2024-06-15', note: 'Resto, entre amis · Holidays 2k24',
   });
   assert.equal(operations[4].type, 'revenu');
@@ -45,15 +46,16 @@ test('étape 7 : import, solde, catégories retrouvées ou créées, une seule s
   const { operations } = lireExportMoneyLover(EXPORT, '2026-11-03');
   const resume = depot.importerOperations(base, operations);
   assert.equal(sauvegardes.length, avant + 1);
-  assert.deepEqual(resume, { operations: 6, dejaPresentes: 0, porteMonnaieCrees: 1, categoriesCreees: 2, porteMonnaie: 1 });
+  assert.deepEqual(resume, { operations: 6, dejaPresentes: 0, porteMonnaieCrees: 1, categoriesCreees: 1, porteMonnaie: 1 });
   const [pm] = depot.listerPorteMonnaie(base);
   assert.equal(pm.nom, "Caisse D'épargne");
   assert.equal(pm.solde, -120 - 120 - 4550 - 3000 + 180000 + 17257);
-  // « Fast Food » rejoint la sous-catégorie Moneta « Fast-food » ; Boulangerie et Autres revenus sont créées.
+  // « Fast Food » rejoint la sous-catégorie Moneta « Fast-food » ; Boulangerie est créée sous Alimentation (D43).
   const liste = depot.listerOperations(base);
   assert.equal(liste.find((o) => o.montant === 3000).categorieParent, 'Alimentation');
-  assert.ok(depot.listerCategories(base, 'depense').some((c) => c.nom === 'Boulangerie'));
-  assert.ok(depot.listerCategories(base, 'revenu').some((c) => c.nom === 'Autres revenus'));
+  assert.equal(liste.find((o) => o.montant === 120).categorieParent, 'Alimentation');
+  assert.ok(depot.listerCategories(base, 'depense').find((c) => c.nom === 'Alimentation').sous.some((c) => c.nom === 'Boulangerie'));
+  assert.equal(liste.find((o) => o.montant === 17257).categorie, 'Autres');
   assert.equal(liste.filter((o) => o.note === 'pain').length, 2);
 });
 

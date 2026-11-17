@@ -1,4 +1,4 @@
-@font-face {
+﻿@font-face {
   font-family: 'Manrope';
   font-style: normal;
   font-weight: 400 800;
@@ -278,7 +278,10 @@ label.lien { cursor: pointer; }
 
 .ligne.sous { padding-left: 52px; min-height: 48px; font-weight: 500; }
 .ligne.ajout { color: var(--principal); font-weight: 700; font-size: 13px; min-height: 44px; }
-.pastille.petite { width: 30px; height: 30px; border-radius: 10px; font-size: 13px; }
+.pastille.petite { width: 32px; height: 32px; border-radius: 10px; font-size: 13px; }
+/* Pastille de catégorie (D42) : le dessin en couleur seul, sans fond (la photo reste ronde). */
+.pastille.ronde { border-radius: 50%; background: transparent; }
+.grille-icones .pastille.photo { border-radius: 50%; }
 
 .choix-icone { border: 0; padding: 0; margin: 0 0 14px; }
 .choix-icone legend { font-size: 13px; font-weight: 600; color: var(--texte-2); margin-bottom: 6px; }
@@ -290,7 +293,7 @@ label.lien { cursor: pointer; }
   overflow-y: auto;
 }
 .grille-icones .pastille { width: 44px; height: 44px; border: 0; cursor: pointer; }
-.grille-icones .pastille.choisie { background: var(--principal); color: #fff; }
+.grille-icones .pastille.choisie { outline: 3px solid var(--texte); outline-offset: 2px; }
 .feuille { max-height: 90vh; overflow-y: auto; }
 
 /* Accueil */
@@ -329,7 +332,51 @@ section .titre-section { margin-top: 20px; }
   color: var(--texte);
   background: var(--fond);
 }
-.choix-actuel { border: 1px solid var(--piste); border-radius: 12px; padding: 4px 12px; background: var(--fond); }
+.choix-actuel { border: 1px solid var(--piste); border-radius: 12px; padding: 4px 12px; background: var(--fond); color: var(--texte); font-size: 15px; }
+.choix-actuel.ouvert { border-color: var(--principal); }
+.fleche { color: var(--texte-2); }
+/* Menu déroulant des catégories (D36) */
+.liste-deroulante {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--piste);
+  border-radius: 12px;
+  background: var(--carte);
+}
+.liste-deroulante li + li { border-top: 1px solid var(--separateur); }
+.option-categorie { display: flex; align-items: center; }
+.option {
+  flex: 1;
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  padding: 4px 6px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--texte);
+  cursor: pointer;
+}
+.option.sous { padding-left: 34px; font-weight: 500; }
+.option.choisie { background: var(--doux); color: var(--principal); }
+.deplier {
+  min-width: 56px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fond);
+  color: var(--texte-2);
+  font-weight: 700;
+  cursor: pointer;
+}
 .liste-choix {
   max-height: 220px;
   overflow-y: auto;
@@ -338,21 +385,111 @@ section .titre-section { margin-top: 20px; }
   padding: 8px;
   background: var(--fond);
 }
-.groupe-choix { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 0; }
-.groupe-choix + .groupe-choix { border-top: 1px solid var(--separateur); }
-.puce {
-  min-height: 40px;
+.pastille.transfert { background: var(--piste); color: var(--texte-2); border-radius: 50%; }
+
+/* Budgets */
+.carte.budget { display: block; width: 100%; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; margin-bottom: 12px; }
+.ligne-budget { display: flex; align-items: baseline; gap: 12px; margin: 10px 0 8px; font-weight: 600; }
+.carte.budget .ligne-budget:first-child { margin-top: 0; }
+.piste { height: 8px; border-radius: 999px; background: var(--piste); overflow: hidden; }
+.remplissage { height: 100%; border-radius: 999px; background: var(--principal); }
+.remplissage.depasse { background: var(--negatif); }
+.periode { display: block; font-size: 12px; margin-top: 8px; }
+.bouton.espace { margin-top: 16px; }
+.case { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; font-size: 15px; font-weight: 600; color: var(--texte); }
+.case.sous { padding-left: 40px; font-weight: 500; }
+.case input { width: 20px; height: 20px; accent-color: var(--principal); }
+.choix-categories { border: 0; padding: 0; margin: 0 0 14px; }
+.choix-categories legend { margin-bottom: 6px; }
+.depenses-budget { list-style: none; margin: 0; padding: 0; }
+.depenses-budget li { display: flex; align-items: center; gap: 10px; min-height: 56px; }
+.depenses-budget li.exclue .ligne-nom, .depenses-budget li.exclue .montant-budget { opacity: 0.45; text-decoration: line-through; }
+.bouton-petit { min-height: 44px; padding: 0 12px; border: 1px solid var(--piste); border-radius: 12px; background: var(--fond); font-weight: 700; font-size: 13px; color: var(--principal); }
+
+/* Récurrentes : carte « À valider » sur fond vert doux */
+.carte.a-valider { background: var(--doux); margin-bottom: 12px; }
+.carte.a-valider .ligne { cursor: default; }
+
+/* Prêts */
+.chiffres-pret { display: flex; gap: 12px; margin: 16px 0; }
+.chiffres-pret > div { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+.chiffres-pret strong { font-size: 17px; font-weight: 800; }
+.badge-rembourse { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--doux); color: var(--positif); font-size: 13px; font-weight: 700; }
+.chiffres-pret .badge-rembourse { font-size: 13px; align-self: flex-start; }
+.bouton.texte-danger { color: var(--negatif); }
+
+/* Graphiques (carte du mois de l'accueil cliquable) */
+.carte.mois { display: block; width: 100%; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.carte.mois .titre-carte { display: flex; justify-content: space-between; align-items: baseline; }
+.lien-graphiques { font-size: 13px; font-weight: 700; color: var(--principal); }
+.choix-mois { display: flex; align-items: center; justify-content: space-between; }
+.choix-mois .titre-carte { margin: 0; }
+.choix-mois .bouton-rond { font-size: 22px; font-weight: 700; background: var(--fond); }
+.sous-titre-graphique { font-size: 13px; margin: 4px 0 12px; }
+.camembert { display: block; width: 100%; max-width: 240px; margin: 0 auto 12px; }
+.camembert-libelle { font-size: 11px; fill: var(--texte-2); font-family: inherit; }
+.camembert-total { font-size: 17px; font-weight: 800; fill: var(--texte); font-family: inherit; }
+.legende { list-style: none; margin: 0; padding: 0; }
+.legende li { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 14px; }
+.legende li + li { border-top: 1px solid var(--separateur); }
+.legende strong { min-width: 88px; text-align: right; }
+.puce-couleur { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+.valeur-courbe { font-size: 22px; font-weight: 800; margin: 0 0 8px; }
+.courbe { display: block; width: 100%; }
+.courbe .trace { fill: none; stroke: var(--principal); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.courbe .point { fill: var(--carte); stroke: var(--principal); stroke-width: 2; }
+.courbe .negatif-point { stroke: var(--negatif); }
+.courbe .ligne-zero { stroke: var(--piste); stroke-width: 1; stroke-dasharray: 4 4; }
+.courbe .mois-courbe { font-size: 10px; fill: var(--texte-2); font-family: inherit; }
+
+/* Icône de catégorie en photo (étape 12) */
+.pastille { overflow: hidden; flex: none; }
+.photo-icone { width: 100%; height: 100%; object-fit: cover; display: block; }
+.grille-icones .pastille.photo { cursor: pointer; border: 2px dashed var(--piste); }
+.grille-icones .pastille.photo.choisie { border: 2px solid var(--principal); background: var(--doux); }
+
+/* Réglages (roue dentée en haut de l'onglet Comptes) */
+.bouton-rond.reglages { margin-left: auto; margin-top: -14px; }
+.titre-section.first { margin-top: 0; }
+
+/* Sauvegarde Google Drive (Réglages, étape 14) */
+.carte.ligne { background: var(--carte); padding: 8px 16px; }
+.intro-sauvegarde { margin: 0 0 14px; font-size: 14px; }
+.statut-sauvegarde { color: var(--positif); font-weight: 700; }
+.choix-sauvegarde { margin-top: 12px; }
+.message-sauvegarde { margin-top: -6px; }
+
+/* Liste des opérations par mois (D37) */
+.onglets-mois {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -16px 14px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--piste);
+}
+.onglets-mois::-webkit-scrollbar { display: none; }
+.onglets-mois button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 999px;
-  background: var(--carte);
-  padding: 4px 12px 4px 4px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--texte);
+  border-bottom: 3px solid transparent;
+  background: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texte-2);
+  white-space: nowrap;
   cursor: pointer;
 }
-.puce.choisie { background: var(--principal); color: #fff; }
-.pastille.transfert { background: var(--piste); color: var(--texte-2); }
+.onglets-mois button.actif { color: var(--texte); border-bottom-color: var(--principal); }
+.resume-periode { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.resume-periode > div { display: flex; justify-content: space-between; align-items: baseline; }
+.resume-periode .total-periode { border-top: 1px solid var(--separateur); padding-top: 8px; font-weight: 700; }
+.resume-periode .solde-prevu { border-bottom: 1px solid var(--separateur); padding-bottom: 8px; margin-bottom: 2px; font-weight: 700; }
+.ligne.prevue { cursor: default; opacity: 0.75; }
+
+/* Appui long sur une opération (D38) : pas de sélection de texte ni de menu du téléphone. */
+.liste .ligne { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.espace-haut { margin-top: 8px; }

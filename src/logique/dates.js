@@ -25,6 +25,47 @@ export function bornesDuMois(jour) {
   };
 }
 
+// Jour `j` du mois (ramené au dernier jour pour les mois plus courts : le 31 devient le 30 en avril).
+function jourDuMois(annee, mois, j) {
+  return new Date(annee, mois, Math.min(j, new Date(annee, mois + 1, 0).getDate()));
+}
+
+// Période en cours d'un budget qui repart chaque mois le `jourDepart` (D9).
+export function periodeBudget(jourDepart, jour = aujourdhui()) {
+  const d = enDate(jour);
+  let debut = jourDuMois(d.getFullYear(), d.getMonth(), jourDepart);
+  if (debut > d) debut = jourDuMois(d.getFullYear(), d.getMonth() - 1, jourDepart);
+  const fin = jourDuMois(debut.getFullYear(), debut.getMonth() + 1, jourDepart);
+  fin.setDate(fin.getDate() - 1);
+  return { debut: aujourdhui(debut), fin: aujourdhui(fin) };
+}
+
+// Jour prévu d'une récurrente dans le mois de `jour` (le 31 devient le 30 en avril).
+export function jourPrevu(jourDuMoisPrevu, jour = aujourdhui()) {
+  const d = enDate(jour);
+  return aujourdhui(jourDuMois(d.getFullYear(), d.getMonth(), jourDuMoisPrevu));
+}
+
+// Même jour décalé de `nbMois` mois (le jour est ramené au dernier du mois si besoin).
+export function decalerMois(jour, nbMois) {
+  const d = enDate(jour);
+  return aujourdhui(jourDuMois(d.getFullYear(), d.getMonth() + nbMois, d.getDate()));
+}
+
+const FORMAT_MOIS_COURT = new Intl.DateTimeFormat('fr-FR', { month: 'short' });
+
+// « nov. », « déc. »
+export function moisCourt(jour) {
+  return FORMAT_MOIS_COURT.format(enDate(jour));
+}
+
+const FORMAT_COURT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
+
+// « du 1 nov. au 30 nov. »
+export function libellePeriode({ debut, fin }) {
+  return `du ${FORMAT_COURT.format(enDate(debut))} au ${FORMAT_COURT.format(enDate(fin))}`;
+}
+
 const FORMAT_JOUR = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 const FORMAT_JOUR_ANNEE = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -40,4 +81,45 @@ export function libelleJour(jour, reference = aujourdhui()) {
 export function nomDuMois(jour) {
   const texte = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(enDate(jour));
   return texte.charAt(0).toUpperCase() + texte.slice(1);
+}
+
+const FORMAT_HEURE = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+// Moment de la dernière sauvegarde (date et heure complètes, en millisecondes) :
+// « à l'instant », « il y a 5 min », « aujourd'hui à 14:03 », « hier à 09:12 », « le 3 nov. à 18:40 ».
+export function libelleSauvegarde(moment, maintenant = Date.now()) {
+  const ecart = maintenant - moment;
+  if (ecart < 60_000) return "à l'instant";
+  if (ecart < 3_600_000) return `il y a ${Math.floor(ecart / 60_000)} min`;
+  const jour = aujourdhui(new Date(moment));
+  const reference = aujourdhui(new Date(maintenant));
+  const heure = FORMAT_HEURE.format(new Date(moment));
+  if (jour === reference) return `aujourd'hui à ${heure}`;
+  if (jour === decaler(reference, -1)) return `hier à ${heure}`;
+  return `le ${FORMAT_COURT.format(enDate(jour))} à ${heure}`;
+}
+
+// « 3 novembre 2026 à 14:03 » (date d'une sauvegarde du Drive à restaurer).
+export function libelleDateHeure(moment) {
+  const date = new Date(moment);
+  const jour = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  return `${jour} à ${FORMAT_HEURE.format(date)}`;
+}
+
+// « AAAA-MM » du mois contenant `jour`.
+export const moisDe = (jour) => jour.slice(0, 7);
+
+// Mois de `debut` à `fin` (jours quelconques de ces mois), du plus ancien au plus récent, en « AAAA-MM ».
+export function moisEntre(debut, fin) {
+  const liste = [];
+  for (let m = `${moisDe(debut)}-01`; moisDe(m) <= moisDe(fin); m = decalerMois(m, 1)) liste.push(moisDe(m));
+  return liste;
+}
+
+// Titre de l'onglet d'un mois (« AAAA-MM ») de la liste des opérations (D37) :
+// « Ce mois-ci », « Mois dernier », sinon « Octobre 2026 ».
+export function libelleOngletMois(mois, reference = aujourdhui()) {
+  if (mois === moisDe(reference)) return 'Ce mois-ci';
+  if (mois === moisDe(decalerMois(`${moisDe(reference)}-01`, -1))) return 'Mois dernier';
+  return nomDuMois(`${mois}-01`);
 }

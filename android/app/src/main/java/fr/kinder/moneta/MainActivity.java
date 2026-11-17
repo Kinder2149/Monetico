@@ -10,6 +10,8 @@ public class MainActivity extends BridgeActivity {
     // secondaire ouvert (monetaRetour, dans Commun.jsx) ; s'il n'y en a aucun, on quitte comme d'habitude.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        registerPlugin(GoogleDrivePlugin.class);
+        registerPlugin(PartagePlugin.class);
         super.onCreate(savedInstanceState);
         OnBackPressedCallback retour = new OnBackPressedCallback(true) {
             @Override

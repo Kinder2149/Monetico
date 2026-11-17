@@ -1,12 +1,21 @@
 import { useEffect, useState } from 'react';
-import { IconeAccueil, IconeOperations, IconeBudgets, IconeComptes, IconePlus } from './Icones.jsx';
+import { IconeAccueil, IconeOperations, IconeBudgets, IconeComptes, IconePlus, IconeReglages } from './Icones.jsx';
 import Accueil from './Accueil.jsx';
 import Operations from './Operations.jsx';
 import Comptes from './Comptes.jsx';
 import Categories from './Categories.jsx';
 import Saisie from './Saisie.jsx';
+import Budgets from './Budgets.jsx';
+import Recurrentes from './Recurrentes.jsx';
+import Prets from './Prets.jsx';
+import Graphiques from './Graphiques.jsx';
+import Reglages from './Reglages.jsx';
 import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
+import { aujourdhui } from '../logique/dates.js';
+
+// Écrans secondaires (Graphiques depuis l'accueil, les autres depuis l'onglet Comptes), avec leur titre.
+const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes', prets: 'Prêts', graphiques: 'Graphiques', reglages: 'Réglages' };
 
 const ONGLETS = {
   accueil: { titre: 'Accueil', Icone: IconeAccueil },
@@ -44,7 +53,8 @@ export default function App({ ouvrir }) {
     ouvrir().then(setBase).catch(() => setErreur("Impossible d'ouvrir les données de l'appli."));
   }, [ouvrir]);
 
-  const porteMonnaie = base ? listerPorteMonnaie(base) : [];
+  // Soldes à aujourd'hui : une opération datée dans le futur ne compte qu'à sa date (D41).
+  const porteMonnaie = base ? listerPorteMonnaie(base, aujourdhui()) : [];
   // Si le porte-monnaie affiché a été supprimé, on revient à « Tous les comptes ».
   const choixValide = choix === 'tous' || porteMonnaie.some((p) => p.id === choix) ? choix : 'tous';
   const porteMonnaieId = choixValide === 'tous' ? null : choixValide;
@@ -59,18 +69,25 @@ export default function App({ ouvrir }) {
   if (erreur) contenu = <p className="vide">{erreur}</p>;
   else if (!base) contenu = null;
   else if (page === 'categories') contenu = <Categories base={base} />;
+  else if (page === 'reglages') contenu = <Reglages base={base} rafraichir={rafraichir} />;
+  else if (page === 'graphiques') contenu = <Graphiques base={base} />;
+  else if (page === 'prets') contenu = <Prets base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
+  else if (page === 'recurrentes') contenu = <Recurrentes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir} />;
   else if (actif === 'accueil') contenu = (
     <Accueil base={base} porteMonnaie={porteMonnaie} choix={choixValide} choisir={setChoix}
-      ouvrir={setSaisie} chercher={() => { setActif('operations'); setRecherche(true); }} />
+      ouvrir={setSaisie} chercher={() => { setActif('operations'); setRecherche(true); }}
+      voirBudgets={() => changerOnglet('budgets')} voirGraphiques={() => setPage('graphiques')}
+      rafraichir={rafraichir} />
   );
   else if (actif === 'operations') contenu = (
     <Operations base={base} porteMonnaieId={porteMonnaieId} ouvrir={setSaisie} rechercheInitiale={recherche} />
   );
   else if (actif === 'comptes') contenu = (
     <Comptes base={base} porteMonnaie={porteMonnaie} rafraichir={rafraichir}
-      ouvrirCategories={() => setPage('categories')} />
+      ouvrirCategories={() => setPage('categories')} ouvrirRecurrentes={() => setPage('recurrentes')}
+      ouvrirPrets={() => setPage('prets')} />
   );
-  else contenu = <p className="vide">Rien pour l'instant.</p>;
+  else contenu = <Budgets base={base} rafraichir={rafraichir} />;
 
   return (
     <div className="appli">
@@ -78,10 +95,17 @@ export default function App({ ouvrir }) {
         {page ? (
           <div className="entete">
             <button className="retour" onClick={() => setPage(null)} aria-label="Retour">‹</button>
-            <h1 className="titre-ecran">Catégories</h1>
+            <h1 className="titre-ecran">{PAGES[page]}</h1>
           </div>
         ) : (
-          <h1 className="titre-ecran">{ONGLETS[actif].titre}</h1>
+          <div className="entete">
+            <h1 className="titre-ecran">{ONGLETS[actif].titre}</h1>
+            {actif === 'comptes' && (
+              <button className="bouton-rond reglages" onClick={() => setPage('reglages')} aria-label="Réglages">
+                <IconeReglages />
+              </button>
+            )}
+          </div>
         )}
         {contenu}
       </main>

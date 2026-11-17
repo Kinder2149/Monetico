@@ -1,5 +1,59 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Import Money Lover propre (D43)
+
+- Nouvel export de Kinder (16/11) : 1 889 lignes, 49 catégories, un compte ; 4 opérations à venir non importées. Le solde obtenu est −197,79 € (649,54 € sur l'export du 03/11) : à confirmer par Kinder avec le solde affiché par Money Lover.
+- D43 : table de correspondance catégories Money Lover → catégories Moneta (parents, noms existants réutilisés, icône à la création), validée par Kinder. Dessins ajoutés : chaussure, sac à main, sablier, billets, cocktail.
+- Vérifié sur le vrai fichier : 1 885 opérations, 22 catégories créées, aucune sans icône, réimport sans aucun ajout. 3 tests ajoutés (35 au total).
+- Connexion Google : l'adresse de Kinder ajoutée aux utilisateurs tests du projet (erreur « accès bloqué » sur le téléphone).
+
+## 2026-11-17 — Nouvelles icônes (D42) et vérification du bloc C
+
+- Kinder trouve les icônes laides : trois styles comparés, choix du style A. D42 : dessins en couleur « Fluent Emoji Flat » (Microsoft, MIT), copiés dans `src/ui/dessins.js` (pas de dépendance ajoutée), sans rond de couleur ; catégories créées par l'import : dessin deviné d'après le nom.
+- Vérifié sur le téléphone virtuel (opérations, catégories, choix d'icône) ; 32 tests réussis.
+- Vérification du bloc C : 7 critères « Corrections » et D41 réussis ; étape 14 : critère 1 réussi, 2 à 7 en attente de la connexion Google de Kinder. Client OAuth « Moneta Android - PC principal » ajouté dans le projet Google (empreinte du PC principal).
+
+## 2026-11-17 — Corrections après le test de Kinder (phase 6, bloc C, D34 à D41)
+
+- Retours de Kinder sur 8 points ; il demande de corriger directement, les tests finaux se feront à la fin du projet.
+- D34 : prêt « pour mémoire » par défaut (case « Compter dans mon solde ») ; les prêts existants passent pour mémoire.
+- D35 : icônes de catégorie en ronds de couleur vive, pictogramme blanc. D36 : catégorie choisie dans un menu déroulant.
+- D37 : onglet Opérations par mois + « À venir », avec entrées, sorties et total ; la carte du mois de l'accueil s'arrête à aujourd'hui.
+- D38 : appui long sur une opération (Modifier / Supprimer). D39 : graphiques en bas de l'accueil. D40 : export au modèle Money Lover par le menu Partager.
+- D41 (validé par Kinder) : le solde ne compte une opération future qu'à sa date ; « À venir » affiche le solde prévu.
+- 5 tests ajoutés (32 au total, tous réussis) ; parcours vérifié dans l'aperçu en taille téléphone. Pas de module ajouté (19 sur 20) ; partie Android de l'export écrite mais pas encore fabriquée (pas de kit Android sur ce poste).
+- Question de Kinder sur la récupération des données par Google : la restauration est codée mais l'étape 14 n'a jamais été vérifiée ; la connexion n'est autorisée que pour l'appli fabriquée sur le PC portable.
+- Travail sur la branche `claude/correction-plan-post-test-swy1de`, partie de `bloc-c` (non fusionnée).
+
+## 2026-11-10 — Tri des projets (lot 6)
+
+- Bloc STATUT écrit dans PROJET_CONTEXTE.md (mission « Bloc C », phase 6), d'accord avec la version en ligne : étapes 8 à 13 vérifiées, étape 14 codée, vérification à faire. La copie locale de `bloc-c` a été alignée sur la version en ligne ; son seul commit local (D29, restauration depuis le Drive) est gardé dans `V:\DEV\_archives\monetico-bloc-c-local-2026-11\` et sur la branche `archive/monetico-bloc-c-local-2026-11`.
+
+## 2026-11-04 — Vérification du bloc C, étapes 8 à 13 (phase 6)
+
+- Poste de travail équipé pour fabriquer l'appli : Java 21 (Temurin), kit Android 36, téléphone virtuel `Medium_Phone_API_36.1`. Ce poste n'a que 8 Go de mémoire : le téléphone virtuel y est lent et Android s'est arrêté une fois (pas Moneta).
+- Vérification sur le téléphone virtuel, avec le vrai export (1 858 opérations, solde 649,54 € retrouvé) : tous les critères des étapes 8 à 13 réussis, ainsi que les critères généraux (mode avion, données conservées après arrêt complet du téléphone).
+- Recoupements : camembert de novembre = 724,13 € = sorties du mois ; octobre = 1 793,50 € = somme des 40 dépenses de la liste.
+- D29 : écart de l'étape 12 accepté par Kinder (aucune autorisation demandée par le sélecteur de photos d'Android, critère 1).
+- Remarques sans échec : la courbe du solde n'affiche que la valeur du dernier mois ; elle montre un solde négatif de janvier à octobre, à comparer avec Money Lover.
+- Étape 14 (sauvegarde Google Drive) non commencée.
+- D30 : P5 abandonné (pas de revue Hermès). D31 : la restauration depuis le Drive fait partie de l'étape 14 (P8 tranché). D32 : critères de restauration 14.5 à 14.7 validés. D33 : bibliothèque officielle Google de connexion validée comme dépendance.
+- Étape 14 codée : connexion Google dans Réglages, envoi automatique de « Moneta - sauvegarde.sqlite » au Drive après chaque modification, « en attente du réseau » hors connexion puis envoi au retour du réseau, restauration (proposée à la connexion si une sauvegarde existe, et bouton « Restaurer depuis le Drive »), avec confirmation si le téléphone contient déjà des données. 2 tests ajoutés (27 au total). À vérifier sur le téléphone virtuel une fois le projet Google préparé par Kinder.
+- Projet Google Cloud « Moneta » (`moneta-513715`, compte personnel de Kinder) : accès au Drive activé, écran de consentement en mode test (Kinder seul utilisateur de test, règlement Google accepté avec son accord), client Android pour le PC portable. Reste à ajouter le client Android de l'autre PC (empreinte de sa clé de test).
+- Mission close pour aujourd'hui : vérification de l'étape 14 reportée (probablement sur un autre PC), `bloc-c` non fusionné.
+
+## 2026-11-03 — Bloc C (phase 6)
+
+- Étape 8 codée : budgets (nom, catégories cochées, maximum, jour de départ), « dépensé / maximum » avec barre, rouge en cas de dépassement, exclusion d'une dépense, carte sur l'accueil. Cocher une catégorie inclut ses sous-catégories.
+- Étape 9 codée : récurrentes mensuelles, carte « À valider » sur l'accueil, validation avec la date réelle ; écran des récurrentes placé dans l'onglet Comptes (comme Catégories, D23). Supprimer l'opération validée remet le mois « À valider ».
+- 6 tests ajoutés (23 au total). Vérification par une autre IA prévue à la fin du bloc C (D25).
+- D27 : place des écrans Prêts, Graphiques et Réglages validée par Kinder (P2 tranché).
+- D28 : effet des prêts et remboursements sur le solde validé par Kinder (P7 tranché).
+- Étape 10 codée : prêts (personne, montant, date, porte-monnaie), remboursements, reste dû, « Remboursé » ; total « On me doit ».
+- Étape 11 codée : camembert des dépenses du mois (les 6 plus grosses catégories, le reste regroupé), changement de mois, courbe du solde total en fin de mois sur 12 mois ; dessinés dans l'appli, sans module ajouté.
+- Étape 12 codée : photo de la galerie comme icône de catégorie, recadrée et réduite ; choix par le sélecteur de photos d'Android, qui ne demande pas d'autorisation (écart avec le critère 1, qui en prévoyait une).
+- Étape 13 codée : écran Réglages (roue dentée de l'onglet Comptes) avec l'import Money Lover, déplacé depuis Comptes, et la version de l'appli. La sauvegarde y sera ajoutée à l'étape 14.
+
 ## 2026-11-03 — Bloc B, import Money Lover (phases 5 et 6)
 
 - Export réel analysé : 1 866 opérations, un compte, 49 catégories, 8 opérations à venir. P4 tranché.

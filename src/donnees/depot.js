@@ -1,18 +1,26 @@
 // Lectures et écritures métier. Les montants sont en centimes.
+import { cleNom, PARENTS_IMPORT } from '../logique/importMoneyLover.js';
 
 // Tri alphabétique français (accents compris : « Électricité » avant « Internet »).
 const parNom = (a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' });
 
-export function listerPorteMonnaie(base) {
+// Soldes au soir du jour `jusquau` (D41 : l'appli passe aujourd'hui, le futur n'y compte pas) ;
+// sans date, toutes les opérations comptent (solde prévu).
+export function listerPorteMonnaie(base, jusquau = '9999-12-31') {
   return base.lire(
     `SELECT p.id, p.nom, p.solde_depart AS soldeDepart,
             p.solde_depart + COALESCE((
               SELECT SUM(CASE o.type WHEN 'revenu' THEN o.montant ELSE -o.montant END)
-              FROM operation o WHERE o.porte_monnaie_id = p.id
+              FROM operation o WHERE o.porte_monnaie_id = p.id AND o.date <= :j
             ), 0) + COALESCE((
-              SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id
+              SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id AND o.date <= :j
+            ), 0) - COALESCE((
+              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id AND pr.compte_solde = 1 AND pr.date <= :j
+            ), 0) + COALESCE((
+              SELECT SUM(r.montant) FROM remboursement r JOIN pret pr ON pr.id = r.pret_id
+              WHERE r.porte_monnaie_id = p.id AND pr.compte_solde = 1 AND r.date <= :j
             ), 0) AS solde
-     FROM porte_monnaie p`
+     FROM porte_monnaie p`, { ':j': jusquau }
   ).sort(parNom);
 }
 
@@ -27,7 +35,10 @@ export function modifierPorteMonnaie(base, id, { nom, soldeDepart }) {
 // Un porte-monnaie qui contient des opérations ne peut pas être supprimé (D22).
 export function porteMonnaieUtilise(base, id) {
   return base.lire(
-    'SELECT 1 FROM operation WHERE porte_monnaie_id = ? OR vers_porte_monnaie_id = ? LIMIT 1', [id, id]
+    `SELECT 1 FROM operation WHERE porte_monnaie_id = ? OR vers_porte_monnaie_id = ?
+     UNION SELECT 1 FROM recurrente WHERE porte_monnaie_id = ?
+     UNION SELECT 1 FROM pret WHERE porte_monnaie_id = ?
+     UNION SELECT 1 FROM remboursement WHERE porte_monnaie_id = ? LIMIT 1`, [id, id, id, id, id]
   ).length > 0;
 }
 
@@ -58,7 +69,9 @@ export function modifierCategorie(base, id, { nom, icone }) {
 export function categorieUtilisee(base, id) {
   return base.lire(
     `SELECT 1 FROM operation WHERE categorie_id = ?
-       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?) LIMIT 1`, [id, id]
+       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?)
+     UNION SELECT 1 FROM recurrente WHERE categorie_id = ?
+       OR categorie_id IN (SELECT id FROM categorie WHERE parent_id = ?) LIMIT 1`, [id, id, id, id]
   ).length > 0;
 }
 
@@ -107,10 +120,191 @@ export function supprimerOperation(base, id) {
   base.ecrire('DELETE FROM operation WHERE id = ?', [id]);
 }
 
-// --- Import (D26) ---
+// --- Budgets (D9) ---
 
-// « Fast Food » et « Fast-food », « Électricité » et « electricite » désignent la même chose.
-const cleNom = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+export function listerBudgets(base) {
+  const liens = base.lire('SELECT budget_id AS budgetId, categorie_id AS categorieId FROM budget_categorie');
+  return base.lire('SELECT id, nom, maximum, jour_depart AS jourDepart FROM budget').sort(parNom)
+    .map((b) => ({ ...b, categorieIds: liens.filter((l) => l.budgetId === b.id).map((l) => l.categorieId) }));
+}
+
+function lierCategories(base, budgetId, categorieIds) {
+  base.ecrire('DELETE FROM budget_categorie WHERE budget_id = ?', [budgetId]);
+  for (const id of categorieIds) {
+    base.ecrire('INSERT INTO budget_categorie (budget_id, categorie_id) VALUES (?, ?)', [budgetId, id]);
+  }
+}
+
+export function creerBudget(base, { nom, maximum, jourDepart = 1, categorieIds }) {
+  return base.lot(() => {
+    const id = base.ecrire('INSERT INTO budget (nom, maximum, jour_depart) VALUES (?, ?, ?)', [nom, maximum, jourDepart]);
+    lierCategories(base, id, categorieIds);
+    return id;
+  });
+}
+
+export function modifierBudget(base, id, { nom, maximum, jourDepart, categorieIds }) {
+  base.lot(() => {
+    base.ecrire('UPDATE budget SET nom = ?, maximum = ?, jour_depart = ? WHERE id = ?', [nom, maximum, jourDepart, id]);
+    lierCategories(base, id, categorieIds);
+  });
+}
+
+export function supprimerBudget(base, id) {
+  base.ecrire('DELETE FROM budget WHERE id = ?', [id]);
+}
+
+// Dépenses de la période dans les catégories du budget (et leurs sous-catégories), avec `exclue`.
+export function depensesDuBudget(base, budgetId, { debut, fin }) {
+  return base.lire(
+    `SELECT ${CHAMPS_OPERATION},
+            EXISTS (SELECT 1 FROM budget_exclusion e WHERE e.budget_id = ? AND e.operation_id = o.id) AS exclue
+     ${JOINTURES_OPERATION}
+     WHERE o.type = 'depense' AND o.date >= ? AND o.date <= ?
+       AND (o.categorie_id IN (SELECT categorie_id FROM budget_categorie WHERE budget_id = ?)
+            OR c.parent_id IN (SELECT categorie_id FROM budget_categorie WHERE budget_id = ?))
+     ORDER BY o.date DESC, o.id DESC`, [budgetId, debut, fin, budgetId, budgetId]
+  ).map((o) => ({ ...o, exclue: o.exclue === 1 }));
+}
+
+// Exclut une dépense du calcul d'un budget, ou l'y remet.
+export function exclureDuBudget(base, budgetId, operationId, exclue) {
+  base.ecrire(exclue
+    ? 'INSERT OR IGNORE INTO budget_exclusion (budget_id, operation_id) VALUES (?, ?)'
+    : 'DELETE FROM budget_exclusion WHERE budget_id = ? AND operation_id = ?', [budgetId, operationId]);
+}
+
+// --- Récurrentes (D10) ---
+
+export function listerRecurrentes(base) {
+  return base.lire(
+    `SELECT r.id, r.type, r.montant, r.jour, r.note,
+            r.categorie_id AS categorieId, c.nom AS categorie, c.icone AS icone, parent.nom AS categorieParent,
+            r.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+     FROM recurrente r
+     JOIN categorie c ON c.id = r.categorie_id
+     LEFT JOIN categorie parent ON parent.id = c.parent_id
+     JOIN porte_monnaie p ON p.id = r.porte_monnaie_id
+     ORDER BY r.jour, c.nom`
+  );
+}
+
+const valeursRecurrente = ({ type, montant, categorieId, porteMonnaieId, jour, note = '' }) =>
+  [type, montant, categorieId, porteMonnaieId, jour, note];
+
+export function creerRecurrente(base, recurrente) {
+  return base.ecrire(
+    `INSERT INTO recurrente (type, montant, categorie_id, porte_monnaie_id, jour, note)
+     VALUES (?, ?, ?, ?, ?, ?)`, valeursRecurrente(recurrente)
+  );
+}
+
+export function modifierRecurrente(base, id, recurrente) {
+  base.ecrire(
+    `UPDATE recurrente SET type = ?, montant = ?, categorie_id = ?, porte_monnaie_id = ?, jour = ?, note = ?
+     WHERE id = ?`, [...valeursRecurrente(recurrente), id]
+  );
+}
+
+// Les opérations déjà validées restent dans la liste.
+export function supprimerRecurrente(base, id) {
+  base.ecrire('DELETE FROM recurrente WHERE id = ?', [id]);
+}
+
+// Récurrentes pas encore validées pour le mois `mois` (« AAAA-MM »).
+export function recurrentesAValider(base, mois) {
+  const validees = new Set(base.lire('SELECT recurrente_id AS id FROM recurrente_validation WHERE mois = ?', [mois]).map((v) => v.id));
+  return listerRecurrentes(base).filter((r) => !validees.has(r.id));
+}
+
+// Valider = créer l'opération à la date réelle d'encaissement ; c'est seulement là que le solde change.
+export function validerRecurrente(base, recurrente, mois, date) {
+  return base.lot(() => {
+    const operationId = creerOperation(base, {
+      type: recurrente.type, montant: recurrente.montant, categorieId: recurrente.categorieId,
+      porteMonnaieId: recurrente.porteMonnaieId, date, note: recurrente.note,
+    });
+    base.ecrire('INSERT INTO recurrente_validation (recurrente_id, mois, operation_id) VALUES (?, ?, ?)',
+      [recurrente.id, mois, operationId]);
+    return operationId;
+  });
+}
+
+// --- Prêts (D8, D28) ---
+
+// Prêts avec leurs remboursements et le reste dû ; ceux encore dus d'abord, puis les plus récents.
+export function listerPrets(base) {
+  const remboursements = base.lire(
+    `SELECT r.id, r.pret_id AS pretId, r.montant, r.date, r.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie
+     FROM remboursement r JOIN porte_monnaie p ON p.id = r.porte_monnaie_id
+     ORDER BY r.date DESC, r.id DESC`
+  );
+  return base.lire(
+    `SELECT pr.id, pr.personne, pr.montant, pr.date, pr.note, pr.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie,
+            pr.compte_solde AS compteSolde
+     FROM pret pr JOIN porte_monnaie p ON p.id = pr.porte_monnaie_id`
+  ).map(({ compteSolde, ...pr }) => {
+    const siens = remboursements.filter((r) => r.pretId === pr.id);
+    const rembourse = siens.reduce((somme, r) => somme + r.montant, 0);
+    return { ...pr, compteSolde: compteSolde === 1, remboursements: siens, rembourse, resteDu: pr.montant - rembourse };
+  }).sort((a, b) => (a.resteDu === 0) - (b.resteDu === 0) || b.date.localeCompare(a.date) || b.id - a.id);
+}
+
+// compteSolde (D34) : faux par défaut, le prêt n'est qu'un pense-bête ; vrai, il suit D28.
+const valeursPret = ({ personne, montant, date, porteMonnaieId, note = '', compteSolde = false }) =>
+  [personne, montant, date, porteMonnaieId, note, compteSolde ? 1 : 0];
+
+export function creerPret(base, pret) {
+  return base.ecrire('INSERT INTO pret (personne, montant, date, porte_monnaie_id, note, compte_solde) VALUES (?, ?, ?, ?, ?, ?)', valeursPret(pret));
+}
+
+export function modifierPret(base, id, pret) {
+  base.ecrire('UPDATE pret SET personne = ?, montant = ?, date = ?, porte_monnaie_id = ?, note = ?, compte_solde = ? WHERE id = ?', [...valeursPret(pret), id]);
+}
+
+// Supprime le prêt et ses remboursements : les soldes reviennent comme avant le prêt.
+export function supprimerPret(base, id) {
+  base.ecrire('DELETE FROM pret WHERE id = ?', [id]);
+}
+
+export function ajouterRemboursement(base, pretId, { montant, date, porteMonnaieId }) {
+  return base.ecrire('INSERT INTO remboursement (pret_id, montant, date, porte_monnaie_id) VALUES (?, ?, ?, ?)',
+    [pretId, montant, date, porteMonnaieId]);
+}
+
+export function supprimerRemboursement(base, id) {
+  base.ecrire('DELETE FROM remboursement WHERE id = ?', [id]);
+}
+
+// --- Graphiques (D11) ---
+
+// Dépenses de la période par catégorie (une sous-catégorie compte dans sa catégorie), les plus grosses d'abord.
+export function depensesParCategorie(base, { debut, fin }) {
+  return base.lire(
+    `SELECT COALESCE(parent.id, c.id) AS id, COALESCE(parent.nom, c.nom) AS nom,
+            COALESCE(parent.icone, c.icone) AS icone, SUM(o.montant) AS montant
+     FROM operation o
+     JOIN categorie c ON c.id = o.categorie_id
+     LEFT JOIN categorie parent ON parent.id = c.parent_id
+     WHERE o.type = 'depense' AND o.date >= ? AND o.date <= ?
+     GROUP BY COALESCE(parent.id, c.id)
+     ORDER BY montant DESC`, [debut, fin]
+  );
+}
+
+// Solde total de tous les porte-monnaie le soir du jour `date` (prêts comptés dans le solde compris, D28, D34).
+export function soldeTotalAu(base, date) {
+  return base.lire(
+    `SELECT (SELECT COALESCE(SUM(solde_depart), 0) FROM porte_monnaie)
+          + (SELECT COALESCE(SUM(CASE type WHEN 'revenu' THEN montant WHEN 'depense' THEN -montant ELSE 0 END), 0)
+             FROM operation WHERE date <= ?)
+          - (SELECT COALESCE(SUM(montant), 0) FROM pret WHERE date <= ? AND compte_solde = 1)
+          + (SELECT COALESCE(SUM(r.montant), 0) FROM remboursement r JOIN pret pr ON pr.id = r.pret_id
+             WHERE r.date <= ? AND pr.compte_solde = 1) AS solde`, [date, date, date]
+  )[0].solde;
+}
+
+// --- Import (D26) ---
 
 // Importe des opérations { type, montant, categorie, porteMonnaie, date, note } en une seule fois.
 // Porte-monnaie et catégories sont retrouvés par leur nom, ou créés. Une opération déjà présente
@@ -119,7 +313,15 @@ export function importerOperations(base, operations) {
   return base.lot(() => {
     const resume = { operations: 0, dejaPresentes: 0, porteMonnaieCrees: 0, categoriesCreees: 0, porteMonnaie: new Set() };
     const porteMonnaie = new Map(base.lire('SELECT id, nom FROM porte_monnaie').map((p) => [cleNom(p.nom), p.id]));
-    const categories = new Map(base.lire('SELECT id, nom, type FROM categorie').map((c) => [c.type + cleNom(c.nom), c.id]));
+    // Catégories existantes : par (type, parent, nom), et par nom seul pour celles sans correspondance.
+    const categories = new Map();
+    const parNomSeul = new Map();
+    const lignesCategories = base.lire('SELECT id, nom, type, parent_id AS parentId FROM categorie');
+    const nomParId = new Map(lignesCategories.map((c) => [c.id, c.nom]));
+    for (const c of lignesCategories) {
+      categories.set(`${c.type}/${c.parentId ? cleNom(nomParId.get(c.parentId)) : ''}/${cleNom(c.nom)}`, c.id);
+      if (!parNomSeul.has(c.type + cleNom(c.nom))) parNomSeul.set(c.type + cleNom(c.nom), c.id);
+    }
 
     function idPorteMonnaie(nom) {
       if (!porteMonnaie.has(cleNom(nom))) {
@@ -129,12 +331,22 @@ export function importerOperations(base, operations) {
       return porteMonnaie.get(cleNom(nom));
     }
 
-    function idCategorie(nom, type) {
-      if (!categories.has(type + cleNom(nom))) {
-        categories.set(type + cleNom(nom), creerCategorie(base, { nom, type }));
+    function creer(nom, type, parent, parentId, icone) {
+      const cle = `${type}/${parent ? cleNom(parent) : ''}/${cleNom(nom)}`;
+      if (!categories.has(cle)) {
+        categories.set(cle, creerCategorie(base, { nom, type, parentId, icone: icone ?? null }));
         resume.categoriesCreees++;
       }
-      return categories.get(type + cleNom(nom));
+      return categories.get(cle);
+    }
+
+    // Avec une correspondance (D43) : catégorie rangée sous son parent, créés au besoin avec leur icône.
+    // Sans correspondance : retrouvée par son nom, sinon créée au premier niveau (D26).
+    function idCategorie(o) {
+      const { categorie: nom, type, categorieParent: parent, categorieIcone: icone } = o;
+      if (!parent && !icone) return parNomSeul.get(type + cleNom(nom)) ?? creer(nom, type, null, null, null);
+      const parentId = parent ? creer(parent, type, null, null, PARENTS_IMPORT[parent]) : null;
+      return creer(nom, type, parent, parentId, icone);
     }
 
     // Nombre d'opérations déjà en base pour chaque contenu identique.
@@ -149,7 +361,7 @@ export function importerOperations(base, operations) {
       const valeurs = {
         type: o.type, montant: o.montant, date: o.date, note: o.note,
         porteMonnaieId: idPorteMonnaie(o.porteMonnaie),
-        categorieId: idCategorie(o.categorie, o.type),
+        categorieId: idCategorie(o),
       };
       resume.porteMonnaie.add(valeurs.porteMonnaieId);
       const s = signature(valeurs);
@@ -177,4 +389,13 @@ export function listerOperations(base, { porteMonnaieId = null, debut = null, fi
   if (fin) { conditions.push('o.date <= ?'); params.push(fin); }
   const ou = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   return base.lire(`SELECT ${CHAMPS_OPERATION} ${JOINTURES_OPERATION} ${ou} ORDER BY o.date DESC, o.id DESC`, params);
+}
+
+// Le téléphone contient-il déjà des données saisies ou importées ? (restauration, critère 14.6)
+export function contientDonnees(base) {
+  const [{ n }] = base.lire(
+    `SELECT (SELECT COUNT(*) FROM porte_monnaie) + (SELECT COUNT(*) FROM operation)
+          + (SELECT COUNT(*) FROM budget) + (SELECT COUNT(*) FROM recurrente) + (SELECT COUNT(*) FROM pret) AS n`
+  );
+  return n > 0;
 }

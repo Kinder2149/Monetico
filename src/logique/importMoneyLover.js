@@ -60,7 +60,7 @@ function correspondance(nom, type) {
 }
 
 // Découpe un CSV en lignes de champs (champs entre guillemets acceptés, avec virgules ou guillemets doublés).
-function lireCsv(texte) {
+function lireCsv(texte, separateur = ',') {
   const lignes = [];
   let ligne = [];
   let champ = '';
@@ -72,7 +72,7 @@ function lireCsv(texte) {
       else if (c === '"') guillemets = false;
       else champ += c;
     } else if (c === '"') guillemets = true;
-    else if (c === ',') { ligne.push(champ); champ = ''; }
+    else if (c === separateur) { ligne.push(champ); champ = ''; }
     else if (c === '\n' || c === '\r') {
       if (c === '\r' && texte[i + 1] === '\n') i++;
       ligne.push(champ); champ = '';
@@ -91,10 +91,20 @@ function lireDate(texte) {
   return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : null;
 }
 
+// Colonnes facultatives « Parent » et « Icon » (fichier préparé pour Moneta, D45) : elles priment sur la table.
+function categorieDeLaLigne(nom, type, parent, icone) {
+  if (!parent && !icone) return correspondance(nom, type);
+  return { categorie: nom, categorieParent: parent || null, categorieIcone: icone || undefined };
+}
+
 // Renvoie { operations, aVenir } ; les opérations datées après `jour` ne sont que comptées.
 // Lève une erreur (message pour l'utilisateur) si le fichier n'est pas un export Money Lover.
 export function lireExportMoneyLover(texte, jour = aujourdhui()) {
-  const [entete, ...lignes] = lireCsv(texte.replace(/^﻿/, ''));
+  const propre = texte.replace(/^﻿/, '');
+  // Un fichier réenregistré par Excel en français sépare les colonnes par « ; » et les décimales par « , ».
+  const premiere = propre.split(/[\r\n]/, 1)[0];
+  const separateur = premiere.includes(';') && !premiere.includes(',') ? ';' : ',';
+  const [entete, ...lignes] = lireCsv(propre, separateur);
   const position = Object.fromEntries((entete ?? []).map((nom, i) => [nom.trim(), i]));
   if (!COLONNES.every((nom) => nom in position)) {
     throw new Error("Ce fichier n'est pas un export Money Lover (fichier CSV attendu).");
@@ -104,7 +114,7 @@ export function lireExportMoneyLover(texte, jour = aujourdhui()) {
   let aVenir = 0;
   for (const ligne of lignes) {
     const date = lireDate(valeur(ligne, 'Date'));
-    const montant = Math.round(Number(valeur(ligne, 'Amount')) * 100);
+    const montant = Math.round(Number(valeur(ligne, 'Amount').replace(/\s/g, '').replace(',', '.')) * 100);
     if (!date || !Number.isFinite(montant) || montant === 0) {
       throw new Error(`Ligne illisible dans le fichier : « ${ligne.join(',')} ».`);
     }
@@ -114,7 +124,7 @@ export function lireExportMoneyLover(texte, jour = aujourdhui()) {
     operations.push({
       type,
       montant: Math.abs(montant),
-      ...correspondance(valeur(ligne, 'Category') || 'Divers', type),
+      ...categorieDeLaLigne(valeur(ligne, 'Category') || 'Divers', type, valeur(ligne, 'Parent'), valeur(ligne, 'Icon')),
       porteMonnaie: valeur(ligne, 'Account') || 'Money Lover',
       date,
       note: [valeur(ligne, 'Note'), evenement].filter(Boolean).join(' · '),

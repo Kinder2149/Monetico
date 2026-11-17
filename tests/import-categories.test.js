@@ -71,3 +71,18 @@ test('D43 : réimporter ne crée rien de plus et les catégories ne sont pas dup
   assert.equal(resume.categoriesCreees, 0);
   assert.equal(base.lire('SELECT COUNT(*) AS n FROM categorie')[0].n, avant);
 });
+
+test('D45 : colonnes Parent et Icon du fichier préparé, séparateur « ; » et virgule décimale', () => {
+  const texte = 'ID;Note;Amount;Category;Account;Currency;Date;Event;Exclude Report;Parent;Icon\n'
+    + '1;pain;-1,20;Viennoiserie;Compte;EUR;02/11/2026;;False;Alimentation;bread\n'
+    + '2;;-5;Divers truc;Compte;EUR;03/11/2026;;False;;\n';
+  const { operations } = lireExportMoneyLover(texte, '2026-11-17');
+  assert.equal(operations[0].montant, 120);
+  assert.equal(operations[0].categorieParent, 'Alimentation');
+  assert.equal(operations[0].categorieIcone, 'bread');
+  assert.equal(operations[1].categorieParent, undefined);
+  const base = creerBase(new SQL.Database(), () => {});
+  depot.importerOperations(base, operations);
+  const alim = depot.listerCategories(base, 'depense').find((c) => c.nom === 'Alimentation');
+  assert.ok(alim.sous.some((s) => s.nom === 'Viennoiserie' && s.icone === 'bread'));
+});

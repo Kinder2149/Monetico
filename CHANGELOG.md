@@ -1,5 +1,9 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Fichier d'import prêt (D45)
+
+- L'import lit les colonnes facultatives « Parent » et « Icon » et les fichiers réenregistrés par Excel (« ; » et virgule décimale). Fichier prêt : « Moneta - import prêt.csv ». Vérifié : 1888 opérations, solde −203,54 €, 24 catégories créées, réimport sans doublon.
+
 ## 2026-11-17 — Retouches après test sur téléphone (D44)
 
 - Retours de Kinder : solde peu visible, « solde prévu » incompréhensible, glissement entre mois, choix de catégorie à alléger, écart de 12 € avec Money Lover.

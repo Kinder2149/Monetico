@@ -11,7 +11,7 @@ export function Pastille({ categorie, petite }) {
   return (
     <span className={'pastille ronde' + (petite ? ' petite' : '')} aria-hidden="true">
       {estPhoto(categorie.icone) ? <img className="photo-icone" src={categorie.icone} alt="" />
-        : <IconeCategorie nom={categorie.icone ?? iconeParNom(categorie.nom)} taille={petite ? 28 : 38} />}
+        : <IconeCategorie nom={ICONES_CATEGORIES[categorie.icone] ? categorie.icone : iconeParNom(categorie.nom)} taille={petite ? 28 : 38} />}
     </span>
   );
 }

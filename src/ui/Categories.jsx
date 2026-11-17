@@ -1,20 +1,17 @@
 import { useState } from 'react';
 import { Feuille, Champ, Message } from './Commun.jsx';
-import { ICONES_CATEGORIES, IconeCategorie, IconePhoto, couleurCategorie } from './Icones.jsx';
+import { ICONES_CATEGORIES, IconeCategorie, IconePhoto, iconeParNom } from './Icones.jsx';
 import { listerCategories, creerCategorie, modifierCategorie, supprimerCategorie, categorieUtilisee } from '../donnees/depot.js';
 
 // Une icône est soit un nom du catalogue (src/ui/Icones.jsx), soit une photo de la galerie (image réduite).
 const estPhoto = (icone) => Boolean(icone?.startsWith('data:image/'));
 
-// Pastille ronde colorée, pictogramme blanc (D35) ; une photo occupe tout le rond.
+// Dessin en couleur sans fond (D42) ; une photo occupe tout le rond.
 export function Pastille({ categorie, petite }) {
-  const photo = estPhoto(categorie.icone);
   return (
-    <span className={'pastille ronde' + (petite ? ' petite' : '')} aria-hidden="true"
-      style={photo ? undefined : { background: couleurCategorie(categorie) }}>
+    <span className={'pastille ronde' + (petite ? ' petite' : '')} aria-hidden="true">
       {estPhoto(categorie.icone) ? <img className="photo-icone" src={categorie.icone} alt="" />
-        : categorie.icone ? <IconeCategorie nom={categorie.icone} taille={petite ? 16 : 20} />
-          : categorie.nom.charAt(0).toUpperCase()}
+        : <IconeCategorie nom={categorie.icone ?? iconeParNom(categorie.nom)} taille={petite ? 28 : 38} />}
     </span>
   );
 }
@@ -55,9 +52,8 @@ function ChoixIcone({ choisie, choisir }) {
         </label>
         {Object.keys(ICONES_CATEGORIES).map((nom) => (
           <button key={nom} type="button" aria-label={nom} aria-pressed={choisie === nom}
-            className={'pastille ronde' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}
-            style={{ background: couleurCategorie({ icone: nom }) }}>
-            <IconeCategorie nom={nom} />
+            className={'pastille ronde' + (choisie === nom ? ' choisie' : '')} onClick={() => choisir(nom)}>
+            <IconeCategorie nom={nom} taille={38} />
           </button>
         ))}
       </div>

@@ -185,7 +185,7 @@ Maquette de référence (écran d'accueil) : https://claude.ai/artifact/EPjjEzJ3
 - Police : **Manrope** (400 à 800), embarquée dans l'application (pas de chargement en ligne).
 - Solde total : 36 px, gras 800. Textes courants : 15 px. Libellés secondaires : 12–13 px.
 - Cartes : coins arrondis 20 px, fond blanc sur fond menthe très clair.
-- Icônes de catégorie : pastille **ronde de couleur vive**, pictogramme blanc au trait ; la couleur est donnée par l'icône (D35).
+- Icônes de catégorie : dessins en couleur « Fluent Emoji Flat » (Microsoft, MIT), sans fond de couleur ; une catégorie sans icône reçoit un dessin deviné d'après son nom (D42, remplace D35).
 - Bouton « + » central : carré arrondi 56 px, couleur principale, légère ombre, en relief dans la barre du bas.
 - Barre du bas : Accueil · Opérations · « + » · Budgets · Comptes.
 - Zones tactiles : 44 px minimum. Contrastes lisibles (4,5:1 minimum pour le texte).
@@ -239,6 +239,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D39 | Accueil : camembert du mois et courbe du solde en bas de l'accueil (l'écran Graphiques reste accessible par la carte du mois, D27). | 2026-11-17 |
 | D40 | Export au modèle Money Lover : bouton dans Réglages, fichier CSV aux mêmes colonnes que l'import, envoyé par le menu « Partager » d'Android. Réimporter ce fichier n'ajoute rien. Transferts, prêts, budgets et récurrentes non exportés (absents du modèle). | 2026-11-17 |
 | D41 | Solde du jour : une opération (ou un prêt compté) datée dans le futur ne compte dans les soldes qu'à sa date ; la courbe du mois en cours s'arrête aussi à aujourd'hui. L'onglet « À venir » affiche ces opérations, leur total et le « Solde prévu » une fois elles passées (récurrentes à valider comprises), comme Money Lover. | 2026-11-17 |
+| D42 | Icônes de catégorie (remplace D35 et la partie « catégories » de D24) : dessins en couleur « Fluent Emoji Flat » de Microsoft (licence MIT), choisis par Kinder parmi trois styles ; copiés dans `src/ui/dessins.js`, aucune dépendance ajoutée ; plus de rond de couleur ; catégorie sans icône (import) : dessin deviné d'après son nom, sinon un colis. Lucide reste pour les icônes de l'interface. | 2026-11-17 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -417,7 +418,7 @@ P1 (nom) se tranche avant la publication.
 7. Un bouton « Restaurer depuis le Drive » reste disponible à tout moment dans Réglages.
 
 **Corrections après test (2026-11-17, D34 à D40)** — vérification avec le reste du bloc C, à la fin
-1. Icônes : chaque catégorie s'affiche dans un rond de couleur vive avec un pictogramme blanc, partout (liste, saisie, graphiques, catégories).
+1. Icônes (D42) : chaque catégorie s'affiche avec un dessin en couleur, sans initiale, partout (liste, saisie, graphiques, catégories), y compris celles créées par l'import.
 2. Saisie : la catégorie se choisit dans un menu déroulant ; la flèche d'une catégorie montre ses sous-catégories.
 3. Prêts : la case « Compter dans mon solde » est décochée au départ ; décochée, le solde ne bouge ni au prêt ni au remboursement ; cochée, il baisse puis remonte.
 4. Opérations : onglets par mois et « À venir », chacun avec entrées, sorties et total ; « À venir » montre les opérations datées après aujourd'hui et les récurrentes à valider, avec le solde prévu. Le solde de l'accueil ne compte pas ces opérations futures (D41).

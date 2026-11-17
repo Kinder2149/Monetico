@@ -278,9 +278,9 @@ label.lien { cursor: pointer; }
 
 .ligne.sous { padding-left: 52px; min-height: 48px; font-weight: 500; }
 .ligne.ajout { color: var(--principal); font-weight: 700; font-size: 13px; min-height: 44px; }
-.pastille.petite { width: 30px; height: 30px; border-radius: 10px; font-size: 13px; }
-/* Pastille de catégorie (D35) : ronde, couleur vive donnée par l'icône, pictogramme blanc. */
-.pastille.ronde { border-radius: 50%; color: #fff; }
+.pastille.petite { width: 32px; height: 32px; border-radius: 10px; font-size: 13px; }
+/* Pastille de catégorie (D42) : le dessin en couleur seul, sans fond (la photo reste ronde). */
+.pastille.ronde { border-radius: 50%; background: transparent; }
 .grille-icones .pastille.photo { border-radius: 50%; }
 
 .choix-icone { border: 0; padding: 0; margin: 0 0 14px; }

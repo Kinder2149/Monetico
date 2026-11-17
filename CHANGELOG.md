@@ -1,5 +1,11 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Nouvelles icônes (D42) et vérification du bloc C
+
+- Kinder trouve les icônes laides : trois styles comparés, choix du style A. D42 : dessins en couleur « Fluent Emoji Flat » (Microsoft, MIT), copiés dans `src/ui/dessins.js` (pas de dépendance ajoutée), sans rond de couleur ; catégories créées par l'import : dessin deviné d'après le nom.
+- Vérifié sur le téléphone virtuel (opérations, catégories, choix d'icône) ; 32 tests réussis.
+- Vérification du bloc C : 7 critères « Corrections » et D41 réussis ; étape 14 : critère 1 réussi, 2 à 7 en attente de la connexion Google de Kinder. Client OAuth « Moneta Android - PC principal » ajouté dans le projet Google (empreinte du PC principal).
+
 ## 2026-11-17 — Corrections après le test de Kinder (phase 6, bloc C, D34 à D41)
 
 - Retours de Kinder sur 8 points ; il demande de corriger directement, les tests finaux se feront à la fin du projet.

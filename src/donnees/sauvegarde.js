@@ -46,7 +46,10 @@ async function appeler(chemin, options = {}, acces) {
     headers: { Authorization: `Bearer ${acces}`, ...options.headers },
   });
   if (!reponse.ok) {
-    const erreur = new Error(`Drive : ${reponse.status}`);
+    // Le détail renvoyé par Google (ex. « insufficientPermissions ») aide à trouver la cause (D46).
+    let detail = '';
+    try { detail = (await reponse.text()).replace(/\s+/g, ' ').slice(0, 160); } catch { /* sans détail */ }
+    const erreur = new Error(`Drive : ${reponse.status}${detail ? ` ${detail}` : ''}`);
     erreur.statut = reponse.status;
     throw erreur;
   }
@@ -88,9 +91,38 @@ async function envoyer() {
   envoiEnCours = true;
   try {
     const fichierId = await televerser(await jeton(), base.exporter());
-    changer({ fichierId, derniere: Date.now(), enAttente: false });
-  } catch {
+    changer({ fichierId, derniere: Date.now(), enAttente: false, erreur: null });
+  } catch (erreur) {
     // Nouvel essai au retour du réseau, au retour dans l'appli ou à la prochaine modification.
+    changer({ erreur: decrire(erreur) });
+  } finally {
+    envoiEnCours = false;
+  }
+}
+
+const decrire = (erreur) => erreur?.message || String(erreur);
+
+// Envoi demandé par l'utilisateur (D46) : même chemin que l'envoi automatique, mais l'erreur est remontée
+// à l'écran ; si Google refuse le jeton (401/403), on le redemande avec l'écran de connexion.
+export async function sauvegarderMaintenant() {
+  if (!etat.connecte) throw new Error("Connecte-toi d'abord à Google.");
+  if (!base) throw new Error("Les données ne sont pas encore ouvertes.");
+  clearTimeout(minuterie);
+  if (envoiEnCours) return;
+  envoiEnCours = true;
+  try {
+    const contenu = base.exporter();
+    let fichierId;
+    try {
+      fichierId = await televerser(await jeton(), contenu);
+    } catch (erreur) {
+      if (erreur.statut !== 401 && erreur.statut !== 403 && erreur.statut !== undefined) throw erreur;
+      fichierId = await televerser(await jeton(true), contenu);
+    }
+    changer({ fichierId, derniere: Date.now(), enAttente: false, erreur: null });
+  } catch (erreur) {
+    changer({ erreur: decrire(erreur) });
+    throw erreur;
   } finally {
     envoiEnCours = false;
   }

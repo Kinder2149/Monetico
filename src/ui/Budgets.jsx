@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Feuille, Champ, Message } from './Commun.jsx';
-import { Pastille } from './Categories.jsx';
-import { formaterEuros, lireMontant, montantPourSaisie, etatBudget } from '../logique/argent.js';
-import { periodeBudget, libellePeriode, libelleJour } from '../logique/dates.js';
+import { Feuille, Champ, Message, useRetour } from './Commun.jsx';
+import { Pastille, ChoixIcone } from './Categories.jsx';
+import {
+  formaterEuros, lireMontant, montantPourSaisie, etatBudget, historiqueBudget, argentDisponible, repartitionBudgets,
+} from '../logique/argent.js';
+import { periodeBudget, libellePeriode, libelleJour, aujourdhui, decalerMois } from '../logique/dates.js';
 import {
   listerBudgets, listerCategories, creerBudget, modifierBudget, supprimerBudget,
-  depensesDuBudget, exclureDuBudget,
+  depensesDuBudget, exclureDuBudget, soldeTotalAu,
 } from '../donnees/depot.js';
 
 // Budget avec sa période en cours, ses dépenses et son état (dépensé, part, dépassement).
@@ -22,6 +24,7 @@ export function BarreBudget({ budget: b }) {
   return (
     <>
       <div className="ligne-budget">
+        {b.icone && <Pastille categorie={{ icone: b.icone, nom: b.nom }} petite />}
         <span className="ligne-nom">{b.nom}</span>
         <span className={b.depasse ? 'negatif' : ''}>
           <strong>{formaterEuros(b.depense)}</strong>
@@ -36,33 +39,126 @@ export function BarreBudget({ budget: b }) {
   );
 }
 
-function ChoixCategories({ base, choisies, choisir }) {
+// Choix des catégories suivies en fenêtre pleine page (D46) : plusieurs cases ;
+// une catégorie cochée couvre ses sous-catégories.
+function FenetreCategories({ base, choisies, choisir, fermer }) {
+  useRetour(true, fermer);
+  const [recherche, setRecherche] = useState('');
+  const mot = recherche.trim().toLowerCase();
+  const categories = listerCategories(base, 'depense');
   const basculer = (id) => choisir(choisies.includes(id) ? choisies.filter((c) => c !== id) : [...choisies, id]);
-  // Cocher une catégorie couvre ses sous-catégories : on ne les garde pas en double.
   const basculerCategorie = (c) => choisir(choisies.includes(c.id)
     ? choisies.filter((id) => id !== c.id)
     : [...choisies.filter((id) => !c.sous.some((s) => s.id === id)), c.id]);
+  const filtrees = categories
+    .map((c) => (!mot || c.nom.toLowerCase().includes(mot)
+      ? c
+      : { ...c, sous: c.sous.filter((x) => x.nom.toLowerCase().includes(mot)), masquee: true }))
+    .filter((c) => !c.masquee || c.sous.length > 0);
   return (
-    <fieldset className="champ choix-categories">
-      <legend>Catégories suivies</legend>
-      <div className="liste-choix">
-        {listerCategories(base, 'depense').map((c) => (
-          <div key={c.id}>
-            <label className="case">
-              <input type="checkbox" checked={choisies.includes(c.id)} onChange={() => basculerCategorie(c)} />
-              <Pastille categorie={c} petite />
-              {c.nom}
-            </label>
-            {c.sous.map((s) => (
-              <label key={s.id} className="case sous">
-                <input type="checkbox" checked={choisies.includes(c.id) || choisies.includes(s.id)}
-                  disabled={choisies.includes(c.id)} onChange={() => basculer(s.id)} />
-                <Pastille categorie={s} petite />
-                {s.nom}
-              </label>
-            ))}
-          </div>
+    <div className="fenetre-plein" role="dialog" aria-label="Catégories suivies">
+      <div className="entete-plein">
+        <button type="button" className="retour" aria-label="Fermer" onClick={fermer}>←</button>
+        <h2>Catégories suivies</h2>
+      </div>
+      <label className="champ recherche">
+        <span className="sr">Rechercher une catégorie</span>
+        <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} placeholder="Rechercher" />
+      </label>
+      <ul className="liste-categories">
+        {filtrees.map((c) => (
+          <li key={c.id}>
+            {!c.masquee && (
+              <button type="button" className={'option' + (choisies.includes(c.id) ? ' choisie' : '')}
+                aria-pressed={choisies.includes(c.id)} onClick={() => basculerCategorie(c)}>
+                <Pastille categorie={c} />
+                <span className="ligne-nom">{c.nom}</span>
+                <span className="coche" aria-hidden="true">{choisies.includes(c.id) ? '✓' : ''}</span>
+              </button>
+            )}
+            {c.sous.map((s) => {
+              const coche = choisies.includes(c.id) || choisies.includes(s.id);
+              return (
+                <button key={s.id} type="button" className={'option sous' + (coche ? ' choisie' : '')}
+                  aria-pressed={coche} disabled={choisies.includes(c.id)} onClick={() => basculer(s.id)}>
+                  <Pastille categorie={s} petite />
+                  <span className="ligne-nom">{c.masquee ? `${c.nom} › ${s.nom}` : s.nom}</span>
+                  <span className="coche" aria-hidden="true">{coche ? '✓' : ''}</span>
+                </button>
+              );
+            })}
+          </li>
         ))}
+        {filtrees.length === 0 && <li className="vide">Aucune catégorie ne correspond.</li>}
+      </ul>
+      <div className="pied-plein">
+        <button type="button" className="bouton" onClick={fermer}>
+          Valider{choisies.length > 0 ? ` (${choisies.length})` : ''}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ChoixCategories({ base, choisies, choisir }) {
+  const [ouvert, setOuvert] = useState(false);
+  const noms = listerCategories(base, 'depense').flatMap((c) => [c, ...c.sous])
+    .filter((c) => choisies.includes(c.id)).map((c) => c.nom);
+  const resume = choisies.length === 0 ? 'Choisir des catégories'
+    : choisies.length === 1 ? noms[0] : `${choisies.length} catégories`;
+  return (
+    <div className="champ">
+      <span>Catégories suivies</span>
+      <button type="button" className="ligne choix-actuel" aria-haspopup="dialog" onClick={() => setOuvert(true)}>
+        <span className="ligne-nom">{resume}</span>
+        <span className="fleche" aria-hidden="true">›</span>
+      </button>
+      {choisies.length > 1 && <small className="texte-2">{noms.join(', ')}</small>}
+      {ouvert && <FenetreCategories base={base} choisies={choisies} choisir={choisir} fermer={() => setOuvert(false)} />}
+    </div>
+  );
+}
+
+// « Argent disponible » (D46) : solde actuel + salaire + lignes « Autre », comparé au total des budgets.
+const CLE_APPORT = 'moneta-apport-budget';
+function lireApport() {
+  try { return { salaire: '', autres: [], ...JSON.parse(localStorage.getItem(CLE_APPORT)) }; } catch { return { salaire: '', autres: [] }; }
+}
+
+function Apport({ solde, autresBudgets, maximum }) {
+  const [apport, setApport] = useState(lireApport);
+  const changer = (modif) => {
+    const suite = { ...apport, ...modif };
+    setApport(suite);
+    try { localStorage.setItem(CLE_APPORT, JSON.stringify(suite)); } catch { /* sans effet */ }
+  };
+  const lignes = [{ montant: lireMontant(apport.salaire) ?? 0 }, ...apport.autres.map((l) => ({ montant: lireMontant(l.montant) ?? 0 }))];
+  const disponible = argentDisponible(solde, lignes);
+  const { total, libre, depasse } = repartitionBudgets(disponible, [...autresBudgets, lireMontant(maximum) ?? 0]);
+  const majAutre = (i, modif) => changer({ autres: apport.autres.map((l, k) => (k === i ? { ...l, ...modif } : l)) });
+  return (
+    <fieldset className="champ apport">
+      <legend>Argent disponible</legend>
+      <div className="ligne-apport"><span>Solde actuel</span><strong>{formaterEuros(solde)}</strong></div>
+      <Champ libelle="Salaire (€)" value={apport.salaire} onChange={(e) => changer({ salaire: e.target.value })}
+        inputMode="decimal" placeholder="0,00" />
+      {apport.autres.map((l, i) => (
+        <div key={i} className="ligne-autre">
+          <Champ libelle="Autre" value={l.nom} onChange={(e) => majAutre(i, { nom: e.target.value })} placeholder="Prime, aide…" />
+          <Champ libelle="Montant (€)" value={l.montant} onChange={(e) => majAutre(i, { montant: e.target.value })}
+            inputMode="decimal" placeholder="0,00" />
+          <button type="button" className="bouton-petit" aria-label="Retirer cette ligne"
+            onClick={() => changer({ autres: apport.autres.filter((_, k) => k !== i) })}>×</button>
+        </div>
+      ))}
+      <button type="button" className="bouton secondaire" onClick={() => changer({ autres: [...apport.autres, { nom: '', montant: '' }] })}>
+        + Autre
+      </button>
+      <div className="ligne-apport somme"><span>Argent disponible</span><strong>{formaterEuros(disponible)}</strong></div>
+      <div className="ligne-apport"><span>Total des budgets</span><strong>{formaterEuros(total)}</strong></div>
+      <div className={'ligne-apport' + (depasse ? ' negatif' : '')}>
+        <span>{depasse ? "Les budgets dépassent de" : "Reste libre"}</span>
+        <strong>{formaterEuros(depasse ? Math.abs(libre) : libre)}</strong>
       </div>
     </fieldset>
   );
@@ -73,6 +169,7 @@ function Formulaire({ base, budget, fermer, rafraichir }) {
   const [maximum, setMaximum] = useState(budget ? montantPourSaisie(budget.maximum) : '');
   const [jourDepart, setJourDepart] = useState(budget?.jourDepart ?? 1);
   const [categorieIds, setCategorieIds] = useState(budget?.categorieIds ?? []);
+  const [icone, setIcone] = useState(budget?.icone ?? null);
   const [message, setMessage] = useState('');
   const [confirmer, setConfirmer] = useState(false);
 
@@ -83,8 +180,8 @@ function Formulaire({ base, budget, fermer, rafraichir }) {
     const centimes = lireMontant(maximum);
     if (!nom.trim()) return setMessage('Donne un nom au budget.');
     if (centimes === null || centimes <= 0) return setMessage('Indique un montant maximum, par exemple 300,00.');
-    if (categorieIds.length === 0) return setMessage('Coche au moins une catégorie.');
-    const valeurs = { nom: nom.trim(), maximum: centimes, jourDepart, categorieIds };
+    if (categorieIds.length === 0) return setMessage('Choisis au moins une catégorie.');
+    const valeurs = { nom: nom.trim(), maximum: centimes, jourDepart, categorieIds, icone };
     if (budget) modifierBudget(base, budget.id, valeurs);
     else creerBudget(base, valeurs);
     rafraichir();
@@ -116,6 +213,10 @@ function Formulaire({ base, budget, fermer, rafraichir }) {
           placeholder="Courses, Sorties…" autoFocus={!budget} />
         <Champ libelle="Montant maximum (€)" value={maximum} onChange={(e) => setMaximum(e.target.value)}
           inputMode="decimal" placeholder="0,00" />
+        {!budget && (
+          <Apport solde={soldeTotalAu(base, aujourdhui())} maximum={maximum}
+            autresBudgets={listerBudgets(base).map((b) => b.maximum)} />
+        )}
         <label className="champ">
           <span>Le budget repart chaque mois le</span>
           <select value={jourDepart} onChange={(e) => setJourDepart(Number(e.target.value))}>
@@ -125,6 +226,7 @@ function Formulaire({ base, budget, fermer, rafraichir }) {
           </select>
         </label>
         <ChoixCategories base={base} choisies={categorieIds} choisir={setCategorieIds} />
+        <ChoixIcone choisie={icone} choisir={setIcone} />
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>
         {budget && (
@@ -137,8 +239,20 @@ function Formulaire({ base, budget, fermer, rafraichir }) {
   );
 }
 
-// Détail d'un budget : les dépenses comptées, chacune excluable (D9).
+// Les 12 derniers mois du budget (mois en cours compris), jusqu'au plus ancien mois ayant des dépenses.
+function moisDuBudget(base, b) {
+  const mois = Array.from({ length: 12 }, (_, k) => {
+    const periode = periodeBudget(b.jourDepart, decalerMois(aujourdhui(), -k));
+    return { periode, depenses: depensesDuBudget(base, b.id, periode) };
+  });
+  const dernier = mois.map((m) => m.depenses.some((o) => !o.exclue)).lastIndexOf(true);
+  return mois.slice(0, Math.max(dernier, 0) + 1);
+}
+
+// Détail d'un budget : les dépenses comptées (chacune excluable, D9) et l'historique mois par mois (D46).
 function Detail({ base, budget: b, modifier, fermer, rafraichir }) {
+  const historique = historiqueBudget(b.maximum, moisDuBudget(base, b));
+
   function basculer(o) {
     exclureDuBudget(base, b.id, o.id, !o.exclue);
     rafraichir();
@@ -168,6 +282,25 @@ function Detail({ base, budget: b, modifier, fermer, rafraichir }) {
           ))}
         </ul>
       )}
+      <h3 className="titre-section">Historique mois par mois</h3>
+      <ul className="liste historique-budget">
+        {historique.map((h) => (
+          <li key={h.periode.debut}>
+            <span className="ligne-nom">
+              {libellePeriode(h.periode)}
+              <small className="texte-2 detail">
+                {h.depenses.filter((o) => !o.exclue).length} dépense(s)
+                {h.variation !== null && h.variation !== 0 &&
+                  ` · ${h.variation > 0 ? '+' : '−'}${formaterEuros(Math.abs(h.variation))} vs mois précédent`}
+              </small>
+            </span>
+            <span className={h.depasse ? 'negatif' : ''}>
+              <strong>{formaterEuros(h.depense)}</strong>
+              <span className="texte-2"> / {formaterEuros(b.maximum)}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
     </Feuille>
   );
 }

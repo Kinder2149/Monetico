@@ -69,3 +69,26 @@ export function rechercher(operations, texte) {
     [o.note, o.categorie, o.categorieParent].some((champ) => simplifier(champ).includes(cherche))
   );
 }
+
+// Historique d'un budget (D46) : une ligne par mois, du plus récent au plus ancien, avec l'écart
+// au maximum et à la ligne du mois précédent. `mois` = [{ periode, depenses }], plus récent d'abord.
+export function historiqueBudget(maximum, mois) {
+  return mois.map((m, i) => {
+    const { depense } = etatBudget(maximum, m.depenses);
+    const avant = mois[i + 1] ? etatBudget(maximum, mois[i + 1].depenses).depense : null;
+    return { periode: m.periode, depenses: m.depenses, depense, reste: maximum - depense,
+      depasse: depense > maximum, variation: avant === null ? null : depense - avant };
+  });
+}
+
+// Argent disponible pour répartir les budgets (D46) : solde de départ + salaire + autres lignes.
+export function argentDisponible(solde, lignes) {
+  const total = lignes.reduce((somme, l) => somme + (l.montant > 0 ? l.montant : 0), solde);
+  return total;
+}
+
+// Répartition : total des budgets, argent libre restant, et dépassement éventuel.
+export function repartitionBudgets(disponible, maximums) {
+  const total = maximums.reduce((a, b) => a + b, 0);
+  return { total, libre: disponible - total, depasse: total > 0 && total > disponible };
+}

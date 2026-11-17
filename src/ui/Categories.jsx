@@ -27,7 +27,7 @@ async function photoEnIcone(fichier, taille = 96) {
   return toile.toDataURL('image/jpeg', 0.85);
 }
 
-function ChoixIcone({ choisie, choisir }) {
+export function ChoixIcone({ choisie, choisir }) {
   const [erreur, setErreur] = useState('');
 
   async function choisirPhoto(e) {
@@ -139,6 +139,7 @@ export default function Categories({ base }) {
   const [type, setType] = useState('depense');
   const [, setVersion] = useState(0);
   const [edition, setEdition] = useState(null);
+  const [deplies, setDeplies] = useState([]); // parents dépliés (D46) : tout est replié à l'ouverture
   const rafraichir = () => setVersion((v) => v + 1);
   const categories = listerCategories(base, type);
 
@@ -152,23 +153,40 @@ export default function Categories({ base }) {
       </div>
 
       <ul className="carte liste">
-        {categories.map((c) => (
-          <li key={c.id}>
-            <button className="ligne" onClick={() => setEdition({ categorie: c })}>
-              <Pastille categorie={c} />
-              <span className="ligne-nom">{c.nom}</span>
-            </button>
-            {c.sous.map((s) => (
-              <button key={s.id} className="ligne sous" onClick={() => setEdition({ categorie: s })}>
-                <Pastille categorie={s} petite />
-                <span className="ligne-nom">{s.nom}</span>
-              </button>
-            ))}
-            <button className="ligne sous ajout" onClick={() => setEdition({ type, parent: c })}>
-              + Sous-catégorie
-            </button>
-          </li>
-        ))}
+        {categories.map((c) => {
+          const deplie = deplies.includes(c.id);
+          return (
+            <li key={c.id}>
+              <div className="ligne-parent">
+                <button className="ligne" onClick={() => setEdition({ categorie: c })}>
+                  <Pastille categorie={c} />
+                  <span className="ligne-nom">
+                    {c.nom}
+                    {c.sous.length > 0 && <small className="texte-2 detail">{c.sous.length} sous-catégorie(s)</small>}
+                  </span>
+                </button>
+                <button className={'deplier' + (deplie ? ' ouvert' : '')} aria-expanded={deplie}
+                  aria-label={`${deplie ? 'Replier' : 'Déplier'} ${c.nom}`}
+                  onClick={() => setDeplies(deplie ? deplies.filter((id) => id !== c.id) : [...deplies, c.id])}>
+                  ›
+                </button>
+              </div>
+              {deplie && (
+                <>
+                  {c.sous.map((s) => (
+                    <button key={s.id} className="ligne sous" onClick={() => setEdition({ categorie: s })}>
+                      <Pastille categorie={s} petite />
+                      <span className="ligne-nom">{s.nom}</span>
+                    </button>
+                  ))}
+                  <button className="ligne sous ajout" onClick={() => setEdition({ type, parent: c })}>
+                    + Sous-catégorie
+                  </button>
+                </>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       <button className="bouton" onClick={() => setEdition({ type })}>Ajouter une catégorie</button>

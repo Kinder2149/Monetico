@@ -1,5 +1,11 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Retouches après test sur téléphone, 2e série (D46)
+
+- Budgets : fenêtre de choix des catégories, icône, historique mois par mois, encadré « Argent disponible » à la création.
+- Opérations : Dupliquer (appui long), filtres compte et catégorie, saisie à mémoire, sous-catégories repliables, glissement en carrousel.
+- Graphiques : camembert et courbe cliquables. Drive : bouton « Sauvegarder maintenant » et erreur exacte affichée.
+
 ## 2026-11-17 — Fichier d'import prêt (D45)
 
 - L'import lit les colonnes facultatives « Parent » et « Icon » et les fichiers réenregistrés par Excel (« ; » et virgule décimale). Fichier prêt : « Moneta - import prêt.csv ». Vérifié : 1888 opérations, solde −203,54 €, 24 catégories créées, réimport sans doublon.

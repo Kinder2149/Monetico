@@ -112,7 +112,7 @@ function Sauvegarde({ base }) {
     try {
       await faire();
     } catch (erreur) {
-      setMessage(erreur.code === 'annule' ? null : `La connexion au Drive a échoué. Vérifie le réseau et réessaie. (${erreur.message})`);
+      setMessage(erreur.code === 'annule' ? null : `L'opération avec le Drive a échoué. Vérifie le réseau et réessaie. (${erreur.message})`);
     } finally {
       setEnCours(false);
     }
@@ -123,6 +123,9 @@ function Sauvegarde({ base }) {
     if (trouvee) setChoix({ trouvee, connexion: true });
     else await sauvegarde.garderCeTelephone(null);
   });
+
+  // Envoi immédiat (D46) : en cas d'échec, l'erreur exacte est affichée.
+  const sauvegarderMaintenant = () => occuper(() => sauvegarde.sauvegarderMaintenant());
 
   const chercherPourRestaurer = () => occuper(async () => {
     const trouvee = await sauvegarde.sauvegardeDuDrive();
@@ -158,6 +161,12 @@ function Sauvegarde({ base }) {
             <span className="ligne-nom">Dernière sauvegarde</span>
             <span className={etat.enAttente ? 'texte-2' : 'statut-sauvegarde'}>{statut}</span>
           </div>
+          {etat.erreur && <p className="message message-sauvegarde">Dernier envoi échoué : {etat.erreur}</p>}
+          <button className={'carte ligne lien bouton-ligne' + (enCours ? ' occupe' : '')} disabled={enCours}
+            onClick={sauvegarderMaintenant}>
+            <span className="ligne-nom">{enCours ? 'Envoi…' : 'Sauvegarder maintenant'}</span>
+            <span aria-hidden="true">›</span>
+          </button>
           <button className={'carte ligne lien bouton-ligne' + (enCours ? ' occupe' : '')} disabled={enCours}
             onClick={chercherPourRestaurer}>
             <span className="ligne-nom">{enCours ? 'Recherche…' : 'Restaurer depuis le Drive'}</span>

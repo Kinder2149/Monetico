@@ -3,7 +3,7 @@
 > Document de référence du projet. Toute décision figée est en section 6.
 > Ce qui n'est pas écrit ici n'est pas décidé : on demande à Kinder.
 
-Dernière mise à jour : 2026-11-17 — bloc C : corrections après le test de Kinder codées (D34 à D40) ; étape 14 toujours à vérifier (phase 6).
+Dernière mise à jour : 2026-11-17 — bloc C : corrections après le test de Kinder codées (D34 à D41) ; étape 14 toujours à vérifier (phase 6).
 
 ---
 
@@ -17,7 +17,7 @@ MISSION : Bloc C — Le reste (étapes 8 à 14) — En implémentation (seule mi
 PHASE : 6 Implémentation
   Étape : 8 à 13 Budgets, récurrentes, prêts, graphiques, icône galerie, réglages — Close — critère : critères de la section 10 vérifiés sur le téléphone virtuel le 2026-11-04 (écart de l'étape 12 accepté, D29)
   Étape : 14 Sauvegarde Google Drive — Codée, vérification à faire — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
-  Étape : Corrections après test (D34 à D40) — Codées, vérifiées dans l'aperçu — critère : section 10, « Corrections après test »
+  Étape : Corrections après test (D34 à D41) — Codées, vérifiées dans l'aperçu — critère : section 10, « Corrections après test »
   Étape : 15 Moneta sur PC — Planifiée — critère : voir section 10 (P9 à trancher avant)
 MISSION : Bloc D — Version ordinateur (étape 15) — En attente (1)
 SESSIONS : aucune
@@ -238,6 +238,7 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D38 | Appui long sur une opération : menu Modifier / Supprimer (avec confirmation). Le simple toucher ouvre toujours la modification. | 2026-11-17 |
 | D39 | Accueil : camembert du mois et courbe du solde en bas de l'accueil (l'écran Graphiques reste accessible par la carte du mois, D27). | 2026-11-17 |
 | D40 | Export au modèle Money Lover : bouton dans Réglages, fichier CSV aux mêmes colonnes que l'import, envoyé par le menu « Partager » d'Android. Réimporter ce fichier n'ajoute rien. Transferts, prêts, budgets et récurrentes non exportés (absents du modèle). | 2026-11-17 |
+| D41 | Solde du jour : une opération (ou un prêt compté) datée dans le futur ne compte dans les soldes qu'à sa date ; la courbe du mois en cours s'arrête aussi à aujourd'hui. L'onglet « À venir » affiche ces opérations, leur total et le « Solde prévu » une fois elles passées (récurrentes à valider comprises), comme Money Lover. | 2026-11-17 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -419,7 +420,7 @@ P1 (nom) se tranche avant la publication.
 1. Icônes : chaque catégorie s'affiche dans un rond de couleur vive avec un pictogramme blanc, partout (liste, saisie, graphiques, catégories).
 2. Saisie : la catégorie se choisit dans un menu déroulant ; la flèche d'une catégorie montre ses sous-catégories.
 3. Prêts : la case « Compter dans mon solde » est décochée au départ ; décochée, le solde ne bouge ni au prêt ni au remboursement ; cochée, il baisse puis remonte.
-4. Opérations : onglets par mois et « À venir », chacun avec entrées, sorties et total ; « À venir » montre les opérations datées après aujourd'hui et les récurrentes à valider.
+4. Opérations : onglets par mois et « À venir », chacun avec entrées, sorties et total ; « À venir » montre les opérations datées après aujourd'hui et les récurrentes à valider, avec le solde prévu. Le solde de l'accueil ne compte pas ces opérations futures (D41).
 5. Appui long sur une opération : menu Modifier / Supprimer ; Supprimer demande confirmation.
 6. Accueil : le camembert du mois et la courbe du solde apparaissent en bas.
 7. Réglages : « Exporter au format Money Lover » ouvre le menu Partager avec un fichier CSV ; réimporté dans Moneta, il n'ajoute aucune opération.

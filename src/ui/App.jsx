@@ -12,6 +12,7 @@ import Graphiques from './Graphiques.jsx';
 import Reglages from './Reglages.jsx';
 import { useRetour } from './Commun.jsx';
 import { listerPorteMonnaie } from '../donnees/depot.js';
+import { aujourdhui } from '../logique/dates.js';
 
 // Écrans secondaires (Graphiques depuis l'accueil, les autres depuis l'onglet Comptes), avec leur titre.
 const PAGES = { categories: 'Catégories', recurrentes: 'Opérations récurrentes', prets: 'Prêts', graphiques: 'Graphiques', reglages: 'Réglages' };
@@ -52,7 +53,8 @@ export default function App({ ouvrir }) {
     ouvrir().then(setBase).catch(() => setErreur("Impossible d'ouvrir les données de l'appli."));
   }, [ouvrir]);
 
-  const porteMonnaie = base ? listerPorteMonnaie(base) : [];
+  // Soldes à aujourd'hui : une opération datée dans le futur ne compte qu'à sa date (D41).
+  const porteMonnaie = base ? listerPorteMonnaie(base, aujourdhui()) : [];
   // Si le porte-monnaie affiché a été supprimé, on revient à « Tous les comptes ».
   const choixValide = choix === 'tous' || porteMonnaie.some((p) => p.id === choix) ? choix : 'tous';
   const porteMonnaieId = choixValide === 'tous' ? null : choixValide;

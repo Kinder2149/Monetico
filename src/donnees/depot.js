@@ -3,21 +3,23 @@
 // Tri alphabétique français (accents compris : « Électricité » avant « Internet »).
 const parNom = (a, b) => a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' });
 
-export function listerPorteMonnaie(base) {
+// Soldes au soir du jour `jusquau` (D41 : l'appli passe aujourd'hui, le futur n'y compte pas) ;
+// sans date, toutes les opérations comptent (solde prévu).
+export function listerPorteMonnaie(base, jusquau = '9999-12-31') {
   return base.lire(
     `SELECT p.id, p.nom, p.solde_depart AS soldeDepart,
             p.solde_depart + COALESCE((
               SELECT SUM(CASE o.type WHEN 'revenu' THEN o.montant ELSE -o.montant END)
-              FROM operation o WHERE o.porte_monnaie_id = p.id
+              FROM operation o WHERE o.porte_monnaie_id = p.id AND o.date <= :j
             ), 0) + COALESCE((
-              SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id
+              SELECT SUM(o.montant) FROM operation o WHERE o.vers_porte_monnaie_id = p.id AND o.date <= :j
             ), 0) - COALESCE((
-              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id AND pr.compte_solde = 1
+              SELECT SUM(pr.montant) FROM pret pr WHERE pr.porte_monnaie_id = p.id AND pr.compte_solde = 1 AND pr.date <= :j
             ), 0) + COALESCE((
               SELECT SUM(r.montant) FROM remboursement r JOIN pret pr ON pr.id = r.pret_id
-              WHERE r.porte_monnaie_id = p.id AND pr.compte_solde = 1
+              WHERE r.porte_monnaie_id = p.id AND pr.compte_solde = 1 AND r.date <= :j
             ), 0) AS solde
-     FROM porte_monnaie p`
+     FROM porte_monnaie p`, { ':j': jusquau }
   ).sort(parNom);
 }
 

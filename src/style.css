@@ -487,6 +487,7 @@ section .titre-section { margin-top: 20px; }
 .resume-periode { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
 .resume-periode > div { display: flex; justify-content: space-between; align-items: baseline; }
 .resume-periode .total-periode { border-top: 1px solid var(--separateur); padding-top: 8px; font-weight: 700; }
+.resume-periode .solde-prevu { border-bottom: 1px solid var(--separateur); padding-bottom: 8px; margin-bottom: 2px; font-weight: 700; }
 .ligne.prevue { cursor: default; opacity: 0.75; }
 
 /* Appui long sur une opération (D38) : pas de sélection de texte ni de menu du téléphone. */

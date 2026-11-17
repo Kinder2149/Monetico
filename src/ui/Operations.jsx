@@ -6,7 +6,7 @@ import { formaterEuros, parJour, rechercher, entreesSorties } from '../logique/a
 import {
   aujourdhui, bornesDuMois, decaler, decalerMois, jourPrevu, libelleJour, libelleOngletMois, moisDe, moisEntre,
 } from '../logique/dates.js';
-import { listerOperations, recurrentesAValider } from '../donnees/depot.js';
+import { listerOperations, listerPorteMonnaie, recurrentesAValider } from '../donnees/depot.js';
 
 const DUREE_APPUI_LONG = 500; // millisecondes
 
@@ -126,11 +126,18 @@ export function ListeOperations({ operations, ouvrir, vide, prevues = [], croiss
 }
 
 // Entrées, sorties et total de la période affichée.
-function ResumePeriode({ elements }) {
+// `soldePrevu` (onglet « À venir », D41) : le solde une fois ces opérations passées.
+function ResumePeriode({ elements, soldePrevu = null }) {
   const { entrees, sorties } = entreesSorties(elements);
   const solde = entrees - sorties;
   return (
     <div className="carte resume-periode">
+      {soldePrevu !== null && (
+        <div className="solde-prevu">
+          <span>Solde prévu</span>
+          <strong className={soldePrevu < 0 ? 'negatif' : ''}>{soldePrevu < 0 ? '− ' : ''}{formaterEuros(Math.abs(soldePrevu))}</strong>
+        </div>
+      )}
       <div><span className="texte-2">Entrées</span><strong className="positif">+ {formaterEuros(entrees)}</strong></div>
       <div><span className="texte-2">Sorties</span><strong className="negatif">− {formaterEuros(sorties)}</strong></div>
       <div className="total-periode">
@@ -178,9 +185,13 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   } else if (periode === A_VENIR) {
     const operations = toutes.filter((o) => o.date > jour);
     const prevues = recurrentesPrevues(base, porteMonnaieId, jour);
+    // Solde avec toutes les opérations, futures comprises, puis les récurrentes encore à valider.
+    const tous = listerPorteMonnaie(base).filter((p) => porteMonnaieId === null || p.id === porteMonnaieId);
+    const { entrees, sorties } = entreesSorties(prevues);
+    const soldePrevu = tous.reduce((somme, p) => somme + p.solde, 0) + entrees - sorties;
     contenu = (
       <>
-        <ResumePeriode elements={[...operations, ...prevues]} />
+        <ResumePeriode elements={[...operations, ...prevues]} soldePrevu={soldePrevu} />
         <ListeOperations operations={operations} prevues={prevues} croissant ouvrir={ouvrir}
           vide="Rien de prévu : ni opération datée après aujourd'hui, ni récurrente à valider." />
       </>

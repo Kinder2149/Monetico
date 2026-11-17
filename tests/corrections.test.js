@@ -77,3 +77,14 @@ test('D37 : onglets des mois de la liste des opérations', () => {
   assert.equal(libelleOngletMois('2025-12', '2026-01-05'), 'Mois dernier');
   assert.equal(libelleOngletMois('2026-08', '2026-11-17'), 'Août 2026');
 });
+
+test('D41 : le solde du jour ignore les opérations datées dans le futur', () => {
+  const base = nouvelleBase();
+  const pm = depot.creerPorteMonnaie(base, { nom: 'Courant', soldeDepart: 10000 });
+  const loisirs = depot.listerCategories(base, 'depense').find((c) => c.nom === 'Loisirs').id;
+  depot.creerOperation(base, { type: 'depense', montant: 1000, categorieId: loisirs, porteMonnaieId: pm, date: '2026-11-16' });
+  depot.creerOperation(base, { type: 'depense', montant: 2500, categorieId: loisirs, porteMonnaieId: pm, date: '2026-11-21' });
+  assert.equal(depot.listerPorteMonnaie(base, '2026-11-17')[0].solde, 9000);
+  assert.equal(depot.listerPorteMonnaie(base)[0].solde, 6500); // solde prévu
+  assert.equal(depot.listerPorteMonnaie(base, '2026-11-21')[0].solde, 6500);
+});

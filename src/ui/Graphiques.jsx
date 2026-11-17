@@ -78,7 +78,8 @@ export function CourbeSolde({ base }) {
   const jour = aujourdhui();
   const points = Array.from({ length: 12 }, (_, i) => {
     const mois = decalerMois(jour, i - 11);
-    return { mois, solde: soldeTotalAu(base, bornesDuMois(mois).fin) };
+    const { fin } = bornesDuMois(mois);
+    return { mois, solde: soldeTotalAu(base, fin < jour ? fin : jour) }; // mois en cours : solde d'aujourd'hui (D41)
   });
   const valeurs = points.map((p) => p.solde);
   const min = Math.min(0, ...valeurs);

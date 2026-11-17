@@ -86,7 +86,7 @@ const CHAMPS_OPERATION = `
   o.id, o.type, o.montant, o.date, o.note,
   o.porte_monnaie_id AS porteMonnaieId, p.nom AS porteMonnaie,
   o.vers_porte_monnaie_id AS versPorteMonnaieId, vers.nom AS versPorteMonnaie,
-  o.categorie_id AS categorieId, c.nom AS categorie, c.icone AS icone, parent.nom AS categorieParent`;
+  o.categorie_id AS categorieId, c.nom AS categorie, c.icone AS icone, c.parent_id AS categorieParentId, parent.nom AS categorieParent`;
 
 const JOINTURES_OPERATION = `
   FROM operation o
@@ -124,7 +124,7 @@ export function supprimerOperation(base, id) {
 
 export function listerBudgets(base) {
   const liens = base.lire('SELECT budget_id AS budgetId, categorie_id AS categorieId FROM budget_categorie');
-  return base.lire('SELECT id, nom, maximum, jour_depart AS jourDepart FROM budget').sort(parNom)
+  return base.lire('SELECT id, nom, maximum, jour_depart AS jourDepart, icone FROM budget').sort(parNom)
     .map((b) => ({ ...b, categorieIds: liens.filter((l) => l.budgetId === b.id).map((l) => l.categorieId) }));
 }
 
@@ -135,17 +135,17 @@ function lierCategories(base, budgetId, categorieIds) {
   }
 }
 
-export function creerBudget(base, { nom, maximum, jourDepart = 1, categorieIds }) {
+export function creerBudget(base, { nom, maximum, jourDepart = 1, categorieIds, icone = null }) {
   return base.lot(() => {
-    const id = base.ecrire('INSERT INTO budget (nom, maximum, jour_depart) VALUES (?, ?, ?)', [nom, maximum, jourDepart]);
+    const id = base.ecrire('INSERT INTO budget (nom, maximum, jour_depart, icone) VALUES (?, ?, ?, ?)', [nom, maximum, jourDepart, icone]);
     lierCategories(base, id, categorieIds);
     return id;
   });
 }
 
-export function modifierBudget(base, id, { nom, maximum, jourDepart, categorieIds }) {
+export function modifierBudget(base, id, { nom, maximum, jourDepart, categorieIds, icone = null }) {
   base.lot(() => {
-    base.ecrire('UPDATE budget SET nom = ?, maximum = ?, jour_depart = ? WHERE id = ?', [nom, maximum, jourDepart, id]);
+    base.ecrire('UPDATE budget SET nom = ?, maximum = ?, jour_depart = ?, icone = ? WHERE id = ?', [nom, maximum, jourDepart, icone, id]);
     lierCategories(base, id, categorieIds);
   });
 }
@@ -398,4 +398,38 @@ export function contientDonnees(base) {
           + (SELECT COUNT(*) FROM budget) + (SELECT COUNT(*) FROM recurrente) + (SELECT COUNT(*) FROM pret) AS n`
   );
   return n > 0;
+}
+
+// --- Saisie à mémoire (D46) ---
+
+const simple = (s) => (s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+// Catégorie la plus utilisée pour ce montant exact, si le montant est récurrent (au moins 2 fois).
+export function categorieHabituelle(base, type, montant) {
+  const [ligne] = base.lire(
+    `SELECT categorie_id AS categorieId, COUNT(*) AS n FROM operation
+     WHERE type = ? AND montant = ? AND categorie_id IS NOT NULL
+     GROUP BY categorie_id ORDER BY n DESC, MAX(id) DESC LIMIT 1`, [type, montant]
+  );
+  return ligne && ligne.n >= 2 ? ligne.categorieId : null;
+}
+
+// Notes déjà utilisées qui correspondent à ce qu'on tape (début de la note d'abord), avec leur catégorie habituelle.
+export function suggestionsNotes(base, type, texte, max = 5) {
+  const cherche = simple(texte);
+  if (cherche.length < 2) return [];
+  const lignes = base.lire(
+    `SELECT note, categorie_id AS categorieId, COUNT(*) AS n FROM operation
+     WHERE type = ? AND note <> '' AND categorie_id IS NOT NULL
+     GROUP BY note, categorie_id ORDER BY n DESC`, [type]
+  );
+  const parNote = new Map();
+  for (const l of lignes) {
+    const cle = simple(l.note);
+    if (!cle.includes(cherche) || cle === cherche) continue;
+    const deja = parNote.get(l.note);
+    if (!deja) parNote.set(l.note, { note: l.note, categorieId: l.categorieId, n: l.n, debut: cle.startsWith(cherche) });
+    else deja.n += l.n;
+  }
+  return [...parNote.values()].sort((a, b) => Number(b.debut) - Number(a.debut) || b.n - a.n).slice(0, max);
 }

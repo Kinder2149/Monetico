@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pastille } from './Categories.jsx';
 import { Feuille } from './Commun.jsx';
+import { FenetreCategories } from './Saisie.jsx';
 import { IconeTransfert } from './Icones.jsx';
 import { formaterEuros, parJour, rechercher, entreesSorties } from '../logique/argent.js';
 import {
   aujourdhui, bornesDuMois, decaler, decalerMois, jourPrevu, libelleJour, libelleOngletMois, moisDe, moisEntre,
 } from '../logique/dates.js';
-import { listerOperations, listerPorteMonnaie, recurrentesAValider } from '../donnees/depot.js';
+import { listerOperations, listerPorteMonnaie, listerCategories, recurrentesAValider } from '../donnees/depot.js';
 
 const DUREE_APPUI_LONG = 500; // millisecondes
 
@@ -84,13 +85,14 @@ function LignePrevue({ prevue: r }) {
   );
 }
 
-// Appui long sur une opération : modifier ou supprimer (D38).
+// Appui long sur une opération : modifier, dupliquer (D46) ou supprimer (D38).
 function MenuOperation({ operation: o, ouvrir, fermer }) {
   const titre = o.type === 'transfert' ? 'Transfert' : o.categorie;
   return (
     <Feuille titre={`${titre} · ${formaterEuros(o.montant)}`} fermer={fermer}>
       <p className="texte-2">{[libelleJour(o.date), o.note].filter(Boolean).join(' · ')}</p>
       <button className="bouton" onClick={() => { fermer(); ouvrir(o); }}>Modifier</button>
+      <button className="bouton secondaire espace-haut" onClick={() => { fermer(); ouvrir({ ...o, dupliquer: true }); }}>Dupliquer</button>
       <button className="bouton danger espace-haut" onClick={() => { fermer(); ouvrir({ ...o, aSupprimer: true }); }}>Supprimer</button>
       <button className="bouton secondaire espace-haut" onClick={fermer}>Annuler</button>
     </Feuille>
@@ -134,11 +136,13 @@ function ResumePeriode({ elements, titre, solde, legende, libelleVariation }) {
   const variation = entrees - sorties;
   return (
     <div className="carte resume-periode">
-      <div className="solde-hero">
-        <span className="texte-2">{titre}</span>
-        <strong className={'solde-grand' + (solde < 0 ? ' negatif' : '')}>{eurosSignes(solde)}</strong>
-        {legende && <small className="texte-2">{legende}</small>}
-      </div>
+      {solde !== null && (
+        <div className="solde-hero">
+          <span className="texte-2">{titre}</span>
+          <strong className={'solde-grand' + (solde < 0 ? ' negatif' : '')}>{eurosSignes(solde)}</strong>
+          {legende && <small className="texte-2">{legende}</small>}
+        </div>
+      )}
       <div><span className="texte-2">Entrées</span><strong className="positif">+ {formaterEuros(entrees)}</strong></div>
       <div><span className="texte-2">Sorties</span><strong className="negatif">− {formaterEuros(sorties)}</strong></div>
       <div className="total-periode">
@@ -154,25 +158,65 @@ const soldeAu = (base, porteMonnaieId, date) =>
   listerPorteMonnaie(base, date).filter((p) => porteMonnaieId === null || p.id === porteMonnaieId)
     .reduce((somme, p) => somme + p.solde, 0);
 
-// Glisser le doigt à l'horizontale change de période : vers la gauche = plus tard, vers la droite = plus tôt (D44).
-function useGlisser(versPlusTard, versPlusTot) {
+// Glisser le doigt à l'horizontale change de période (D44), en carrousel (D46) : le contenu suit le doigt,
+// puis sort d'un côté pendant que le suivant arrive de l'autre. Vers la gauche = plus tard, vers la droite = plus tôt.
+function useGlisser(peutPlusTard, peutPlusTot, versPlusTard, versPlusTot) {
+  const zone = useRef(null);
   const depart = useRef(null);
+  const horizontal = useRef(false);
+  const occupe = useRef(false);
+
+  const poser = (x, animer) => {
+    const el = zone.current;
+    if (!el) return;
+    el.style.transition = animer ? 'transform .2s ease-out, opacity .2s ease-out' : 'none';
+    el.style.transform = x ? `translateX(${x}px)` : '';
+    el.style.opacity = x ? String(Math.max(0.3, 1 - Math.abs(x) / (el.offsetWidth * 1.3))) : '';
+  };
+  const permis = (dx) => (dx < 0 ? peutPlusTard : peutPlusTot);
+
   return {
-    onTouchStart: (e) => { depart.current = [e.touches[0].clientX, e.touches[0].clientY]; },
+    ref: zone,
+    onTouchStart: (e) => {
+      if (occupe.current) return;
+      depart.current = [e.touches[0].clientX, e.touches[0].clientY];
+      horizontal.current = false;
+    },
+    onTouchMove: (e) => {
+      if (!depart.current) return;
+      const dx = e.touches[0].clientX - depart.current[0];
+      const dy = e.touches[0].clientY - depart.current[1];
+      if (!horizontal.current) {
+        if (Math.abs(dx) > 12 && Math.abs(dx) > 1.4 * Math.abs(dy)) horizontal.current = true;
+        else return;
+      }
+      poser(permis(dx) ? dx : dx * 0.25, false);
+    },
     onTouchEnd: (e) => {
       if (!depart.current) return;
-      const [x, y] = depart.current;
+      const dx = e.changedTouches[0].clientX - depart.current[0];
+      const etaitHorizontal = horizontal.current;
       depart.current = null;
-      const dx = e.changedTouches[0].clientX - x;
-      const dy = e.changedTouches[0].clientY - y;
-      if (Math.abs(dx) < 70 || Math.abs(dx) < 1.6 * Math.abs(dy)) return;
-      if (dx < 0) versPlusTard(); else versPlusTot();
+      horizontal.current = false;
+      if (!etaitHorizontal) return;
+      const largeur = zone.current?.offsetWidth ?? 360;
+      if (Math.abs(dx) < 80 || !permis(dx)) return poser(0, true);
+      occupe.current = true;
+      poser(dx < 0 ? -largeur : largeur, true);
+      setTimeout(() => {
+        (dx < 0 ? versPlusTard : versPlusTot)();
+        poser(dx < 0 ? largeur : -largeur, false);
+        zone.current?.offsetWidth; // fixe la position de départ avant l'arrivée
+        poser(0, true);
+        occupe.current = false;
+      }, 190);
     },
+    onTouchCancel: () => { depart.current = null; horizontal.current = false; poser(0, true); },
   };
 }
 
 // Récurrentes pas encore validées, ce mois-ci et le mois prochain, datées au plus tôt demain.
-function recurrentesPrevues(base, porteMonnaieId, jour) {
+function recurrentesPrevues(base, compteId, jour) {
   const demain = decaler(jour, 1);
   return [jour, decalerMois(`${moisDe(jour)}-01`, 1)].flatMap((dansLeMois) =>
     recurrentesAValider(base, moisDe(dansLeMois))
@@ -192,7 +236,14 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   const [periode, setPeriode] = useState(moisDe(jour));
   const ongletActif = useRef(null);
 
-  const toutes = listerOperations(base, { porteMonnaieId });
+  const [filtre, setFiltre] = useState({ compte: null, categorie: null }); // D46
+  const [fenetre, setFenetre] = useState(null); // 'compte' ou 'categorie'
+  const comptes = listerPorteMonnaie(base);
+  const compteId = filtre.compte ?? porteMonnaieId;
+  const categories = [...listerCategories(base, 'depense'), ...listerCategories(base, 'revenu')];
+  const categorieFiltree = categories.flatMap((c) => [c, ...c.sous]).find((c) => c.id === filtre.categorie);
+  const toutes = listerOperations(base, { porteMonnaieId: compteId })
+    .filter((o) => !filtre.categorie || o.categorieId === filtre.categorie || o.categorieParentId === filtre.categorie);
   const plusAncienne = toutes.at(-1)?.date ?? jour;
   const mois = moisEntre(plusAncienne < jour ? plusAncienne : jour, jour);
 
@@ -203,8 +254,9 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   const periodes = [...mois, A_VENIR];
   const position = periodes.indexOf(periode);
   const glisser = useGlisser(
-    () => position < periodes.length - 1 && setPeriode(periodes[position + 1]),
-    () => position > 0 && setPeriode(periodes[position - 1]),
+    position < periodes.length - 1, position > 0,
+    () => setPeriode(periodes[position + 1]),
+    () => setPeriode(periodes[position - 1]),
   );
 
   let contenu;
@@ -214,17 +266,17 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
     );
   } else if (periode === A_VENIR) {
     const operations = toutes.filter((o) => o.date > jour);
-    const prevues = recurrentesPrevues(base, porteMonnaieId, jour);
+    const prevues = recurrentesPrevues(base, compteId, jour);
     // Solde prévu = solde d'aujourd'hui + opérations datées plus tard + récurrentes encore à valider.
-    const actuel = soldeAu(base, porteMonnaieId, jour);
+    const actuel = soldeAu(base, compteId, jour);
     const { entrees, sorties } = entreesSorties([...operations, ...prevues]);
-    const soldePrevu = soldeAu(base, porteMonnaieId, '9999-12-31') + entreesSorties(prevues).entrees - entreesSorties(prevues).sorties;
+    const soldePrevu = soldeAu(base, compteId, '9999-12-31') + entreesSorties(prevues).entrees - entreesSorties(prevues).sorties;
     const legende = operations.length + prevues.length === 0
       ? "Rien de prévu : le solde prévu est le solde d'aujourd'hui."
       : `Aujourd'hui ${eurosSignes(actuel)} ${entrees - sorties < 0 ? '−' : '+'} à venir ${formaterEuros(Math.abs(entrees - sorties))}`;
     contenu = (
       <>
-        <ResumePeriode elements={[...operations, ...prevues]} titre="Solde prévu" solde={soldePrevu}
+        <ResumePeriode elements={[...operations, ...prevues]} titre="Solde prévu" solde={filtre.categorie ? null : soldePrevu}
           legende={legende} libelleVariation="Total à venir" />
         <ListeOperations operations={operations} prevues={prevues} croissant ouvrir={ouvrir}
           vide="Rien de prévu : ni opération datée après aujourd'hui, ni récurrente à valider." />
@@ -233,10 +285,10 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
   } else {
     const { debut, fin } = bornesDuMois(`${periode}-01`);
     const operations = toutes.filter((o) => o.date >= debut && o.date <= (fin < jour ? fin : jour));
-    const soldeFin = soldeAu(base, porteMonnaieId, fin < jour ? fin : jour);
+    const soldeFin = soldeAu(base, compteId, fin < jour ? fin : jour);
     contenu = (
       <>
-        <ResumePeriode elements={operations} titre={fin >= jour ? "Solde aujourd'hui" : 'Solde en fin de mois'} solde={soldeFin}
+        <ResumePeriode elements={operations} titre={fin >= jour ? "Solde aujourd'hui" : 'Solde en fin de mois'} solde={filtre.categorie ? null : soldeFin}
           legende="Solde du compte, tout l'historique compris" libelleVariation="Variation du mois (entrées − sorties)" />
         <ListeOperations operations={operations} ouvrir={ouvrir}
           vide={toutes.length ? 'Aucune opération ce mois-là.' : 'Aucune opération pour le moment. Touche « + » pour en ajouter une.'} />
@@ -251,6 +303,30 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
         <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)}
           placeholder="Rechercher une note ou une catégorie" autoFocus={rechercheInitiale} />
       </label>
+      <div className="filtres">
+        <button className={'puce' + (filtre.compte ? ' active' : '')} onClick={() => setFenetre('compte')}>
+          {filtre.compte ? comptes.find((p) => p.id === filtre.compte)?.nom : 'Tous les comptes'} ▾
+        </button>
+        <button className={'puce' + (filtre.categorie ? ' active' : '')} onClick={() => setFenetre('categorie')}>
+          {categorieFiltree ? categorieFiltree.nom : 'Toutes les catégories'} ▾
+        </button>
+        {(filtre.compte || filtre.categorie) && (
+          <button className="puce" onClick={() => setFiltre({ compte: null, categorie: null })}>× Effacer</button>
+        )}
+      </div>
+      {fenetre === 'compte' && (
+        <Feuille titre="Filtrer par compte" fermer={() => setFenetre(null)}>
+          <button className="bouton secondaire espace-haut" onClick={() => { setFiltre({ ...filtre, compte: null }); setFenetre(null); }}>Tous les comptes</button>
+          {comptes.map((p) => (
+            <button key={p.id} className="bouton secondaire espace-haut"
+              onClick={() => { setFiltre({ ...filtre, compte: p.id }); setFenetre(null); }}>{p.nom}</button>
+          ))}
+        </Feuille>
+      )}
+      {fenetre === 'categorie' && (
+        <FenetreCategories categories={categories} choisie={filtre.categorie}
+          prendre={(id) => { setFiltre({ ...filtre, categorie: id }); setFenetre(null); }} fermer={() => setFenetre(null)} />
+      )}
       {!recherche.trim() && (
         <div className="onglets-mois" role="tablist">
           {periodes.map((m) => (
@@ -261,7 +337,9 @@ export default function Operations({ base, porteMonnaieId, ouvrir, rechercheInit
           ))}
         </div>
       )}
-      <div className="zone-glisser" {...(recherche.trim() ? {} : glisser)}>{contenu}</div>
+      <div className="cadre-glisser">
+        <div className="zone-glisser" {...(recherche.trim() ? {} : glisser)}>{contenu}</div>
+      </div>
     </>
   );
 }

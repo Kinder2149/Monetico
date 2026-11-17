@@ -513,3 +513,35 @@ section .titre-section { margin-top: 20px; }
 .liste-categories { list-style: none; margin: 0 -16px; padding: 0 16px calc(var(--bas) + 16px); overflow-y: auto; flex: 1; }
 .liste-categories > li { background: var(--carte); border-radius: 14px; margin-bottom: 10px; padding: 4px 6px; }
 .liste-categories .vide { background: none; text-align: center; color: var(--texte-2); }
+
+/* D46 : budgets */
+.pied-plein { position: sticky; bottom: 0; padding: 12px 0 4px; background: var(--fond); }
+.option .coche { margin-left: auto; font-weight: 800; color: var(--principal); }
+.apport { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--separateur); border-radius: 12px; padding: 12px; }
+.apport legend { padding: 0 6px; font-weight: 700; }
+.ligne-apport { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; }
+.ligne-apport.somme { border-top: 1px solid var(--separateur); padding-top: 8px; font-weight: 700; }
+.ligne-autre { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
+.historique-budget { list-style: none; margin: 0; padding: 0; }
+.historique-budget li { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; border-bottom: 1px solid var(--separateur); }
+.ligne-budget .pastille { flex: none; }
+
+/* D46 : catégories dépliables, suggestions de note, filtres */
+.ligne-parent { display: flex; align-items: center; }
+.ligne-parent .ligne { flex: 1; min-width: 0; }
+.deplier { border: 0; background: none; min-width: 44px; min-height: 44px; font-size: 24px; color: var(--texte-2); cursor: pointer; transition: transform .2s; }
+.deplier.ouvert { transform: rotate(90deg); }
+.suggestions { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.suggestions button { border: 1px solid var(--piste); background: var(--doux); color: var(--principal); border-radius: 999px; padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.filtres { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.filtres .puce { border: 1px solid var(--piste); background: var(--carte); color: var(--texte); border-radius: 999px; padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.filtres .puce.active { background: var(--doux); border-color: var(--principal); color: var(--principal); font-weight: 700; }
+.cadre-glisser { overflow-x: clip; }
+
+/* D46 : graphiques cliquables */
+.part-cliquable, .zone-point { cursor: pointer; }
+.zone-point { fill: transparent; }
+.point-choisi { stroke: var(--texte); stroke-width: 2; }
+.ligne-legende { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; padding: 0; }
+.releve-courbe { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 8px; }
+.releve-courbe strong { font-size: 24px; }

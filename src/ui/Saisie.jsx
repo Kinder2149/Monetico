@@ -3,11 +3,18 @@ import { Feuille, Champ, Message, useRetour } from './Commun.jsx';
 import { Pastille } from './Categories.jsx';
 import { lireMontant, montantPourSaisie } from '../logique/argent.js';
 import { aujourdhui } from '../logique/dates.js';
-import { listerCategories, creerOperation, modifierOperation, supprimerOperation } from '../donnees/depot.js';
+import {
+  listerCategories, creerOperation, modifierOperation, supprimerOperation, categorieHabituelle, suggestionsNotes,
+} from '../donnees/depot.js';
+
+// Dernière date saisie (D46) : proposée à la prochaine saisie, comme le fait de saisir une série de la même journée.
+const CLE_DATE = 'moneta-derniere-date';
+const derniereDate = () => { try { return localStorage.getItem(CLE_DATE) || aujourdhui(); } catch { return aujourdhui(); } };
+const retenirDate = (d) => { try { localStorage.setItem(CLE_DATE, d); } catch { /* sans effet */ } };
 
 // Choix de la catégorie en fenêtre (D44) : le champ du formulaire montre la catégorie choisie ;
 // toucher le champ ouvre une fenêtre pleine page, avec recherche, catégories et sous-catégories.
-function FenetreCategories({ categories, choisie, prendre, fermer }) {
+export function FenetreCategories({ categories, choisie, prendre, fermer }) {
   useRetour(true, fermer);
   const [recherche, setRecherche] = useState('');
   const mot = recherche.trim().toLowerCase();
@@ -88,21 +95,36 @@ export function ChoixPorteMonnaie({ libelle, porteMonnaie, valeur, choisir }) {
 }
 
 // Saisie ou modification d'une dépense, d'un revenu ou d'un transfert.
-export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParDefaut, fermer, rafraichir }) {
-  const [type, setType] = useState(operation?.type ?? 'depense');
-  const [montant, setMontant] = useState(operation ? montantPourSaisie(operation.montant) : '');
-  const [categorieId, setCategorieId] = useState(operation?.categorieId ?? null);
+export default function Saisie({ base, porteMonnaie, operation: recue, porteMonnaieParDefaut, fermer, rafraichir }) {
+  // « Dupliquer » (D46) : même contenu qu'une opération existante, enregistré comme une nouvelle.
+  const duplication = Boolean(recue?.dupliquer);
+  const operation = duplication ? null : recue;
+  const modele = recue;
+  const [type, setType] = useState(modele?.type ?? 'depense');
+  const [montant, setMontant] = useState(modele ? montantPourSaisie(modele.montant) : '');
+  const [categorieId, setCategorieId] = useState(modele?.categorieId ?? null);
   const [porteMonnaieId, setPorteMonnaieId] = useState(
-    operation?.porteMonnaieId ?? porteMonnaieParDefaut ?? porteMonnaie[0]?.id ?? null
+    modele?.porteMonnaieId ?? porteMonnaieParDefaut ?? porteMonnaie[0]?.id ?? null
   );
   const [versId, setVersId] = useState(
-    operation?.versPorteMonnaieId ?? porteMonnaie.find((p) => p.id !== porteMonnaieId)?.id ?? null
+    modele?.versPorteMonnaieId ?? porteMonnaie.find((p) => p.id !== porteMonnaieId)?.id ?? null
   );
-  const [date, setDate] = useState(operation?.date ?? aujourdhui());
-  const [note, setNote] = useState(operation?.note ?? '');
+  const [date, setDate] = useState(operation?.date ?? (duplication ? aujourdhui() : derniereDate()));
+  const [note, setNote] = useState(modele?.note ?? '');
   const [message, setMessage] = useState('');
   // Venu de l'appui long « Supprimer » (D38) : on ouvre directement la confirmation.
   const [confirmer, setConfirmer] = useState(Boolean(operation?.aSupprimer));
+  const [noteActive, setNoteActive] = useState(false);
+
+  // Mémoire (D46) : un montant déjà saisi plusieurs fois propose sa catégorie habituelle.
+  useEffect(() => {
+    if (operation || categorieId || type === 'transfert') return;
+    const centimes = lireMontant(montant);
+    if (centimes === null || centimes <= 0) return;
+    const habituelle = categorieHabituelle(base, type, centimes);
+    if (habituelle) setCategorieId(habituelle);
+  }, [montant, type]); // eslint-disable-line react-hooks/exhaustive-deps
+  const suggestions = noteActive && type !== 'transfert' ? suggestionsNotes(base, type, note) : [];
 
   // Le message d'erreur disparaît dès que l'utilisateur corrige le formulaire.
   useEffect(() => setMessage(''), [type, montant, categorieId, porteMonnaieId, versId, date]);
@@ -131,7 +153,10 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
     if (!date) return setMessage('Choisis une date.');
     const valeurs = { type, montant: centimes, categorieId, porteMonnaieId, versPorteMonnaieId: versId, date, note: note.trim() };
     if (operation) modifierOperation(base, operation.id, valeurs);
-    else creerOperation(base, valeurs);
+    else {
+      creerOperation(base, valeurs);
+      retenirDate(date);
+    }
     rafraichir();
     fermer();
   }
@@ -167,7 +192,7 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
         </div>
 
         <Champ libelle="Montant (€)" value={montant} onChange={(e) => setMontant(e.target.value)}
-          inputMode="decimal" placeholder="0,00" className="montant-saisie" autoFocus={!operation} />
+          inputMode="decimal" placeholder="0,00" className="montant-saisie" autoFocus={!operation && !duplication} />
 
         {type === 'transfert' ? (
           <>
@@ -182,7 +207,20 @@ export default function Saisie({ base, porteMonnaie, operation, porteMonnaieParD
         )}
 
         <Champ libelle="Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <Champ libelle="Note (facultative)" value={note} onChange={(e) => setNote(e.target.value)} />
+        {suggestions.length > 0 && (
+          <ul className="suggestions" aria-label="Notes déjà utilisées">
+            {suggestions.map((s) => (
+              <li key={s.note}>
+                <button type="button" onPointerDown={(e) => e.preventDefault()}
+                  onClick={() => { setNote(s.note); if (!categorieId) setCategorieId(s.categorieId); setNoteActive(false); }}>
+                  {s.note}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Champ libelle="Note (facultative)" value={note} onChange={(e) => setNote(e.target.value)}
+          onFocus={() => setNoteActive(true)} onBlur={() => setTimeout(() => setNoteActive(false), 150)} autoComplete="off" />
 
         <Message texte={message} />
         <button className="bouton" type="submit">Enregistrer</button>

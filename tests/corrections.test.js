@@ -31,6 +31,7 @@ test('D34 : les prêts créés avant la mise à jour passent pour mémoire', () 
   const db = new SQL.Database();
   const ancienne = creerBase(db);
   db.run('PRAGMA user_version = 8');
+  db.run('ALTER TABLE budget DROP COLUMN icone');
   db.run('ALTER TABLE pret DROP COLUMN compte_solde');
   const pm = depot.creerPorteMonnaie(ancienne, { nom: 'Courant', soldeDepart: 10000 });
   db.run("INSERT INTO pret (personne, montant, date, porte_monnaie_id) VALUES ('Tom', 1000, '2026-10-01', ?)", [pm]);

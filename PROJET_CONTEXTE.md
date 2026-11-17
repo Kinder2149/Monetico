@@ -241,6 +241,8 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D41 | Solde du jour : une opération (ou un prêt compté) datée dans le futur ne compte dans les soldes qu'à sa date ; la courbe du mois en cours s'arrête aussi à aujourd'hui. L'onglet « À venir » affiche ces opérations, leur total et le « Solde prévu » une fois elles passées (récurrentes à valider comprises), comme Money Lover. | 2026-11-17 |
 | D42 | Icônes de catégorie (remplace D35 et la partie « catégories » de D24) : dessins en couleur « Fluent Emoji Flat » de Microsoft (licence MIT), choisis par Kinder parmi trois styles ; copiés dans `src/ui/dessins.js`, aucune dépendance ajoutée ; plus de rond de couleur ; catégorie sans icône (import) : dessin deviné d'après son nom, sinon un colis. Lucide reste pour les icônes de l'interface. | 2026-11-17 |
 | D43 | Import Money Lover, catégories (complète D26 sur l'export réel du 2026-11-16 : 1 889 lignes, 49 catégories), validé par Kinder : table de correspondance dans `src/logique/importMoneyLover.js` ; chaque catégorie Money Lover est rangée sous un parent Moneta (Alimentation, Logement, Assurances, Transports, Santé, Shopping, Loisirs, Abonnements, Cadeaux, Banque, Bureau de tabac, Divers ; revenus au premier niveau), avec une icône à la création. Les noms Moneta déjà existants sont réutilisés (Essence → Carburant, Sports → Sport, Vehicle Maintenance → Entretien, Électronique & électroménager → Électronique, Facture d'électricité → Électricité) ; Retrait et Retrait B → Retraits ; Cadeaux (revenu) → Cadeau reçu ; Autres revenus → Autres. Catégorie absente de la table : reprise telle quelle (D26). | 2026-11-17 |
+| D44 | Retouches après test sur téléphone (Kinder, 2026-11-17) : onglet Opérations avec le solde du compte en grand au centre (solde du jour, en fin de mois, ou solde prévu = solde du jour + opérations à venir + récurrentes), « Variation du mois (entrées − sorties) » distincte du solde ; glisser le doigt change de mois ; choix de catégorie dans une fenêtre pleine page avec recherche ; import : Factures regroupe Abonnement, Assurances, Facture d'électricité et Facture de téléphone, et Autres dépenses, En Attente et Famille sont au premier niveau (comme dans Money Lover). | 2026-11-17 |
+| D45 | Fichier d'import prêt à l'emploi : l'import accepte des colonnes facultatives « Parent » et « Icon » (elles priment sur la table de correspondance) et un fichier réenregistré par Excel (séparateur « ; », virgule décimale). Fichier fourni : « Moneta - import prêt.csv » (1893 opérations, dont 5 à venir non importées), identique à la feuille « À importer » du classeur Excel. | 2026-11-17 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -378,6 +380,12 @@ P1 (nom) se tranche avant la publication.
 2. Les catégories sont rangées sous leurs parents (Alimentation : Courses, Restaurant, Fast-food, Café, Bar, Boulangerie ; Banque : Frais & charges, Retraits ; etc.), sans doublon avec les catégories existantes.
 3. Aucune catégorie utilisée n'est sans dessin : chaque pastille de la liste, de la saisie et des graphiques montre un dessin en couleur.
 4. Réimporter le même fichier n'ajoute aucune opération ni catégorie.
+
+**Retouches D44 (2026-11-17)**
+1. Opérations : le solde du compte s'affiche en grand, au centre, en haut de chaque mois ; « À venir » montre le solde prévu et son calcul (« Aujourd'hui X + à venir Y » ou « Rien de prévu : le solde prévu est le solde d'aujourd'hui »).
+2. Glisser le doigt vers la gauche ou la droite passe au mois suivant ou précédent.
+3. Saisie : toucher « Catégorie » ouvre une fenêtre pleine page (recherche, catégories et sous-catégories) ; choisir ferme la fenêtre et le formulaire reste propre ; le bouton retour du téléphone ferme la fenêtre.
+4. Import de l'export du 17/11 : Factures contient Abonnement, Assurances, Facture d'électricité, Facture de téléphone.
 
 → **Point de contrôle Kinder** : vérification de l'import sur ses vraies données.
 

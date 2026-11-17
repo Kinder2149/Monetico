@@ -1,5 +1,18 @@
 # CHANGELOG — Moneta
 
+## 2026-11-17 — Fichier d'import prêt (D45)
+
+- L'import lit les colonnes facultatives « Parent » et « Icon » et les fichiers réenregistrés par Excel (« ; » et virgule décimale). Fichier prêt : « Moneta - import prêt.csv ». Vérifié : 1888 opérations, solde −203,54 €, 24 catégories créées, réimport sans doublon.
+
+## 2026-11-17 — Retouches après test sur téléphone (D44)
+
+- Retours de Kinder : solde peu visible, « solde prévu » incompréhensible, glissement entre mois, choix de catégorie à alléger, écart de 12 € avec Money Lover.
+- Opérations : solde du compte en grand au centre (solde du jour / fin de mois / prévu) ; « Total » devient « Variation du mois (entrées − sorties) », qui n'est pas le solde ; le solde prévu explique son calcul. Aucun chiffre en dur : tout vient des opérations (le solde prévu égale le solde du jour quand rien n'est à venir).
+- Glissement horizontal entre les mois ; choix de catégorie en fenêtre pleine page avec recherche.
+- Import : rangement revu d'après les écrans Money Lover de Kinder (Factures regroupe Abonnement, Assurances, factures d'électricité et de téléphone ; Autres dépenses, En Attente, Famille au premier niveau).
+- Nouvel export (1 893 lignes, dont 5 datées après aujourd'hui, non importées par D26) : solde des opérations importées −203,54 €. Money Lover indique 215,54 € : écart de 12 € non expliqué par le fichier, en attente du signe et de l'heure du solde Money Lover.
+- Fichier Excel de contrôle des catégories et des opérations remis à Kinder. 35 tests réussis.
+
 ## 2026-11-17 — Import Money Lover propre (D43)
 
 - Nouvel export de Kinder (16/11) : 1 889 lignes, 49 catégories, un compte ; 4 opérations à venir non importées. Le solde obtenu est −197,79 € (649,54 € sur l'export du 03/11) : à confirmer par Kinder avec le solde affiché par Money Lover.

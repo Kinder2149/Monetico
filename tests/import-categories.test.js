@@ -36,14 +36,14 @@ test('D43 : chaque catégorie Money Lover est rangée sous le bon parent, avec u
   assert.equal(resume.operations, 49);
   const arbre = Object.fromEntries(depot.listerCategories(base, 'depense').map((c) => [c.nom, c.sous.map((s) => s.nom)]));
   for (const nom of ['Bar', 'Boulangerie', 'Café', 'Courses', 'Fast-food', 'Restaurant']) assert.ok(arbre.Alimentation.includes(nom), nom);
-  for (const nom of ['Locations', 'Maison', 'Factures', 'Électricité', 'Facture de téléphone']) assert.ok(arbre.Logement.includes(nom), nom);
+  for (const nom of ['Locations', 'Maison']) assert.ok(arbre.Logement.includes(nom), nom);
+  for (const nom of ['Abonnement', 'Assurances', "Facture d'électricité", 'Facture de téléphone']) assert.ok(arbre.Factures.includes(nom), nom);
   for (const nom of ['Carburant', 'Stationnement', 'Entretien', 'Taxi']) assert.ok(arbre.Transports.includes(nom), nom);
   assert.ok(arbre.Santé.includes('Visite médicale'));
   for (const nom of ['Vêtements', 'Chaussures', 'Accessoires', 'Électronique', 'Hygiène']) assert.ok(arbre.Shopping.includes(nom), nom);
   for (const nom of ['Jeux', 'Cinéma', 'Soirée', 'Sport', 'Vacances', 'Amis & conjoint']) assert.ok(arbre.Loisirs.includes(nom), nom);
   assert.deepEqual([...arbre.Banque].sort(), ['Frais & charges', 'Retraits']);
-  for (const nom of ['Autres dépenses', 'En Attente', 'Famille']) assert.ok(arbre.Divers.includes(nom), nom);
-  for (const nom of ['Assurances', 'Banque', 'Bureau de tabac', 'Abonnements', 'Cadeaux']) assert.ok(nom in arbre, nom);
+  for (const nom of ['Factures', 'Autres dépenses', 'En Attente', 'Famille', 'Banque', 'Bureau de tabac', 'Cadeaux']) assert.ok(nom in arbre, nom);
   // L'opération « Maison » de Money Lover va sous Logement, pas sous la sous-catégorie Maison de Shopping (D43).
   const maison = depot.listerOperations(base).find((o) => o.categorie === 'Maison' && o.montant === 1000);
   assert.equal(maison.categorieParent, 'Logement');
@@ -70,4 +70,19 @@ test('D43 : réimporter ne crée rien de plus et les catégories ne sont pas dup
   assert.equal(resume.operations, 0);
   assert.equal(resume.categoriesCreees, 0);
   assert.equal(base.lire('SELECT COUNT(*) AS n FROM categorie')[0].n, avant);
+});
+
+test('D45 : colonnes Parent et Icon du fichier préparé, séparateur « ; » et virgule décimale', () => {
+  const texte = 'ID;Note;Amount;Category;Account;Currency;Date;Event;Exclude Report;Parent;Icon\n'
+    + '1;pain;-1,20;Viennoiserie;Compte;EUR;02/11/2026;;False;Alimentation;bread\n'
+    + '2;;-5;Divers truc;Compte;EUR;03/11/2026;;False;;\n';
+  const { operations } = lireExportMoneyLover(texte, '2026-11-17');
+  assert.equal(operations[0].montant, 120);
+  assert.equal(operations[0].categorieParent, 'Alimentation');
+  assert.equal(operations[0].categorieIcone, 'bread');
+  assert.equal(operations[1].categorieParent, undefined);
+  const base = creerBase(new SQL.Database(), () => {});
+  depot.importerOperations(base, operations);
+  const alim = depot.listerCategories(base, 'depense').find((c) => c.nom === 'Alimentation');
+  assert.ok(alim.sous.some((s) => s.nom === 'Viennoiserie' && s.icone === 'bread'));
 });

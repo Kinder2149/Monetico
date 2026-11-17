@@ -487,9 +487,29 @@ section .titre-section { margin-top: 20px; }
 .resume-periode { display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
 .resume-periode > div { display: flex; justify-content: space-between; align-items: baseline; }
 .resume-periode .total-periode { border-top: 1px solid var(--separateur); padding-top: 8px; font-weight: 700; }
-.resume-periode .solde-prevu { border-bottom: 1px solid var(--separateur); padding-bottom: 8px; margin-bottom: 2px; font-weight: 700; }
+.resume-periode .solde-hero { flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; padding: 8px 0 14px; border-bottom: 1px solid var(--separateur); margin-bottom: 4px; }
+.solde-grand { font-size: 40px; font-weight: 800; line-height: 1.1; }
+.zone-glisser { min-height: 60vh; touch-action: pan-y; }
 .ligne.prevue { cursor: default; opacity: 0.75; }
 
 /* Appui long sur une opération (D38) : pas de sélection de texte ni de menu du téléphone. */
 .liste .ligne { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .espace-haut { margin-top: 8px; }
+
+/* Choix de catégorie en fenêtre pleine page (D44) */
+.fenetre-plein {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--fond);
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--haut, 0px) + 12px) 16px 0;
+  overflow: hidden;
+}
+.entete-plein { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.entete-plein h2 { margin: 0; font-size: 20px; font-weight: 800; color: var(--texte); }
+.retour { border: 0; background: none; font-size: 26px; min-width: 44px; min-height: 44px; cursor: pointer; color: var(--texte); }
+.liste-categories { list-style: none; margin: 0 -16px; padding: 0 16px calc(var(--bas) + 16px); overflow-y: auto; flex: 1; }
+.liste-categories > li { background: var(--carte); border-radius: 14px; margin-bottom: 10px; padding: 4px 6px; }
+.liste-categories .vide { background: none; text-align: center; color: var(--texte-2); }

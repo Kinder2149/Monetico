@@ -11,7 +11,7 @@ export const cleNom = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerC
 // Les catégories absentes de cette table sont reprises telles quelles (D26).
 
 // Icônes des parents créés à l'import (les autres parents existent dans le modèle de départ).
-export const PARENTS_IMPORT = { 'Assurances': 'shield', 'Banque': 'landmark', 'Bureau de tabac': 'cigarette' };
+export const PARENTS_IMPORT = { 'Banque': 'landmark', 'Factures': 'receipt' };
 
 const DEPENSES = {
   'Alimentation': [null, 'Alimentation', 'utensils'], 'Courses': ['Alimentation', 'Courses', 'shopping-cart'],
@@ -19,9 +19,10 @@ const DEPENSES = {
   'Fast Food': ['Alimentation', 'Fast-food', 'sandwich'], 'Café': ['Alimentation', 'Café', 'coffee'],
   'Bar': ['Alimentation', 'Bar', 'beer'], 'Boulangerie': ['Alimentation', 'Boulangerie', 'bread'],
   'Locations': ['Logement', 'Locations', 'house'], 'Maison': ['Logement', 'Maison', 'sofa'],
-  'Factures': ['Logement', 'Factures', 'receipt'], "Facture d'électricité": ['Logement', 'Électricité', 'zap'],
-  'Facture de téléphone': ['Logement', 'Facture de téléphone', 'smartphone'],
-  'Assurances': [null, 'Assurances', 'shield'],
+  // Rangement des factures comme dans Money Lover (D44).
+  'Factures': [null, 'Factures', 'receipt'], "Facture d'électricité": ['Factures', "Facture d'électricité", 'zap'],
+  'Facture de téléphone': ['Factures', 'Facture de téléphone', 'smartphone'],
+  'Assurances': ['Factures', 'Assurances', 'shield'], 'Abonnement': ['Factures', 'Abonnement', 'repeat'],
   'Transports': [null, 'Transports', 'car'], 'Essence': ['Transports', 'Carburant', 'fuel'],
   'Frais de stationnement': ['Transports', 'Stationnement', 'parking'],
   'Vehicle Maintenance': ['Transports', 'Entretien', 'wrench'], 'Taxi': ['Transports', 'Taxi', 'car'],
@@ -32,12 +33,12 @@ const DEPENSES = {
   'Loisirs': [null, 'Loisirs', 'party'], 'Jeux': ['Loisirs', 'Jeux', 'gamepad'], 'Cinéma': ['Loisirs', 'Cinéma', 'film'],
   'Soirée': ['Loisirs', 'Soirée', 'cocktail'], 'Sports': ['Loisirs', 'Sport', 'dumbbell'],
   'Vacances': ['Loisirs', 'Vacances', 'plane'], 'Amis & conjoint': ['Loisirs', 'Amis & conjoint', 'hand-heart'],
-  'Abonnement': [null, 'Abonnements', 'repeat'], 'Cadeau': [null, 'Cadeaux', 'gift'],
+  'Cadeau': [null, 'Cadeaux', 'gift'],
   'Banque': [null, 'Banque', 'landmark'], 'Frais & charges': ['Banque', 'Frais & charges', 'receipt'],
   'Retrait': ['Banque', 'Retraits', 'cash'], 'Retrait B': ['Banque', 'Retraits', 'cash'],
   'Bureau de tabac': [null, 'Bureau de tabac', 'cigarette'],
-  'Autres dépenses': ['Divers', 'Autres dépenses', 'ellipsis'], 'En Attente': ['Divers', 'En Attente', 'hourglass'],
-  'Famille': ['Divers', 'Famille', 'hand-heart'],
+  'Autres dépenses': [null, 'Autres dépenses', 'ellipsis'], 'En Attente': [null, 'En Attente', 'hourglass'],
+  'Famille': [null, 'Famille', 'hand-heart'],
 };
 
 const REVENUS = {
@@ -59,7 +60,7 @@ function correspondance(nom, type) {
 }
 
 // Découpe un CSV en lignes de champs (champs entre guillemets acceptés, avec virgules ou guillemets doublés).
-function lireCsv(texte) {
+function lireCsv(texte, separateur = ',') {
   const lignes = [];
   let ligne = [];
   let champ = '';
@@ -71,7 +72,7 @@ function lireCsv(texte) {
       else if (c === '"') guillemets = false;
       else champ += c;
     } else if (c === '"') guillemets = true;
-    else if (c === ',') { ligne.push(champ); champ = ''; }
+    else if (c === separateur) { ligne.push(champ); champ = ''; }
     else if (c === '\n' || c === '\r') {
       if (c === '\r' && texte[i + 1] === '\n') i++;
       ligne.push(champ); champ = '';
@@ -90,10 +91,20 @@ function lireDate(texte) {
   return m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : null;
 }
 
+// Colonnes facultatives « Parent » et « Icon » (fichier préparé pour Moneta, D45) : elles priment sur la table.
+function categorieDeLaLigne(nom, type, parent, icone) {
+  if (!parent && !icone) return correspondance(nom, type);
+  return { categorie: nom, categorieParent: parent || null, categorieIcone: icone || undefined };
+}
+
 // Renvoie { operations, aVenir } ; les opérations datées après `jour` ne sont que comptées.
 // Lève une erreur (message pour l'utilisateur) si le fichier n'est pas un export Money Lover.
 export function lireExportMoneyLover(texte, jour = aujourdhui()) {
-  const [entete, ...lignes] = lireCsv(texte.replace(/^﻿/, ''));
+  const propre = texte.replace(/^﻿/, '');
+  // Un fichier réenregistré par Excel en français sépare les colonnes par « ; » et les décimales par « , ».
+  const premiere = propre.split(/[\r\n]/, 1)[0];
+  const separateur = premiere.includes(';') && !premiere.includes(',') ? ';' : ',';
+  const [entete, ...lignes] = lireCsv(propre, separateur);
   const position = Object.fromEntries((entete ?? []).map((nom, i) => [nom.trim(), i]));
   if (!COLONNES.every((nom) => nom in position)) {
     throw new Error("Ce fichier n'est pas un export Money Lover (fichier CSV attendu).");
@@ -103,7 +114,7 @@ export function lireExportMoneyLover(texte, jour = aujourdhui()) {
   let aVenir = 0;
   for (const ligne of lignes) {
     const date = lireDate(valeur(ligne, 'Date'));
-    const montant = Math.round(Number(valeur(ligne, 'Amount')) * 100);
+    const montant = Math.round(Number(valeur(ligne, 'Amount').replace(/\s/g, '').replace(',', '.')) * 100);
     if (!date || !Number.isFinite(montant) || montant === 0) {
       throw new Error(`Ligne illisible dans le fichier : « ${ligne.join(',')} ».`);
     }
@@ -113,7 +124,7 @@ export function lireExportMoneyLover(texte, jour = aujourdhui()) {
     operations.push({
       type,
       montant: Math.abs(montant),
-      ...correspondance(valeur(ligne, 'Category') || 'Divers', type),
+      ...categorieDeLaLigne(valeur(ligne, 'Category') || 'Divers', type, valeur(ligne, 'Parent'), valeur(ligne, 'Icon')),
       porteMonnaie: valeur(ligne, 'Account') || 'Money Lover',
       date,
       note: [valeur(ligne, 'Note'), evenement].filter(Boolean).join(' · '),

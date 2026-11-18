@@ -1,5 +1,10 @@
 # CHANGELOG — Moneta
 
+## 2026-11-18 — Reprise du bloc C : étape 14, critère 1 (phase 6)
+
+- Appli fabriquée sur ce PC (Java 21 d'Android Studio) et lancée sur le téléphone virtuel : sans connexion Google, tout fonctionne et Réglages › Sauvegarde propose « Se connecter à Google » sans jamais exiger de compte (critère 1 réussi).
+- Critères 2 à 7 (connexion, envoi, mode avion, restauration) : Kinder les teste lui-même avec son compte Google ; non vérifiés par l'IA.
+
 ## 2026-11-18 — Correction du plantage de « À venir » (D56)
 
 - L'onglet Opérations › « À venir » ne donne plus d'écran blanc quand une récurrente est à valider ; avec un compte filtré, seules les récurrentes de ce compte apparaissent. Test automatique ajouté.

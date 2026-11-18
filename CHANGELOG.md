@@ -1,5 +1,9 @@
 # CHANGELOG — Moneta
 
+## 2026-11-18 — Correction du plantage de « À venir » (D56)
+
+- L'onglet Opérations › « À venir » ne donne plus d'écran blanc quand une récurrente est à valider ; avec un compte filtré, seules les récurrentes de ce compte apparaissent. Test automatique ajouté.
+
 ## 2026-11-18 — Réflexion « Refonte des écrans » (phases 1 à 4, bloc E : Plan prêt)
 
 - Audit réel des écrans (code et aperçu en taille téléphone, données d'essai) : opérations et budgets peu lisibles, quatre façons d'afficher une liste, détails tantôt en panneau tantôt en modification directe, aucune fiche de lecture.

@@ -220,7 +220,7 @@ function recurrentesPrevues(base, compteId, jour) {
   const demain = decaler(jour, 1);
   return [jour, decalerMois(`${moisDe(jour)}-01`, 1)].flatMap((dansLeMois) =>
     recurrentesAValider(base, moisDe(dansLeMois))
-      .filter((r) => porteMonnaieId === null || r.porteMonnaieId === porteMonnaieId)
+      .filter((r) => compteId === null || r.porteMonnaieId === compteId)
       .map((r) => {
         const prevu = jourPrevu(r.jour, dansLeMois);
         return { ...r, date: prevu < demain ? demain : prevu };

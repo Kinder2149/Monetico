@@ -1,5 +1,14 @@
 # CHANGELOG — Moneta
 
+## 2026-11-18 — Réflexion « Refonte des écrans » (phases 1 à 4, bloc E : Plan prêt)
+
+- Audit réel des écrans (code et aperçu en taille téléphone, données d'essai) : opérations et budgets peu lisibles, quatre façons d'afficher une liste, détails tantôt en panneau tantôt en modification directe, aucune fiche de lecture.
+- Défauts constatés : l'onglet « À venir » plante (écran blanc) dès qu'une récurrente est à valider ; un budget compte déjà une dépense datée plus tard (incohérent avec D41).
+- Idées de Kinder triées (toutes retenues) ; D38 ajustée par le protocole de contradiction (option « ajustement »).
+- Décisions D47 à D56 figées par Kinder, avec maquettes : toucher = fiche de détail, ligne d'opération unique, fiche unique en page pleine, haut d'Opérations compact, budgets avec reste et partie « Prévu », Accueil, Comptes / Récurrentes / Prêts, périmètre, ordre des missions. Section 5 mise à jour (écran d'accueil de référence, présentation commune).
+- Plan du bloc E (E0 à E11) et ses critères validés par Kinder (section 9 et 10) ; E5 marquée « opus ». Ordre : le bloc C finit par la correction de « À venir » et l'étape 14, puis bloc E, puis bloc D.
+- Aucun code modifié.
+
 ## 2026-11-17 — Retouches après test sur téléphone, 2e série (D46)
 
 - Budgets : fenêtre de choix des catégories, icône, historique mois par mois, encadré « Argent disponible » à la création.

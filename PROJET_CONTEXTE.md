@@ -16,10 +16,10 @@ MISSION : Bloc B — Import (étape 7) — Close
 MISSION : Bloc C — Le reste (étapes 8 à 14) — En implémentation (seule mission active, R29)
 PHASE : 6 Implémentation
   Étape : 8 à 13 Budgets, récurrentes, prêts, graphiques, icône galerie, réglages — Close — critère : critères de la section 10 vérifiés sur le téléphone virtuel le 2026-11-04 (écart de l'étape 12 accepté, D29)
-  Étape : 14 Sauvegarde Google Drive — Codée, vérification à faire — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
+  Étape : 14 Sauvegarde Google Drive — Critère 1 vérifié sur le téléphone virtuel (2026-11-18) ; critères 2 à 7 : Kinder les teste lui-même avec sa connexion Google — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
   Étape : Corrections après test (D34 à D41) — Codées, vérifiées dans l'aperçu — critère : section 10, « Corrections après test »
   Étape : Retouches D44, D45, D46 — Codées et fusionnées dans main (2026-11-17)
-  Étape : Correction du plantage de « À venir » (D56) — Planifiée — critère : avec au moins une récurrente à valider, l'onglet Opérations › « À venir » s'affiche (liste et solde prévu), sans écran blanc
+  Étape : Correction du plantage de « À venir » (D56) — Codée et vérifiée (branche claude/correction-a-venir-d56, 43 tests réussis, 2026-11-18) — critère : avec au moins une récurrente à valider, l'onglet Opérations › « À venir » s'affiche (liste et solde prévu), sans écran blanc
 MISSION : Bloc E — Refonte des écrans (étapes E0 à E11) — Plan prêt — En attente (1) : démarre à la clôture du bloc C (R29, D56)
 MISSION : Bloc D — Version ordinateur (étape 15) — En attente (2)
   Étape : 15 Moneta sur PC — Planifiée — critère : voir section 10 (P9 à trancher avant)

@@ -3,7 +3,7 @@
 > Document de référence du projet. Toute décision figée est en section 6.
 > Ce qui n'est pas écrit ici n'est pas décidé : on demande à Kinder.
 
-Dernière mise à jour : 2026-11-17 — bloc C : corrections après le test de Kinder codées (D34 à D41) ; étape 14 toujours à vérifier (phase 6).
+Dernière mise à jour : 2026-11-18 — réflexion « Refonte des écrans » close : décisions D47 à D56, plan du bloc E validé par Kinder (Plan prêt, en attente de la clôture du bloc C).
 
 ---
 
@@ -18,13 +18,17 @@ PHASE : 6 Implémentation
   Étape : 8 à 13 Budgets, récurrentes, prêts, graphiques, icône galerie, réglages — Close — critère : critères de la section 10 vérifiés sur le téléphone virtuel le 2026-11-04 (écart de l'étape 12 accepté, D29)
   Étape : 14 Sauvegarde Google Drive — Codée, vérification à faire — critère : sans connexion Google l'appli fonctionne ; connecté, « Dernière sauvegarde : à l'instant » ; la sauvegarde suit chaque modification, « en attente » hors connexion, puis part seule ; restauration depuis le Drive (section 10, 7 critères)
   Étape : Corrections après test (D34 à D41) — Codées, vérifiées dans l'aperçu — critère : section 10, « Corrections après test »
+  Étape : Retouches D44, D45, D46 — Codées et fusionnées dans main (2026-11-17)
+  Étape : Correction du plantage de « À venir » (D56) — Planifiée — critère : avec au moins une récurrente à valider, l'onglet Opérations › « À venir » s'affiche (liste et solde prévu), sans écran blanc
+MISSION : Bloc E — Refonte des écrans (étapes E0 à E11) — Plan prêt — En attente (1) : démarre à la clôture du bloc C (R29, D56)
+MISSION : Bloc D — Version ordinateur (étape 15) — En attente (2)
   Étape : 15 Moneta sur PC — Planifiée — critère : voir section 10 (P9 à trancher avant)
-MISSION : Bloc D — Version ordinateur (étape 15) — En attente (1)
+CAPTURE : aucune
 SESSIONS : aucune
 IDÉES PARQUÉES :
   - aucune notée
 ```
-*(Bloc écrit le 2026-11-10 par le tri des projets, d'après la version en ligne de la branche `bloc-c` du 2026-11-04.)*
+*(Bloc mis à jour le 2026-11-18 par la conversation de réflexion « Refonte des écrans ».)*
 
 ---
 
@@ -190,9 +194,15 @@ Maquette de référence (écran d'accueil) : https://claude.ai/artifact/EPjjEzJ3
 - Barre du bas : Accueil · Opérations · « + » · Budgets · Comptes.
 - Zones tactiles : 44 px minimum. Contrastes lisibles (4,5:1 minimum pour le texte).
 
-Écran d'accueil de référence (de haut en bas) : sélecteur de porte-monnaie + recherche ;
-solde total ; carte du mois (entrées, sorties) ; carte de budget avec barre ;
-carte « À valider » (récurrente) avec bouton Valider ; liste des opérations du jour ; barre du bas.
+Écran d'accueil de référence (de haut en bas, D53 à partir du bloc E) : sélecteur de compte + recherche ;
+solde total ; carte du mois (entrées, sorties en pastilles) ; carte « À valider · N » (une ligne et un bouton Valider par récurrente) ;
+carte des budgets (reste à dépenser) ; opérations du jour ; graphiques (D39) ; barre du bas.
+
+Présentation commune des écrans (bloc E, D47 à D55) :
+- **Ligne d'opération** (D48) : dessin de la catégorie ; titre = note (sinon la catégorie) ; dessous = catégorie (sinon la catégorie parente) ; montant à droite, rouge ou vert ; pas de compte. Opérations groupées par jour dans un seul bloc, total du jour dans le titre du jour.
+- **Fiche de détail** (D47, D49) : toucher une ligne l'ouvre, en page pleine, flèche ← unique ; carte centrale (dessin, titre, montant en grand) ; informations une par ligne ; actions en bas (Modifier en bouton, Dupliquer si possible, Supprimer en lien rouge avec confirmation).
+- **Panneau du bas** : réservé aux formulaires et aux confirmations.
+- Vocabulaire : « compte » partout, jamais « porte-monnaie » (D54).
 
 ## 6. Décisions figées
 
@@ -244,6 +254,16 @@ carte « À valider » (récurrente) avec bouton Valider ; liste des opérations
 | D44 | Retouches après test sur téléphone (Kinder, 2026-11-17) : onglet Opérations avec le solde du compte en grand au centre (solde du jour, en fin de mois, ou solde prévu = solde du jour + opérations à venir + récurrentes), « Variation du mois (entrées − sorties) » distincte du solde ; glisser le doigt change de mois ; choix de catégorie dans une fenêtre pleine page avec recherche ; import : Factures regroupe Abonnement, Assurances, Facture d'électricité et Facture de téléphone, et Autres dépenses, En Attente et Famille sont au premier niveau (comme dans Money Lover). | 2026-11-17 |
 | D45 | Fichier d'import prêt à l'emploi : l'import accepte des colonnes facultatives « Parent » et « Icon » (elles priment sur la table de correspondance) et un fichier réenregistré par Excel (séparateur « ; », virgule décimale). Fichier fourni : « Moneta - import prêt.csv » (1893 opérations, dont 5 à venir non importées), identique à la feuille « À importer » du classeur Excel. | 2026-11-17 |
 | D46 | Retouches après test sur téléphone (Kinder, 2026-11-17, 3 blocs). Budgets : catégories choisies en fenêtre pleine page ; icône par budget ; détail avec transactions et bouton Modifier ; historique mois par mois (dépensé, écart, variation) ; à la création, encadré « Argent disponible » (solde + salaire + lignes « Autre ») comparé au total des budgets, sans blocage. Transactions : appui long → Dupliquer ; filtres par compte et par catégorie ; saisie à mémoire (dernière date saisie, catégorie habituelle d'un montant répété au moins 2 fois, notes déjà utilisées proposées) ; sous-catégories repliables ; glissement entre mois en carrousel. Graphiques : camembert et courbe cliquables vers les opérations ; bouton « Sauvegarder maintenant » (Drive) qui affiche l'erreur exacte. | 2026-11-17 |
+| D47 | Toucher une ligne ouvre sa **fiche de détail** (opérations, budgets, récurrentes, prêts, comptes) ; les actions sont dans la fiche. Ajuste D38 (protocole de contradiction, option « ajustement » choisie par Kinder), qui disait « Le simple toucher ouvre toujours la modification ». L'appui long reste, sur les opérations seulement : Modifier / Dupliquer / Supprimer (D38, D46). | 2026-11-18 |
+| D48 | **Ligne d'opération unique** partout (Opérations, Accueil, fiche d'un budget, détail des graphiques) : dessin de la catégorie ; titre = note, sinon la catégorie ; dessous = catégorie, sinon la catégorie parente ; montant à droite, rouge (sortie) ou vert (entrée) ; pas de compte sur la ligne. Une ligne par opération, groupées par jour dans un seul bloc, total du jour dans le titre du jour. Transfert : titre = note, sinon « Transfert » ; dessous « Compte A → Compte B » ; montant ni rouge ni vert. | 2026-11-18 |
+| D49 | **Fiche de détail unique** : page pleine, même flèche ← partout ; carte centrale (dessin, titre, montant en grand, type et date) ; informations une par ligne ; actions en bas : Modifier (bouton vert), Dupliquer quand c'est possible, Supprimer (lien rouge, avec confirmation). Le panneau qui monte du bas est réservé aux formulaires et aux confirmations. | 2026-11-18 |
+| D50 | **Haut de l'onglet Opérations** : recherche et filtres en icônes à côté du titre ; étiquette « X × » quand un filtre est actif ; onglets des mois gardés (D37) ; solde en grand gardé (D44), avec en dessous une ligne de pastilles entrées / sorties / variation. | 2026-11-18 |
+| D51 | **Budgets** : chaque carte met en avant le reste à dépenser (ou « Dépassé de X € » en rouge) ; sous-titre « [mois] · N jours restants ». Fiche d'un budget : reste en grand, barre, période, dépenses (ligne D48, toucher = fiche de l'opération), mois précédents en petites barres (rouges si dépassés), Modifier / Supprimer. L'exclusion d'une dépense (D9) se fait depuis la fiche de l'opération ; une dépense exclue reste visible, grisée et barrée. | 2026-11-18 |
+| D52 | **Budgets et prévu** : le « dépensé » ne compte que les dépenses datées jusqu'à aujourd'hui, comme le solde (D41). Partie « Prévu d'ici la fin de la période » (fond vert doux) : dépenses datées plus tard dans la période + récurrentes non validées des catégories du budget dont la date prévue tombe dans la période, chacune avec un bouton Valider (D10). Barre en deux teintes (dépensé, prévu) et « Après le prévu : X € restants ». | 2026-11-18 |
+| D53 | **Accueil** : carte « À valider · N » regroupée (une ligne et un petit bouton Valider par récurrente), placée avant les budgets (modifie l'ordre de l'écran de référence, section 5) ; carte des budgets avec le reste à dépenser ; carte du mois en pastilles ; opérations du jour en ligne D48 ; liens « Tout voir › » vers les onglets. | 2026-11-18 |
+| D54 | **Comptes, Récurrentes, Prêts** : même dessin de porte-monnaie pour tous les comptes ; bloc « Gérer » (Catégories, Récurrentes, Prêts) avec un court résumé chacun ; fiche d'un compte (solde, solde de départ, « Voir ses opérations › » = Opérations filtré). Récurrentes rangées en Dépenses / Revenus avec total par mois et état du mois ; fiche avec Valider ou « Validée le … ». Prêts rangés en « En cours » / « Remboursés » ; fiche avec reste dû, mention pour mémoire / compté, remboursements et « Ajouter un remboursement ». Le mot « compte » remplace « porte-monnaie » dans toute l'appli. | 2026-11-18 |
+| D55 | **Périmètre de la refonte** : les 10 écrans. Catégories, Réglages, Graphiques et formulaires de saisie seulement alignés (même en-tête, même flèche, mêmes lignes, mêmes boutons), sans changement de fonctionnement. Aucune fonction nouvelle ; aucune dépendance ; aucun nouveau module (la fiche commune va dans Commun) ; aucune modification de la base de données. | 2026-11-18 |
+| D56 | **Ordre des missions** : le bloc C se termine par la correction du plantage de l'onglet « À venir » (écran blanc dès qu'une récurrente est à valider, constaté le 2026-11-18), puis la vérification de l'étape 14. Bloc E (refonte des écrans) en attente (1), bloc D (version ordinateur) en attente (2). | 2026-11-18 |
 
 ## 7. Points ouverts (à trancher au moment indiqué)
 
@@ -264,7 +284,8 @@ Phases 1 à 5 terminées le 2026-11-03 (critères validés). **Phase en cours : 
 | A — Saisie de base (étapes 1 à 6) | **Terminé** : vérifié par une autre IA sur le téléphone virtuel (D25), 4 défauts corrigés et revérifiés, fusionné dans la branche principale le 2026-11-03. À revoir sur le vrai téléphone à la fin : format de la date (téléphone virtuel en anglais), icône de l'appli. |
 | B — Import (étape 7) | **Terminé** : vérifié par une autre IA avec le vrai export (1 858 opérations, solde 649,54 €), fusionné dans la branche principale le 2026-11-03. À noter : l'import a créé des catégories proches de celles du modèle (Abonnement / Abonnements, Bar / Café/Bar). |
 | C — Le reste (étapes 8 à 14) | En cours sur la branche `bloc-c`. Étapes 8 à 13 codées (budgets, récurrentes, prêts, graphiques, icône depuis la galerie, réglages), 25 tests réussis, vérifiées sur le téléphone virtuel le 2026-11-04 : tous les critères réussis (écart de l'étape 12 accepté, D29). Étape 14 codée (sauvegarde automatique, attente hors connexion, restauration), 27 tests réussis ; projet Google « Moneta » prêt (`moneta-513715`). **Reprise** : sur le PC utilisé, ajouter le client Android de ce PC dans le projet Google s'il n'existe pas (seul celui du PC portable est créé), ajouter le compte Google de Kinder sur le téléphone virtuel, puis vérifier les 7 critères de l'étape 14 ; ensuite fusion de `bloc-c` avec l'accord de Kinder. |
-| D — Ordinateur (étape 15) | Pas commencé. Avant de coder : P9. |
+| E — Refonte des écrans (E0 à E11) | Plan prêt le 2026-11-18 (D47 à D56). Démarre à la clôture du bloc C (R29, D56). |
+| D — Ordinateur (étape 15) | Pas commencé, en attente (2). Avant de coder : P9. |
 
 Fabrication de l'appli : `npm run android`, puis `gradlew assembleDebug` dans `android/` avec le Java d'Android Studio. Téléphone virtuel : `Medium_Phone_API_36.1`.
 
@@ -308,7 +329,26 @@ Chaque étape produit quelque chose de visible à l'écran. Une étape à la foi
 | 13 | Réglages | Écran Réglages regroupant les options, dont l'entrée de la sauvegarde (P2). |
 | 14 | Sauvegarde Google Drive | Après connexion Google : « dernière sauvegarde : à l'instant », fichier visible dans le Drive ; restauration sur un autre téléphone (D31). |
 
-**Bloc D — Version ordinateur**
+**Bloc E — Refonte des écrans** (plan validé par Kinder le 2026-11-18 ; démarre à la clôture du bloc C, D56)
+
+Contraintes de toute la mission : aucune dépendance ajoutée ; aucun nouveau module (19 sur 20, la fiche commune va dans `Commun.jsx`) ; aucune modification de la base de données ; hors ligne inchangé.
+
+| # | Étape | Ce que Kinder verra |
+|---|---|---|
+| E0 | Banc d'essai et démonstration | Une commande lance les tests et écrit un résumé ; l'appli s'ouvre en mode démonstration avec des données d'essai complètes. |
+| E1 | Ligne unique (D48) | Les opérations, une par ligne, note en titre, groupées par jour avec le total du jour. |
+| E2 | Fiche d'une opération (D47, D49) | Toucher une opération ouvre sa fiche ; Modifier, Dupliquer, Supprimer en bas. |
+| E3 | Haut de l'onglet Opérations (D50) | Recherche et filtres en icônes, résumé sur une ligne ; au moins 4 opérations visibles sans défiler. |
+| E4 | Budgets, liste et fiche (D51) | Le reste à dépenser en avant ; la fiche d'un budget avec ses dépenses et ses mois précédents. |
+| E5 | Budgets et prévu (D52) — **opus** (calcul d'argent : période de budget qui démarre un autre jour que le 1er, sur deux mois du calendrier, sans contredire D41) | La partie « Prévu » avec les récurrentes à valider, la barre en deux teintes. |
+| E6 | Accueil (D53) | « À valider · N » regroupé avant les budgets ; budgets avec le reste. |
+| E7 | Comptes (D54) | Total en grand, bloc « Gérer », fiche d'un compte ; « compte » partout. |
+| E8 | Récurrentes (D54) | Dépenses / Revenus avec totaux, état du mois ; fiche avec Valider. |
+| E9 | Prêts (D54) | En cours / Remboursés ; fiche avec remboursements. |
+| E10 | Alignement des autres écrans (D55) | Catégories, Réglages, Graphiques et formulaires avec le même en-tête, la même flèche, les mêmes boutons. |
+| E11 | Clôture | Vérification par une autre IA en mode démonstration, fusion avec l'accord de Kinder, test final de Kinder avec capture. |
+
+**Bloc D — Version ordinateur** (en attente (2), après le bloc E)
 
 | # | Étape | Ce que Kinder verra |
 |---|---|---|
@@ -447,7 +487,93 @@ P1 (nom) se tranche avant la publication.
 6. Accueil : le camembert du mois et la courbe du solde apparaissent en bas.
 7. Réglages : « Exporter au format Money Lover » ouvre le menu Partager avec un fichier CSV ; réimporté dans Moneta, il n'ajoute aucune opération.
 
+**Correction du plantage de « À venir » (D56, avant la clôture du bloc C)** — N2 (navigation qu'aucun test simulé ne joue)
+1. Avec au moins une récurrente à valider, Opérations › « À venir » s'affiche (liste, récurrentes à valider, solde prévu), sans écran blanc ; avec un compte filtré, seules ses récurrentes apparaissent.
+
 → **Point de contrôle Kinder** : vérification du bloc C sur le téléphone.
+
+### Bloc E — Refonte des écrans (critères validés par Kinder le 2026-11-18)
+
+> Niveaux de preuve (R34) : **N1** = tests de calcul ou écrans rendus sans navigateur (outil de rendu de React, déjà présent, aucune dépendance) ; **N2** = appli ouverte dans le navigateur (serveur local), raison tirée de la liste fermée : « une navigation qu'aucun test simulé ne joue » (le projet n'a aucun test qui touche l'écran).
+
+**E0 — Banc d'essai et démonstration**
+1. (N1) Une seule commande lance les tests et écrit un résumé d'une page : date, version du code, niveau, vert ou rouge par test, durées.
+2. (N2) Le mode démonstration ouvre l'appli avec 2 comptes, 3 mois d'opérations, 2 budgets dont un dépassé, 2 récurrentes à valider, une dépense datée plus tard et 2 prêts dont un remboursé ; ces données ne touchent jamais les vraies données.
+
+**E1 — Ligne unique (D48)**
+1. (N1) Titre = note, sinon la catégorie ; dessous = catégorie, sinon la catégorie parente ; montant à droite, rouge (sortie) ou vert (entrée) ; pas de compte sur la ligne.
+2. (N1) Chaque titre de jour porte le total du jour, égal à la somme de ses opérations ; les opérations d'un jour forment un seul bloc.
+3. (N1) Transfert : titre = note, sinon « Transfert » ; dessous « Compte A → Compte B » ; montant ni rouge ni vert.
+4. (N2) La même ligne apparaît dans Opérations, sur l'Accueil, dans la fiche d'un budget et dans le détail des graphiques.
+
+**E2 — Fiche d'une opération (D47, D49)**
+1. (N2) Toucher une opération ouvre sa fiche en page pleine : dessin, titre, montant en grand, type et date, puis catégorie, compte, note, budget.
+2. (N2) Modifier ouvre le formulaire rempli ; Dupliquer ouvre une création pré-remplie ; Supprimer demande confirmation, puis l'opération disparaît et le solde change.
+3. (N2) La flèche ← et le bouton retour du téléphone ramènent à la liste, sur le même mois.
+4. (N1) La ligne « Budget » de la fiche permet d'exclure l'opération de ce budget, puis de l'y remettre ; le dépensé du budget change d'autant.
+5. (N2) L'appui long ouvre toujours le menu Modifier / Dupliquer / Supprimer.
+
+**E3 — Haut de l'onglet Opérations (D50)**
+1. (N2) Sur un écran de téléphone (390 × 800), au moins 4 opérations sont visibles sans défiler.
+2. (N2) La loupe ouvre la recherche, qui porte sur toutes les opérations.
+3. (N2) L'icône des filtres permet de choisir compte et catégorie ; un filtre actif affiche une étiquette avec × ; toucher × l'efface.
+4. (N1) Les pastilles entrées, sorties et variation donnent les mêmes montants qu'avant.
+
+**E4 — Budgets, liste et fiche (D51)**
+1. (N1) Chaque carte affiche le reste = maximum − dépensé ; en cas de dépassement, « Dépassé de X € » en rouge et barre rouge.
+2. (N2) Toucher un budget ouvre sa fiche : reste en grand, barre, période, dépenses en ligne unique, mois précédents en petites barres (rouges si dépassés), Modifier et Supprimer (avec confirmation).
+3. (N2) Toucher une dépense de la fiche du budget ouvre la fiche de l'opération.
+4. (N1) Une dépense exclue reste dans la liste, grisée et barrée, et n'est pas comptée.
+
+**E5 — Budgets et prévu (D52)** — étape **opus** (calcul d'argent : une période qui démarre le 15 couvre deux mois du calendrier ; ne pas contredire D41)
+1. (N1) Le dépensé ne compte que les dépenses datées jusqu'à aujourd'hui ; une dépense datée demain n'y est pas.
+2. (N1) Prévu = dépenses datées plus tard dans la période + récurrentes non validées des catégories du budget dont la date prévue tombe dans la période ; vérifié aussi avec un budget qui démarre le 15.
+3. (N2) La fiche affiche « Prévu d'ici la fin de la période » sur fond vert doux, avec son total, la barre en deux teintes et « Après le prévu : X € restants ».
+4. (N2) Valider une récurrente depuis la fiche demande la date réelle ; elle passe ensuite dans les dépenses, le reste baisse, et elle disparaît de « À valider » sur l'Accueil.
+
+**E6 — Accueil (D53)**
+1. (N2) De haut en bas : compte, solde, carte du mois en pastilles, « À valider · N » (une carte, une ligne et un bouton par récurrente), budgets avec leur reste, opérations du jour, graphiques.
+2. (N2) Valider depuis l'Accueil fonctionne comme avant (D10) ; sans rien à valider, la carte n'apparaît pas.
+3. (N2) Les liens « Tout voir › » ouvrent l'onglet correspondant.
+
+**E7 — Comptes (D54)**
+1. (N2) Total en grand ; même dessin de porte-monnaie pour tous les comptes ; bloc « Gérer » avec des résumés exacts (récurrentes à valider, « On me doit »).
+2. (N2) La fiche d'un compte montre son solde et son solde de départ ; « Voir ses opérations › » ouvre Opérations filtré sur ce compte.
+3. (N1) La suppression d'un compte qui contient des opérations reste refusée (D22).
+4. (N1) Le mot « porte-monnaie » n'apparaît plus dans aucun texte de l'appli.
+
+**E8 — Récurrentes (D54)**
+1. (N2) Liste rangée en Dépenses et Revenus, chacun avec son total par mois ; chaque ligne indique « à valider » ou « validée ».
+2. (N2) La fiche montre Valider si elle est à valider, sinon « Validée le … » ; Modifier et Supprimer en bas.
+
+**E9 — Prêts (D54)**
+1. (N2) « On me doit » en grand ; prêts rangés en « En cours » et « Remboursés ».
+2. (N2) La fiche d'un prêt montre le reste dû, la mention « pour mémoire » ou « compté dans mon solde », les remboursements et « Ajouter un remboursement ».
+
+**E10 — Alignement des autres écrans (D55)**
+1. (N2) Catégories, Réglages, Graphiques, Récurrentes et Prêts ont le même en-tête avec la même flèche ←.
+2. (N2) Tous les formulaires ont le même titre, le même bouton Enregistrer et Supprimer en lien rouge.
+3. (N1) Aucune fonction n'a disparu : tous les tests existants passent.
+
+**E11 — Clôture** : selon `3_CHANTIER.md` §6 (N3, vérification par une autre IA en mode démonstration, documents, envoi, fusion sur accord écrit de Kinder, test final de Kinder avec capture).
+
+**Critères de fin de mission du bloc E** (R9, une capture chacun, mode démonstration, écran de téléphone 390 × 800)
+
+| # | Ce que la capture montre |
+|---|---|
+| F1 | Opérations, « Ce mois-ci » : au moins 4 opérations avec la nouvelle ligne, sans défiler. |
+| F2 | La fiche de l'opération « Carrefour » avec Modifier, Dupliquer et Supprimer. |
+| F3 | L'onglet Budgets : un reste en vert et un budget « Dépassé de… » en rouge. |
+| F4 | La fiche d'un budget avec sa partie « Prévu » et la barre en deux teintes. |
+| F5 | L'Accueil : « À valider · 2 » regroupé, placé avant les budgets. |
+| F6 | Les Comptes avec le bloc « Gérer ». |
+| F7 | La fiche d'une récurrente à valider, avec son bouton Valider. |
+| F8 | La fiche d'un prêt, avec ses remboursements. |
+| F9 | L'onglet « À venir » ouvert, sans écran blanc. |
+| F10 | L'écran Catégories avec la nouvelle flèche ←. |
+| F11 | Le détail d'une part du camembert, avec la nouvelle ligne. |
+
+→ **Point de contrôle Kinder** : test final avec capture (R11).
 
 ### Bloc D — Version ordinateur
 

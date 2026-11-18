@@ -10,7 +10,7 @@ import { decaler, decalerMois, jourPrevu, moisDe } from '../src/logique/dates.js
 
 const SQL = await initSqlJs();
 const source = readFileSync(new URL('../src/ui/Operations.jsx', import.meta.url), 'utf8');
-const texte = source.match(/function recurrentesPrevues[\s\S]*?\n}\n/)[0];
+const texte = source.match(/function recurrentesPrevues[\s\S]*?\r?\n}\r?\n/)[0];
 const recurrentesPrevues = new Function(
   'decaler', 'decalerMois', 'moisDe', 'jourPrevu', 'recurrentesAValider',
   `${texte}; return recurrentesPrevues;`,
